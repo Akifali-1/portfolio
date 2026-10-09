@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" fill="none">
+  <rect width="1200" height="630" fill="#050505"/>
+  <path opacity=".25" d="M0 465C180 385 300 535 510 435S820 240 1200 315" stroke="#4D7CFF"/>
+  <path opacity=".16" d="M0 495C200 430 355 570 580 450S900 275 1200 348" stroke="#7C5CFF"/>
+  <g fill="#F3F3F0" font-family="Arial, sans-serif">
+    <text x="70" y="120" font-size="18" letter-spacing="5" fill="#8C8C88">AKIF.SYSTEM / 2026</text>
+    <text x="65" y="350" font-size="205" font-weight="700" letter-spacing="-11">AKIF</text>
+    <text x="75" y="420" font-size="22" letter-spacing="7">ENGINEER  /  RESEARCHER  /  BUILDER</text>
+  </g>
+  <circle cx="1080" cy="112" r="5" fill="#4D7CFF"/>
+</svg>
