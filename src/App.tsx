@@ -5,8 +5,18 @@ import { CustomCursor } from './components/CustomCursor'
 import { Hero } from './components/Hero'
 import { Navigation } from './components/Navigation'
 import { ProjectModal } from './components/ProjectModal'
-import { AboutSection, ClientSection, ContactSection, LabSection, ManifestoSection, ResearchSection, SignalSection, SiteFooter, WorkSection } from './sections/PortfolioSections'
-import { type Project } from './data'
+import {
+  AboutSection,
+  ClientSection,
+  ContactSection,
+  LabSection,
+  ManifestoSection,
+  ResearchSection,
+  SignalSection,
+  SiteFooter,
+  WorkSection,
+} from './sections/PortfolioSections'
+import { clientProjects, projects, type Project } from './data'
 import { useReducedMotion } from './hooks'
 import './styles.css'
 import './project-preview.css'
@@ -23,9 +33,25 @@ function App() {
   })
   const [commandOpen, setCommandOpen] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null)
+  const [selectedProject, setSelectedProject] = useState<Project | null>(() => {
+    const hash = window.location.hash
+    if (hash.startsWith('#project=')) {
+      const id = hash.replace('#project=', '')
+      return [...projects, ...clientProjects].find((p) => p.id === id) ?? null
+    }
+    return null
+  })
   const [scrollProgress, setScrollProgress] = useState(0)
   const [scrolled, setScrolled] = useState(false)
+
+  const handleSelectProject = useCallback((project: Project | null) => {
+    setSelectedProject(project)
+    if (project) {
+      window.history.replaceState(null, '', `#project=${project.id}`)
+    } else if (window.location.hash.startsWith('#project=')) {
+      window.history.replaceState(null, '', window.location.pathname)
+    }
+  }, [])
 
   const finishBoot = useCallback(() => {
     try {
@@ -46,14 +72,18 @@ function App() {
       return
     }
 
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('is-revealed')
-          observer.unobserve(entry.target)
-        }
-      })
-    }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' })
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-revealed')
+            observer.unobserve(entry.target)
+          }
+        })
+      },
+      { threshold: 0.12, rootMargin: '0px 0px -8% 0px' },
+    )
+
     revealItems.forEach((item) => observer.observe(item))
 
     let frame = 0
@@ -68,9 +98,11 @@ function App() {
       })
       frame = 0
     }
+
     const queueParallax = () => {
       if (!frame) frame = window.requestAnimationFrame(updateParallax)
     }
+
     queueParallax()
     window.addEventListener('scroll', queueParallax, { passive: true })
     window.addEventListener('resize', queueParallax)
@@ -107,32 +139,49 @@ function App() {
         setMobileOpen(false)
       }
       if (event.key === 'Escape') {
-        setSelectedProject(null)
+        handleSelectProject(null)
         setMobileOpen(false)
       }
     }
     window.addEventListener('keydown', handleKey)
     return () => window.removeEventListener('keydown', handleKey)
-  }, [])
+  }, [handleSelectProject])
 
   return (
     <>
       {!booted && <BootScreen onComplete={finishBoot} reducedMotion={reducedMotion} />}
       <CustomCursor />
-      <Navigation onCommand={() => { setCommandOpen(true); setMobileOpen(false) }} scrolled={scrolled} mobileOpen={mobileOpen} onToggleMobile={() => setMobileOpen((value) => !value)} onCloseMobile={() => setMobileOpen(false)} />
-      <CommandPalette open={commandOpen} onClose={() => setCommandOpen(false)} />
+      <Navigation
+        onCommand={() => {
+          setCommandOpen(true)
+          setMobileOpen(false)
+        }}
+        scrolled={scrolled}
+        mobileOpen={mobileOpen}
+        onToggleMobile={() => setMobileOpen((value) => !value)}
+        onCloseMobile={() => setMobileOpen(false)}
+      />
+      <CommandPalette
+        open={commandOpen}
+        onClose={() => setCommandOpen(false)}
+        onSelectProject={handleSelectProject}
+      />
       <main className="site-main">
         <Hero scrollProgress={scrollProgress} reducedMotion={reducedMotion} />
         <ManifestoSection />
-        <WorkSection onSelect={setSelectedProject} reducedMotion={reducedMotion} />
-        <ClientSection onSelect={setSelectedProject} />
+        <WorkSection onSelect={handleSelectProject} reducedMotion={reducedMotion} />
+        <ClientSection onSelect={handleSelectProject} />
         <ResearchSection />
-        <LabSection onSelect={setSelectedProject} />
+        <LabSection onSelect={handleSelectProject} />
         <SignalSection />
         <AboutSection />
         <ContactSection />
       </main>
-      <ProjectModal project={selectedProject} onClose={() => setSelectedProject(null)} />
+      <ProjectModal
+        project={selectedProject}
+        onClose={() => handleSelectProject(null)}
+        onSelect={handleSelectProject}
+      />
       <SiteFooter />
     </>
   )

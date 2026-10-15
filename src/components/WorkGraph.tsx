@@ -2,7 +2,15 @@ import { useState } from 'react'
 import type { Project } from '../data'
 import { clientProjects, projects } from '../data'
 
-type GraphNode = { id: string; x: number; y: number; label: string; project?: string; central?: boolean; clientGroup?: boolean }
+type GraphNode = {
+  id: string
+  x: number
+  y: number
+  label: string
+  project?: string
+  central?: boolean
+  clientGroup?: boolean
+}
 
 const systemGraphNodes: GraphNode[] = [
   { id: 'core', x: 50, y: 50, label: 'AKIF', central: true },
@@ -23,12 +31,22 @@ const clientGraphNodes: GraphNode[] = [
 ]
 
 const systemGraphEdges: [string, string][] = [
-  ['core', 'trace'], ['core', 'adaptive'], ['core', 'medgraph'], ['core', 'fraud'], ['core', 'threat'],
-  ['trace', 'graph'], ['adaptive', 'graph'], ['medgraph', 'graph'], ['fraud', 'security'], ['threat', 'security'],
+  ['core', 'trace'],
+  ['core', 'adaptive'],
+  ['core', 'medgraph'],
+  ['core', 'fraud'],
+  ['core', 'threat'],
+  ['trace', 'graph'],
+  ['adaptive', 'graph'],
+  ['medgraph', 'graph'],
+  ['fraud', 'security'],
+  ['threat', 'security'],
 ]
 
 const clientGraphEdges: [string, string][] = [
-  ['core', 'client-work'], ['client-work', 'buildcraft'], ['client-work', 'bright-clinic'],
+  ['core', 'client-work'],
+  ['client-work', 'buildcraft'],
+  ['client-work', 'bright-clinic'],
 ]
 
 function curvePath(start: GraphNode, end: GraphNode, index: number) {
@@ -43,15 +61,25 @@ function curvePath(start: GraphNode, end: GraphNode, index: number) {
 type WorkGraphProps = {
   onSelect: (project: Project) => void
   reducedMotion: boolean
+  highlightedProjectId?: string | null
 }
 
-export function WorkGraph({ onSelect, reducedMotion }: WorkGraphProps) {
+export function WorkGraph({ onSelect, reducedMotion, highlightedProjectId }: WorkGraphProps) {
   const [mode, setMode] = useState<'systems' | 'client'>('systems')
   const [active, setActive] = useState('core')
+
   const graphNodes = mode === 'systems' ? systemGraphNodes : clientGraphNodes
   const graphEdges = mode === 'systems' ? systemGraphEdges : clientGraphEdges
-  const activeProject = graphNodes.find((node) => node.id === active)?.project
   const allProjects = [...projects, ...clientProjects]
+
+  const externalNode = highlightedProjectId
+    ? graphNodes.find((n) => n.project === highlightedProjectId)?.id
+    : undefined
+  const effectiveActive = externalNode ?? active
+  const activeNodeObj = graphNodes.find((node) => node.id === effectiveActive)
+  const activeProject = activeNodeObj?.project
+  const focusedProjectObj = activeProject ? allProjects.find((p) => p.id === activeProject) : undefined
+
   const changeMode = (nextMode: 'systems' | 'client') => {
     setMode(nextMode)
     setActive('core')
@@ -61,31 +89,114 @@ export function WorkGraph({ onSelect, reducedMotion }: WorkGraphProps) {
     <div className="work-graph-wrap" data-reveal="rise">
       <div className="graph-toolbar">
         <div className="graph-mode-switch" role="tablist" aria-label="Work graph view">
-          <button type="button" className={mode === 'systems' ? 'is-active' : ''} onClick={() => changeMode('systems')} role="tab" aria-selected={mode === 'systems'}>SYSTEMS / RESEARCH</button>
-          <button type="button" className={mode === 'client' ? 'is-active' : ''} onClick={() => changeMode('client')} role="tab" aria-selected={mode === 'client'}>CLIENT WEB</button>
+          <button
+            type="button"
+            className={mode === 'systems' ? 'is-active' : ''}
+            onClick={() => changeMode('systems')}
+            role="tab"
+            aria-selected={mode === 'systems'}
+          >
+            SYSTEMS / RESEARCH
+          </button>
+          <button
+            type="button"
+            className={mode === 'client' ? 'is-active' : ''}
+            onClick={() => changeMode('client')}
+            role="tab"
+            aria-selected={mode === 'client'}
+          >
+            CLIENT WEB
+          </button>
         </div>
-        <div className="graph-legend">{mode === 'systems' ? <><span><i className="legend-dot blue" /> PRODUCT</span><span><i className="legend-dot violet" /> RESEARCH</span></> : <span><i className="legend-dot client" /> CLIENT WEB</span>}<span><i className="legend-dot white" /> CORE</span></div>
+        <div className="graph-legend">
+          {mode === 'systems' ? (
+            <>
+              <span>
+                <i className="legend-dot blue" /> PRODUCT
+              </span>
+              <span>
+                <i className="legend-dot violet" /> RESEARCH
+              </span>
+            </>
+          ) : (
+            <span>
+              <i className="legend-dot client" /> CLIENT WEB
+            </span>
+          )}
+          <span>
+            <i className="legend-dot white" /> CORE
+          </span>
+        </div>
       </div>
       <div className="work-graph" onMouseLeave={() => setActive('core')}>
         <svg className="graph-lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
           {graphEdges.map(([from, to], index) => {
             const start = graphNodes.find((node) => node.id === from)!
             const end = graphNodes.find((node) => node.id === to)!
-            const isActive = active === from || active === to || active === 'core'
+            const isActive = effectiveActive === from || effectiveActive === to || effectiveActive === 'core'
             const path = curvePath(start, end, index)
-            return <g key={`${from}-${to}`}><path d={path} className={isActive ? 'is-active' : 'is-muted'} />{!reducedMotion && index % 2 === 0 && <circle r=".42" className={isActive ? 'graph-particle is-active' : 'graph-particle'}><animateMotion dur={`${4.5 + index * .35}s`} begin={`${index * .28}s`} repeatCount="indefinite" path={path} /></circle>}</g>
+            return (
+              <g key={`${from}-${to}`}>
+                <path d={path} className={isActive ? 'is-active' : 'is-muted'} />
+                {!reducedMotion && index % 2 === 0 && (
+                  <circle r=".42" className={isActive ? 'graph-particle is-active' : 'graph-particle'}>
+                    <animateMotion
+                      dur={`${4.5 + index * 0.35}s`}
+                      begin={`${index * 0.28}s`}
+                      repeatCount="indefinite"
+                      path={path}
+                    />
+                  </circle>
+                )}
+              </g>
+            )
           })}
         </svg>
-        <div className="graph-orbit orbit-one" /><div className="graph-orbit orbit-two" />
+        <div className="graph-orbit orbit-one" />
+        <div className="graph-orbit orbit-two" />
         {graphNodes.map((node) => {
           const project = node.project ? allProjects.find((item) => item.id === node.project) : undefined
-          return <button key={node.id} type="button" className={`graph-node ${node.central ? 'is-central' : ''} ${node.clientGroup ? 'is-client-group' : ''} ${project?.kind === 'client' ? 'is-client' : ''} ${active === node.id ? 'is-selected' : ''} ${activeProject && activeProject !== node.project && node.id !== 'core' ? 'is-dimmed' : ''}`} style={{ left: `${node.x}%`, top: `${node.y}%` }} onMouseEnter={() => setActive(node.id)} onFocus={() => setActive(node.id)} onClick={() => project && onSelect(project)} aria-label={`${node.label}${project ? ', open project' : ''}`} data-cursor={project ? 'OPEN' : 'NODE'}>
-            <span className="node-pulse" /><span className="node-core" /><span className="node-label">{node.label}</span>
-          </button>
+          return (
+            <button
+              key={node.id}
+              type="button"
+              className={`graph-node ${node.central ? 'is-central' : ''} ${node.clientGroup ? 'is-client-group' : ''} ${
+                project?.kind === 'client' ? 'is-client' : ''
+              } ${effectiveActive === node.id ? 'is-selected' : ''} ${
+                activeProject && activeProject !== node.project && node.id !== 'core' ? 'is-dimmed' : ''
+              }`}
+              style={{ left: `${node.x}%`, top: `${node.y}%` }}
+              onMouseEnter={() => {
+                setActive(node.id)
+              }}
+              onFocus={() => setActive(node.id)}
+              onClick={() => {
+                if (project) {
+                  onSelect(project)
+                }
+              }}
+              aria-label={`${node.label}${project ? ', open project' : ''}`}
+              data-cursor={project ? 'OPEN' : 'NODE'}
+            >
+              <span className="node-pulse" />
+              <span className="node-core" />
+              <span className="node-label">{node.label}</span>
+            </button>
+          )
         })}
-        <div className="graph-axis axis-x">SYSTEM RELATION / X</div><div className="graph-axis axis-y">IDEA DENSITY / Y</div>
+        <div className="graph-axis axis-x">SYSTEM RELATION / X</div>
+        <div className="graph-axis axis-y">IDEA DENSITY / Y</div>
       </div>
-      <div className="graph-caption"><span className="mono-label">HOVER A NODE TO FOCUS THE SYSTEM</span><span className="graph-caption-detail">{active === 'core' ? `SELECTED / ${mode === 'systems' ? 'SYSTEMS' : 'CLIENT WEB'}` : `FOCUS / ${graphNodes.find((node) => node.id === active)?.label}`}</span></div>
+      <div className="graph-caption">
+        <span className="mono-label">
+          {focusedProjectObj ? `[ ${focusedProjectObj.status} ] // ${focusedProjectObj.signal}` : 'HOVER A NODE TO FOCUS THE SYSTEM'}
+        </span>
+        <span className="graph-caption-detail">
+          {effectiveActive === 'core'
+            ? `SELECTED / ${mode === 'systems' ? 'SYSTEMS' : 'CLIENT WEB'}`
+            : `FOCUS / ${activeNodeObj?.label} ${focusedProjectObj ? '— CLICK TO INSPECT' : ''}`}
+        </span>
+      </div>
     </div>
   )
 }
