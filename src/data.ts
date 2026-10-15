@@ -26,7 +26,7 @@ export const siteConfig = {
   github: 'https://github.com/Akifali-1/portfolio',
   linkedin: 'https://www.linkedin.com/in/akifali1001',
   tracemint: 'https://tracemint.tech',
-  domain: 'https://akif.system',
+  domain: 'https://akifali.dev',
 } as const
 
 export const projects: Project[] = [

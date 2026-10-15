@@ -8,7 +8,7 @@
           "value": "www.akifali.dev"
         }
       ],
-      "destination": "https://akif.system/:path*",
+      "destination": "https://akifali.dev/:path*",
       "permanent": true
     },
     {
@@ -16,10 +16,10 @@
       "has": [
         {
           "type": "host",
-          "value": "akifali.dev"
+          "value": "akif.system"
         }
       ],
-      "destination": "https://akif.system/:path*",
+      "destination": "https://akifali.dev/:path*",
       "permanent": true
     },
     {
@@ -30,8 +30,14 @@
           "value": "www.akif.system"
         }
       ],
-      "destination": "https://akif.system/:path*",
+      "destination": "https://akifali.dev/:path*",
       "permanent": true
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
