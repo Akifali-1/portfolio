@@ -1,6 +1,6 @@
 import { useEffect, useState, type CSSProperties } from 'react'
 import { ArrowRight } from 'lucide-react'
-import { SystemCanvas } from './SystemCanvas'
+import { BlackHoleCanvas } from './BlackHoleCanvas'
 import { siteConfig } from '../data'
 
 type HeroProps = {
@@ -32,7 +32,7 @@ export function Hero({ scrollProgress, reducedMotion }: HeroProps) {
 
   return (
     <section className="hero" id="top" style={heroStyle}>
-      <SystemCanvas reducedMotion={reducedMotion} />
+      <BlackHoleCanvas reducedMotion={reducedMotion} />
       <div className="hero-noise" />
       <div className="hero-grid" aria-hidden="true" />
       <div className="hero-intro">
