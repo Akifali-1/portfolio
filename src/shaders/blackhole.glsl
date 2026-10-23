@@ -29,6 +29,7 @@ uniform bool doppler_shift;
 uniform bool lorentz_transform;
 uniform bool beaming;
 uniform float disk_intensity;
+uniform bool cool_palette;
 
 uniform sampler2D bg_texture;
 uniform sampler2D star_texture;
@@ -68,39 +69,51 @@ vec3 lorentz_transform_velocity(vec3 u, vec3 v){
   return u;
 }
 
-vec3 temp_to_color(float temp_kelvin){
+vec3 ice_silver_palette(float luminance){
+  // Preserve the disk texture's detail, but remap its warm orange/red values
+  // into the portfolio's midnight, ice-blue, and silver visual language.
+  float value = clamp(pow(luminance, 0.84), 0.0, 1.0);
+  vec3 midnight = vec3(0.025, 0.065, 0.16);
+  vec3 blue = vec3(0.12, 0.34, 0.78);
+  vec3 ice = vec3(0.56, 0.82, 1.0);
+  vec3 silver = vec3(0.94, 0.98, 1.0);
+
+  vec3 color = mix(midnight, blue, smoothstep(0.0, 0.42, value));
+  color = mix(color, ice, smoothstep(0.28, 0.74, value));
+  color = mix(color, silver, smoothstep(0.62, 0.98, value));
+  return color;
+}
+
+vec3 warm_temp_to_color(float temp_kelvin){
   vec3 color;
-  // 1k ~ 40k rescale by dividing 100
   temp_kelvin = clamp(temp_kelvin, 1000.0, 40000.0) / 100.0;
   if (temp_kelvin <= 66.0){
     color.r = 255.0;
-    color.g = temp_kelvin;
-    color.g = 99.4708025861 * log(color.g) - 161.1195681661;
-    if (color.g < 0.0) color.g = 0.0;
-    if (color.g > 255.0)  color.g = 255.0;
+    color.g = 99.4708025861 * log(max(temp_kelvin, 1.0)) - 161.1195681661;
+    color.b = temp_kelvin <= 19.0 ? 0.0 : 138.5177312231 * log(max(temp_kelvin - 10.0, 1.0)) - 305.0447927307;
   } else {
-    color.r = temp_kelvin - 60.0;
-    if (color.r < 0.0) color.r = 0.0;
-    color.r = 329.698727446 * pow(color.r, -0.1332047592);
-    if (color.r < 0.0) color.r = 0.0;
-    if (color.g > 255.0) color.r = 255.0;
-    color.g = temp_kelvin - 60.0;
-    if (color.g < 0.0) color.g = 0.0;
-    color.g = 288.1221695283 * pow(color.g, -0.0755148492);
-    if (color.g > 255.0)  color.g = 255.0;  
-  }
-  if (temp_kelvin >= 66.0){
+    color.r = 329.698727446 * pow(max(temp_kelvin - 60.0, 0.0), -0.1332047592);
+    color.g = 288.122169528 * pow(max(temp_kelvin - 60.0, 0.0), -0.0755148492);
     color.b = 255.0;
-  } else if (temp_kelvin <= 19.0){
-    color.b = 0.0;
-  } else {
-    color.b = temp_kelvin - 10.0;
-    color.b = 138.5177312231 * log(color.b) - 305.0447927307;
-    if (color.b < 0.0) color.b = 0.0;
-    if (color.b > 255.0) color.b = 255.0;
   }
-  color /= 255.0; // make it 0..1
-  return color;
+  return clamp(color, 0.0, 255.0) / 255.0;
+}
+
+vec3 temp_to_color(float temp_kelvin){
+  float temperature = clamp((temp_kelvin - 1000.0) / 39000.0, 0.0, 1.0);
+  // Keep the blackbody-style temperature progression, but grade it cool so
+  // stars and the procedural fallback remain blue-white instead of amber.
+  return cool_palette ? ice_silver_palette(mix(0.18, 1.0, temperature)) : warm_temp_to_color(temp_kelvin);
+}
+
+vec3 cool_background(vec3 source){
+  float luminance = dot(source, vec3(0.2126, 0.7152, 0.0722));
+  float warmth = smoothstep(0.0, 0.16, max(source.r - max(source.g, source.b), 0.0));
+  vec3 deep_blue = vec3(luminance * 0.18, luminance * 0.34, luminance * 0.62)
+    + vec3(0.003, 0.010, 0.028) * smoothstep(0.02, 0.45, luminance);
+  vec3 cool_source = mix(source * vec3(0.58, 0.78, 1.08), deep_blue, warmth * 0.7);
+  float tint = clamp(0.2 + warmth * 0.52, 0.0, 0.62);
+  return mix(source, cool_source, tint);
 }
 
 // https://gist.github.com/fieldOfView/5106319
@@ -202,6 +215,10 @@ void main()	{
             vec4 disk_color = texture2D(disk_texture, tex_coord) / (ray_doppler_factor * disk_doppler_factor);
             disk_color.rgb *= disk_intensity;
             float disk_alpha = clamp(dot(disk_color,disk_color)/4.5,0.0,1.0);
+            if (cool_palette) {
+              float disk_luminance = dot(disk_color.rgb, vec3(0.2126, 0.7152, 0.0722));
+              disk_color.rgb = ice_silver_palette(disk_luminance);
+            }
 
             if (beaming)
               disk_alpha /= pow(disk_doppler_factor,3.0);
@@ -255,7 +272,15 @@ void main()	{
       color += vec4(temp_to_color(star_temperature),1.0) * star_color.g * left_star_fade;
     }
 
-    color += texture2D(bg_texture, tex_coord) * 0.25;
+    vec3 background_color = texture2D(bg_texture, tex_coord).rgb;
+    vec2 screen_uv = gl_FragCoord.xy / resolution.xy;
+    vec2 halo_delta = (screen_uv - vec2(resolution.x > 900.0 ? 0.74 : 0.5, 0.42)) * vec2(resolution.x / resolution.y, 1.0);
+    if (cool_palette) {
+      background_color = cool_background(background_color);
+      float blue_halo = 1.0 - smoothstep(0.16, 0.52, length(halo_delta));
+      background_color += vec3(0.006, 0.018, 0.045) * blue_halo;
+    }
+    color += vec4(background_color, 1.0) * 0.25;
 // gl_FragColor = color;
   }
   // Keep the starting frame untouched while compressing only pixels that

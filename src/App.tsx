@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { BootScreen } from './components/BootScreen'
 import { CommandPalette } from './components/CommandPalette'
 import { CustomCursor } from './components/CustomCursor'
+import { CollapseSurface, type CollapseSurfaceHandle } from './components/CollapseSurface'
 import { Hero } from './components/Hero'
 import { Navigation } from './components/Navigation'
 import { ProjectModal } from './components/ProjectModal'
@@ -18,12 +19,29 @@ import {
 } from './sections/PortfolioSections'
 import { clientProjects, projects, type Project } from './data'
 import { useReducedMotion } from './hooks'
+import { usePortfolioCollapse } from './hooks/usePortfolioCollapse'
 import './styles.css'
 import './project-preview.css'
 import './ui-overrides.css'
+import './collapse.css'
 
 function App() {
   const reducedMotion = useReducedMotion()
+  const portfolioShellRef = useRef<HTMLDivElement>(null)
+  const blackHoleTargetRef = useRef<HTMLSpanElement>(null)
+  const collapseSurfaceRef = useRef<CollapseSurfaceHandle>(null)
+  const collapseBlackoutRef = useRef<HTMLDivElement>(null)
+  const voidScreenRef = useRef<HTMLDivElement>(null)
+  const restoreFocusRef = useRef<HTMLButtonElement>(null)
+  const { state: collapseState, startCollapse, restore } = usePortfolioCollapse({
+    shellRef: portfolioShellRef,
+    blackHoleTargetRef,
+    surfaceRef: collapseSurfaceRef,
+    blackoutRef: collapseBlackoutRef,
+    voidScreenRef,
+    restoreFocusRef,
+    reducedMotion,
+  })
   const [booted, setBooted] = useState(() => {
     try {
       return window.sessionStorage.getItem('akif-system-initialized') === '1'
@@ -41,7 +59,6 @@ function App() {
     }
     return null
   })
-  const [scrollProgress, setScrollProgress] = useState(0)
   const [scrolled, setScrolled] = useState(false)
 
   const handleSelectProject = useCallback((project: Project | null) => {
@@ -117,9 +134,8 @@ function App() {
 
   useEffect(() => {
     const update = () => {
-      const heroHeight = Math.max(window.innerHeight, 700)
-      setScrollProgress(Math.min(Math.max(window.scrollY / (heroHeight * 0.9), 0), 1))
-      setScrolled(window.scrollY > 40)
+      const next = window.scrollY > 40
+      setScrolled((previous) => (previous === next ? previous : next))
     }
     update()
     window.addEventListener('scroll', update, { passive: true })
@@ -150,39 +166,74 @@ function App() {
   return (
     <>
       {!booted && <BootScreen onComplete={finishBoot} reducedMotion={reducedMotion} />}
-      <CustomCursor />
-      <Navigation
-        onCommand={() => {
-          setCommandOpen(true)
-          setMobileOpen(false)
-        }}
-        scrolled={scrolled}
-        mobileOpen={mobileOpen}
-        onToggleMobile={() => setMobileOpen((value) => !value)}
-        onCloseMobile={() => setMobileOpen(false)}
-      />
-      <CommandPalette
-        open={commandOpen}
-        onClose={() => setCommandOpen(false)}
-        onSelectProject={handleSelectProject}
-      />
-      <main className="site-main">
-        <Hero scrollProgress={scrollProgress} reducedMotion={reducedMotion} />
-        <ManifestoSection />
-        <WorkSection onSelect={handleSelectProject} reducedMotion={reducedMotion} />
-        <ClientSection onSelect={handleSelectProject} />
-        <ResearchSection />
-        <LabSection onSelect={handleSelectProject} />
-        <SignalSection />
-        <AboutSection />
-        <ContactSection />
-      </main>
-      <ProjectModal
-        project={selectedProject}
-        onClose={() => handleSelectProject(null)}
-        onSelect={handleSelectProject}
-      />
-      <SiteFooter />
+      <div ref={portfolioShellRef} className="portfolio-shell" aria-hidden={collapseState !== 'idle'}>
+        <CustomCursor />
+        <Navigation
+          onCommand={() => {
+            setCommandOpen(true)
+            setMobileOpen(false)
+          }}
+          scrolled={scrolled}
+          mobileOpen={mobileOpen}
+          onToggleMobile={() => setMobileOpen((value) => !value)}
+          onCloseMobile={() => setMobileOpen(false)}
+        />
+        <CommandPalette
+          open={commandOpen}
+          onClose={() => setCommandOpen(false)}
+          onSelectProject={handleSelectProject}
+        />
+        <main className="site-main">
+          <Hero
+            reducedMotion={reducedMotion}
+            booted={booted}
+            collapseState={collapseState}
+            onCollapse={startCollapse}
+            blackHoleTargetRef={blackHoleTargetRef}
+          />
+          <ManifestoSection />
+          <WorkSection onSelect={handleSelectProject} reducedMotion={reducedMotion} />
+          <ClientSection onSelect={handleSelectProject} />
+          <ResearchSection />
+          <LabSection onSelect={handleSelectProject} />
+          <SignalSection />
+          <AboutSection />
+          <ContactSection />
+        </main>
+        <ProjectModal
+          project={selectedProject}
+          onClose={() => handleSelectProject(null)}
+          onSelect={handleSelectProject}
+        />
+        <SiteFooter />
+      </div>
+      <CollapseSurface ref={collapseSurfaceRef} />
+      <div ref={collapseBlackoutRef} className="collapse-blackout" aria-hidden="true" />
+      <div
+        ref={voidScreenRef}
+        className={`void-screen ${collapseState !== 'idle' ? 'is-active' : ''} ${collapseState === 'collapsed' ? 'is-collapsed' : ''}`}
+        data-restore-state={collapseState}
+        aria-hidden={collapseState !== 'collapsed'}
+      >
+        <button
+          ref={restoreFocusRef}
+          type="button"
+          className="restore-reality-button"
+          onClick={restore}
+          disabled={collapseState !== 'collapsed'}
+          aria-label="Restore reality"
+        >
+          <span className="restore-reality-orbit" aria-hidden="true">
+            <span className="restore-reality-core" />
+            <span className="restore-reality-sweep" />
+          </span>
+          <span className="restore-reality-copy">
+            <span className="restore-reality-label">RESTORE REALITY</span>
+            <span className="restore-reality-status">RETURN TO SURFACE</span>
+          </span>
+          <span className="restore-reality-arrow" aria-hidden="true">↗</span>
+        </button>
+      </div>
     </>
   )
 }

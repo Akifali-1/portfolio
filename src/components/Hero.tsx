@@ -1,17 +1,57 @@
-import { useEffect, useState, type CSSProperties } from 'react'
+import { lazy, Suspense, useEffect, useRef, useState, type CSSProperties, type RefObject } from 'react'
 import { ArrowRight } from 'lucide-react'
-import { BlackHoleCanvas } from './BlackHoleCanvas'
+import { TechnologyOrbits, type CollapseAnimationState } from './TechnologyOrbits'
 import { siteConfig } from '../data'
 
+const BlackHoleCanvas = lazy(() => import('./BlackHoleCanvas').then(({ BlackHoleCanvas: Canvas }) => ({ default: Canvas })))
+
 type HeroProps = {
-  scrollProgress: number
   reducedMotion: boolean
+  booted: boolean
+  collapseState: CollapseAnimationState
+  onCollapse: () => void
+  blackHoleTargetRef: RefObject<HTMLSpanElement | null>
 }
 
-export function Hero({ scrollProgress, reducedMotion }: HeroProps) {
+export function Hero({ reducedMotion, booted, collapseState, onCollapse, blackHoleTargetRef }: HeroProps) {
   const letters = 'AKIF'.split('')
-  const heroStyle = { '--hero-progress': scrollProgress } as CSSProperties
   const [clock, setClock] = useState('')
+  const [desktopExperience, setDesktopExperience] = useState(() => typeof window === 'undefined' || window.innerWidth > 900)
+  const heroRef = useRef<HTMLElement>(null)
+
+  useEffect(() => {
+    const updateViewportMode = () => {
+      const next = window.innerWidth > 900
+      setDesktopExperience((previous) => (previous === next ? previous : next))
+    }
+    updateViewportMode()
+    window.addEventListener('resize', updateViewportMode)
+    return () => window.removeEventListener('resize', updateViewportMode)
+  }, [])
+
+  useEffect(() => {
+    let frame = 0
+    const update = () => {
+      frame = 0
+      const hero = heroRef.current
+      if (!hero) return
+      const heroHeight = Math.max(window.innerHeight, 700)
+      const progress = Math.min(Math.max(window.scrollY / (heroHeight * 0.9), 0), 1)
+      hero.style.setProperty('--hero-progress', String(progress))
+    }
+    const queueUpdate = () => {
+      if (!frame) frame = window.requestAnimationFrame(update)
+    }
+
+    update()
+    window.addEventListener('scroll', queueUpdate, { passive: true })
+    window.addEventListener('resize', queueUpdate)
+    return () => {
+      window.cancelAnimationFrame(frame)
+      window.removeEventListener('scroll', queueUpdate)
+      window.removeEventListener('resize', queueUpdate)
+    }
+  }, [])
 
   useEffect(() => {
     const updateClock = () => {
@@ -31,8 +71,24 @@ export function Hero({ scrollProgress, reducedMotion }: HeroProps) {
   }, [])
 
   return (
-    <section className="hero" id="top" style={heroStyle}>
-      <BlackHoleCanvas reducedMotion={reducedMotion} />
+    <section ref={heroRef} className="hero" id="top">
+      {booted && (
+        <Suspense fallback={null}>
+          <BlackHoleCanvas
+            reducedMotion={reducedMotion}
+            active={collapseState !== 'collapsed'}
+            tilt={desktopExperience ? 30 : 0}
+          />
+        </Suspense>
+      )}
+      <TechnologyOrbits
+        reducedMotion={reducedMotion}
+        active={booted && desktopExperience}
+        state={collapseState}
+        containerRef={heroRef}
+        blackHoleTargetRef={blackHoleTargetRef}
+      />
+      <span ref={blackHoleTargetRef} className="hero-black-hole-target" aria-hidden="true" />
       <div className="hero-noise" />
       <div className="hero-grid" aria-hidden="true" />
       <div className="hero-intro">
@@ -78,6 +134,25 @@ export function Hero({ scrollProgress, reducedMotion }: HeroProps) {
             </div>
           </div>
         </div>
+      </div>
+      <div className="hero-collapse-control">
+        <button
+          className="hero-collapse-trigger"
+          type="button"
+          onClick={onCollapse}
+          disabled={collapseState !== 'idle'}
+          aria-label="Initiate portfolio collapse"
+        >
+          <span className="collapse-trigger-orbit" aria-hidden="true">
+            <span className="collapse-trigger-core" />
+            <span className="collapse-trigger-sweep" />
+          </span>
+          <span className="collapse-trigger-copy">
+            <span className="collapse-trigger-label">INITIATE COLLAPSE</span>
+            <span className="collapse-trigger-status">FOLD THE SYSTEM</span>
+          </span>
+          <ArrowRight className="collapse-trigger-arrow" size={15} aria-hidden="true" />
+        </button>
       </div>
       <div className="hero-footer">
         <span className="mono-label">SCROLL TO DECOMPILE</span>

@@ -142,6 +142,7 @@ export const clientProjects: Project[] = [
     how: ['BUSINESS CONTEXT', 'SERVICES', 'WORK', 'FRONTEND / DESIGN'],
     actually: 'Built the frontend web experience as client work.',
     link: 'https://build-craft-lilac.vercel.app/',
+    previewImage: '/previews/buildcraft_hover.png',
   },
   {
     id: 'bright-clinic',
@@ -160,6 +161,7 @@ export const clientProjects: Project[] = [
     how: ['CLINIC CONTEXT', 'SERVICES', 'INFORMATION', 'FRONTEND / DESIGN'],
     actually: 'Built the frontend and design surface as client work.',
     link: 'https://dental-puce-theta.vercel.app/',
+    previewImage: '/previews/clinic_hover.png',
   },
 ]
 

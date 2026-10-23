@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 const loopPhases = [
   {
@@ -20,16 +20,49 @@ const loopPhases = [
 
 export function ThreatEmulationPanel() {
   const [step, setStep] = useState(0)
+  const panelRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const timer = window.setInterval(() => {
-      setStep((prev) => (prev + 1) % loopPhases.length)
-    }, 2800)
-    return () => window.clearInterval(timer)
+    let timer = 0
+    let visible = false
+    const start = () => {
+      if (timer || !visible || document.visibilityState !== 'visible') return
+      timer = window.setInterval(() => {
+        setStep((prev) => (prev + 1) % loopPhases.length)
+      }, 2800)
+    }
+    const stop = () => {
+      if (timer) window.clearInterval(timer)
+      timer = 0
+    }
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') stop()
+      else start()
+    }
+    const observer = 'IntersectionObserver' in window
+      ? new IntersectionObserver(([entry]) => {
+          visible = entry.isIntersecting
+          if (visible) start()
+          else stop()
+        }, { threshold: 0 })
+      : null
+
+    if (observer && panelRef.current) observer.observe(panelRef.current)
+    else {
+      visible = true
+      start()
+    }
+    document.addEventListener('visibilitychange', onVisibilityChange)
+    return () => {
+      stop()
+      observer?.disconnect()
+      document.removeEventListener('visibilitychange', onVisibilityChange)
+    }
   }, [])
 
   return (
-    <div
+      <div
+        ref={panelRef}
       className="threat-panel"
       data-reveal="rise"
       aria-label="Threat Emulation visualization showing a closed-loop Red Agent, telemetry, Blue Agent, and rule verification"

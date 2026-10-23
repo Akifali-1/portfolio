@@ -16,24 +16,28 @@ export function CustomCursor() {
     let currentX = targetX
     let currentY = targetY
     let frame = 0
+    const schedule = () => {
+      if (!frame) frame = window.requestAnimationFrame(animate)
+    }
     const move = (event: PointerEvent) => {
       targetX = event.clientX
       targetY = event.clientY
       setVisible(true)
       const element = (event.target as HTMLElement).closest<HTMLElement>('a, button, [data-cursor]')
       setLabel(element?.dataset.cursor ?? '')
+      schedule()
     }
     const leave = () => setVisible(false)
     const animate = () => {
+      frame = 0
       currentX += (targetX - currentX) * 0.16
       currentY += (targetY - currentY) * 0.16
       dot.style.transform = `translate3d(${targetX}px, ${targetY}px, 0)`
       ring.style.transform = `translate3d(${currentX}px, ${currentY}px, 0)`
-      frame = window.requestAnimationFrame(animate)
+      if (Math.abs(targetX - currentX) > 0.1 || Math.abs(targetY - currentY) > 0.1) schedule()
     }
     window.addEventListener('pointermove', move)
     document.documentElement.addEventListener('mouseleave', leave)
-    frame = window.requestAnimationFrame(animate)
     return () => {
       window.removeEventListener('pointermove', move)
       document.documentElement.removeEventListener('mouseleave', leave)

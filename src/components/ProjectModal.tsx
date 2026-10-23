@@ -3,6 +3,8 @@ import { ArrowLeft, ArrowRight, ExternalLink, X } from 'lucide-react'
 import { clientProjects, projects, type Project } from '../data'
 import { ProjectArtifact } from './ProjectArtifact'
 
+const allProjects = [...projects, ...clientProjects]
+
 type ProjectModalProps = {
   project: Project | null
   onClose: () => void
@@ -11,7 +13,6 @@ type ProjectModalProps = {
 
 export function ProjectModal({ project, onClose, onSelect }: ProjectModalProps) {
   const [viewMode, setViewMode] = useState<'preview' | 'schematic'>('preview')
-  const allProjects = [...projects, ...clientProjects]
 
   useEffect(() => {
     if (!project) return
