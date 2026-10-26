@@ -6,7 +6,7 @@ Personal portfolio for Akif — Engineer, Researcher, Builder.
 
 - React 19 + TypeScript
 - Vite 8
-- Three.js 0.186 for the procedural black-hole hero
+- Simple Icons for the falling technology-logo hero
 - GSAP for the reversible portfolio-collapse timeline
 - Global CSS and the existing section components/animations
 
@@ -45,12 +45,8 @@ docker build -t akif-system .
 docker run --rm -p 4173:4173 akif-system
 ```
 
-## Black-hole hero implementation
+## Falling technology-logo hero
 
-`src/components/BlackHoleCanvas.tsx` mounts one persistent WebGL canvas inside the landing hero. A custom GLSL fragment shader combines a restrained procedural starfield, low-contrast atmospheric noise, a cool white/silver accretion disk, asymmetric Doppler-inspired brightness, an event-horizon shadow, and a stable gravitational-lensing approximation. The shader is an art-directed real-time approximation, not a scientifically exact ray tracer.
+`src/components/FallingTechLogos.tsx` renders official Simple Icons on lightweight DOM tiles. A deterministic stack layout gives each tile a support point, while a single requestAnimationFrame loop handles staggered spawning, eased falling, settling, a 15-tile capacity, bottom-up fading, and automatic restart. The loop pauses off-screen or when the document is hidden, cleans up on unmount, and presents a compact static pile for reduced-motion users.
 
-`src/components/TechnologyOrbits.tsx` keeps the official Simple Icons marks on one shared inclined orbit, with subdued graphite surfaces and blue-white accents. During collapse, cards curve inward, shrink, fade across the apparent horizon while hidden, then re-enter from the outer orbit after a short hold.
-
-The canvas caps pixel ratio, renders only one persistent WebGL surface, pauses when the document is hidden or outside the viewport, honors `prefers-reduced-motion`, cleans up GPU resources, and falls back to a static CSS black-hole mark when WebGL cannot initialize or loses its context. Desktop enables the orbit/collapse presentation; mobile keeps the simpler hero treatment to protect readability and GPU budget.
-
-`src/hooks/usePortfolioCollapse.ts` and `src/components/CollapseSurface.tsx` implement the opt-in reversible collapse: the visible page is captured once, deformed on a small cached mesh, gathered toward the black-hole target, and restored without navigation or a second WebGL scene.
+`src/hooks/usePortfolioCollapse.ts` and `src/components/CollapseSurface.tsx` preserve the reversible portfolio collapse: the visible page is captured once, deformed on a small cached mesh, gathered toward the hero collapse control, and restored without navigation or a second rendering scene.

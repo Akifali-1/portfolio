@@ -1,33 +1,19 @@
-import { lazy, Suspense, useEffect, useRef, useState, type CSSProperties, type RefObject } from 'react'
+import { useEffect, useRef, useState, type CSSProperties, type RefObject } from 'react'
 import { ArrowRight } from 'lucide-react'
-import { TechnologyOrbits, type CollapseAnimationState } from './TechnologyOrbits'
+import { FallingTechLogos, type CollapseAnimationState } from './FallingTechLogos'
 import { siteConfig } from '../data'
-
-const BlackHoleCanvas = lazy(() => import('./BlackHoleCanvas').then(({ BlackHoleCanvas: Canvas }) => ({ default: Canvas })))
 
 type HeroProps = {
   reducedMotion: boolean
-  booted: boolean
   collapseState: CollapseAnimationState
   onCollapse: () => void
-  blackHoleTargetRef: RefObject<HTMLSpanElement | null>
+  collapseTargetRef: RefObject<HTMLSpanElement | null>
 }
 
-export function Hero({ reducedMotion, booted, collapseState, onCollapse, blackHoleTargetRef }: HeroProps) {
+export function Hero({ reducedMotion, collapseState, onCollapse, collapseTargetRef }: HeroProps) {
   const letters = 'AKIF'.split('')
   const [clock, setClock] = useState('')
-  const [desktopExperience, setDesktopExperience] = useState(() => typeof window === 'undefined' || window.innerWidth > 900)
   const heroRef = useRef<HTMLElement>(null)
-
-  useEffect(() => {
-    const updateViewportMode = () => {
-      const next = window.innerWidth > 900
-      setDesktopExperience((previous) => (previous === next ? previous : next))
-    }
-    updateViewportMode()
-    window.addEventListener('resize', updateViewportMode)
-    return () => window.removeEventListener('resize', updateViewportMode)
-  }, [])
 
   useEffect(() => {
     let frame = 0
@@ -72,23 +58,11 @@ export function Hero({ reducedMotion, booted, collapseState, onCollapse, blackHo
 
   return (
     <section ref={heroRef} className="hero" id="top">
-      {booted && (
-        <Suspense fallback={null}>
-          <BlackHoleCanvas
-            reducedMotion={reducedMotion}
-            active={collapseState !== 'collapsed'}
-            tilt={desktopExperience ? 30 : 0}
-          />
-        </Suspense>
-      )}
-      <TechnologyOrbits
+      <FallingTechLogos
         reducedMotion={reducedMotion}
-        active={booted && desktopExperience}
+        active
         state={collapseState}
-        containerRef={heroRef}
-        blackHoleTargetRef={blackHoleTargetRef}
       />
-      <span ref={blackHoleTargetRef} className="hero-black-hole-target" aria-hidden="true" />
       <div className="hero-noise" />
       <div className="hero-grid" aria-hidden="true" />
       <div className="hero-intro">
@@ -135,12 +109,13 @@ export function Hero({ reducedMotion, booted, collapseState, onCollapse, blackHo
           </div>
         </div>
       </div>
-      <div className="hero-collapse-control">
+      <div className={`hero-collapse-control ${collapseState !== 'idle' ? 'is-collapse-active' : ''}`}>
         <button
-          className="hero-collapse-trigger"
+          className={`hero-collapse-trigger ${collapseState !== 'idle' ? 'is-collapsed-trigger' : ''}`}
           type="button"
           onClick={onCollapse}
           disabled={collapseState !== 'idle'}
+          aria-hidden={collapseState !== 'idle'}
           aria-label="Initiate portfolio collapse"
         >
           <span className="collapse-trigger-orbit" aria-hidden="true">
@@ -153,6 +128,7 @@ export function Hero({ reducedMotion, booted, collapseState, onCollapse, blackHo
           </span>
           <ArrowRight className="collapse-trigger-arrow" size={15} aria-hidden="true" />
         </button>
+        <span ref={collapseTargetRef} className="hero-collapse-target" aria-hidden="true" />
       </div>
       <div className="hero-footer">
         <span className="mono-label">SCROLL TO DECOMPILE</span>

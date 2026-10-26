@@ -28,14 +28,14 @@ import './collapse.css'
 function App() {
   const reducedMotion = useReducedMotion()
   const portfolioShellRef = useRef<HTMLDivElement>(null)
-  const blackHoleTargetRef = useRef<HTMLSpanElement>(null)
+  const collapseTargetRef = useRef<HTMLSpanElement>(null)
   const collapseSurfaceRef = useRef<CollapseSurfaceHandle>(null)
   const collapseBlackoutRef = useRef<HTMLDivElement>(null)
   const voidScreenRef = useRef<HTMLDivElement>(null)
   const restoreFocusRef = useRef<HTMLButtonElement>(null)
   const { state: collapseState, startCollapse, restore } = usePortfolioCollapse({
     shellRef: portfolioShellRef,
-    blackHoleTargetRef,
+    collapseTargetRef,
     surfaceRef: collapseSurfaceRef,
     blackoutRef: collapseBlackoutRef,
     voidScreenRef,
@@ -186,10 +186,9 @@ function App() {
         <main className="site-main">
           <Hero
             reducedMotion={reducedMotion}
-            booted={booted}
             collapseState={collapseState}
             onCollapse={startCollapse}
-            blackHoleTargetRef={blackHoleTargetRef}
+            collapseTargetRef={collapseTargetRef}
           />
           <ManifestoSection />
           <WorkSection onSelect={handleSelectProject} reducedMotion={reducedMotion} />

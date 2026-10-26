@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useRef, useState, type RefObject } from 'react'
 import { gsap } from 'gsap'
-import type { CollapseAnimationState } from '../components/TechnologyOrbits'
+import type { CollapseAnimationState } from '../components/FallingTechLogos'
 import type { CollapseSurfaceHandle } from '../components/CollapseSurface'
 
 type UsePortfolioCollapseOptions = {
   shellRef: RefObject<HTMLElement | null>
-  blackHoleTargetRef: RefObject<HTMLElement | null>
+  collapseTargetRef: RefObject<HTMLElement | null>
   surfaceRef: RefObject<CollapseSurfaceHandle | null>
   blackoutRef: RefObject<HTMLElement | null>
   voidScreenRef: RefObject<HTMLElement | null>
@@ -17,15 +17,15 @@ type SurfaceProgress = {
   value: number
 }
 
-function getBlackHoleCenter(target: HTMLElement | null) {
+function getCollapseTargetCenter(target: HTMLElement | null) {
   if (target) {
     const rect = target.getBoundingClientRect()
     return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 }
   }
 
   return {
-    x: window.innerWidth > 900 ? window.innerWidth * 0.74 : window.innerWidth * 0.5,
-    y: window.innerHeight * 0.42,
+    x: window.innerWidth > 900 ? window.innerWidth * 0.76 : window.innerWidth * 0.82,
+    y: window.innerHeight * 0.72,
   }
 }
 
@@ -34,7 +34,7 @@ function getSurfaceSourceElements(shell: HTMLElement) {
     '.site-nav',
     'main > section:not(.hero)',
     '.site-footer',
-    '.hero > :not(.black-hole-canvas):not(.technology-overlay):not(.technology-orbits)',
+    '.hero > :not(.falling-tech-logo-field):not(.hero-collapse-control)',
     '.cursor-layer',
     '.command-backdrop',
     '.detail-backdrop',
@@ -82,9 +82,8 @@ async function captureViewport(shell: HTMLElement, center: { x: number; y: numbe
     },
     ignoreElements: (element) =>
       offscreenElements.has(element) ||
-      element.classList.contains('black-hole-canvas') ||
-      element.classList.contains('technology-overlay') ||
-      element.classList.contains('technology-orbits') ||
+      element.classList.contains('hero-collapse-target') ||
+      element.classList.contains('hero-collapse-control') ||
       element.classList.contains('cursor-layer') ||
       element.classList.contains('hero-noise') ||
       element.classList.contains('command-backdrop') ||
@@ -105,7 +104,7 @@ async function captureViewport(shell: HTMLElement, center: { x: number; y: numbe
   const sourceY = capturedCssHeight > height + 1 ? Math.min(scrollY, capturedCssHeight - height) : 0
   context.drawImage(captured, 0, -sourceY * scale, captured.width / scale, captured.height / scale)
 
-  const holeRadius = Math.min(width, height) * 0.28
+  const holeRadius = Math.min(76, Math.max(38, Math.min(width, height) * 0.055))
   const holeGradient = context.createRadialGradient(center.x, center.y, holeRadius * 0.22, center.x, center.y, holeRadius)
   holeGradient.addColorStop(0, 'rgba(0, 0, 0, 1)')
   holeGradient.addColorStop(0.58, 'rgba(0, 0, 0, .82)')
@@ -123,7 +122,7 @@ async function captureViewport(shell: HTMLElement, center: { x: number; y: numbe
 
 export function usePortfolioCollapse({
   shellRef,
-  blackHoleTargetRef,
+  collapseTargetRef,
   surfaceRef,
   blackoutRef,
   voidScreenRef,
@@ -198,26 +197,17 @@ export function usePortfolioCollapse({
 
     const sourceElements = getSurfaceSourceElements(shell)
     sourceElementsRef.current = sourceElements
-    const center = getBlackHoleCenter(blackHoleTargetRef.current)
+    let center = getCollapseTargetCenter(collapseTargetRef.current)
     const voidScreen = voidScreenRef.current
     const blackout = blackoutRef.current
-    const bhCanvas = shell.querySelector<HTMLElement>('.black-hole-canvas')
-    const maxBlackoutRadius = Math.hypot(window.innerWidth, window.innerHeight) * 1.5
-    const screenCenterX = window.innerWidth * 0.5
-    const screenCenterY = window.innerHeight * 0.5
-
     const applyBlackout = (value: number) => {
       if (!blackout) return
 
       const reveal = Math.min(1, Math.max(0, value))
-      const radius = reveal * maxBlackoutRadius
-      const currentX = center.x + (screenCenterX - center.x) * Math.pow(reveal, 1.4)
-      const currentY = center.y + (screenCenterY - center.y) * Math.pow(reveal, 1.4)
-      const scale = reveal <= 0.001 ? 0 : 1 + Math.pow(reveal, 1.5) * maxBlackoutRadius
-      blackout.style.setProperty('--collapse-x', `${currentX}px`)
-      blackout.style.setProperty('--collapse-y', `${currentY}px`)
-      blackout.style.setProperty('--collapse-radius', `${radius}px`)
-      blackout.style.setProperty('--collapse-scale', String(scale))
+      blackout.style.setProperty('--collapse-x', `${center.x}px`)
+      blackout.style.setProperty('--collapse-y', `${center.y}px`)
+      blackout.style.setProperty('--collapse-radius', '0px')
+      blackout.style.setProperty('--collapse-scale', String(reveal <= 0.001 ? 0 : 0.82 + reveal * 0.18))
       blackout.style.opacity = reveal <= 0.001 ? '0' : '1'
     }
 
@@ -231,7 +221,8 @@ export function usePortfolioCollapse({
       surface.setTarget(center.x, center.y)
       surface.setSnapshot(snapshot)
       const updateSurfaceTarget = () => {
-        const nextCenter = getBlackHoleCenter(blackHoleTargetRef.current)
+        const nextCenter = getCollapseTargetCenter(collapseTargetRef.current)
+        center = nextCenter
         surface.setTarget(nextCenter.x, nextCenter.y)
       }
       surfaceResizeRef.current = updateSurfaceTarget
@@ -248,12 +239,8 @@ export function usePortfolioCollapse({
         blackout.style.setProperty('--collapse-scale', '0')
       }
 
-      if (bhCanvas) {
-        gsap.set(bhCanvas, { transformOrigin: `${center.x}px ${center.y}px`, scale: 1 })
-      }
-
-      // The captured surface now owns the visible page. Keep the live canvas underneath
-      // so the final folds reveal the real black hole rather than another image.
+      // The captured surface now owns the visible page while the live hero remains
+      // underneath, ready to be restored without a second rendering scene.
       gsap.set(sourceElements, { opacity: 0, pointerEvents: 'none' })
       if (voidScreen) gsap.set(voidScreen, { opacity: 0, pointerEvents: 'none' })
 
@@ -293,13 +280,6 @@ export function usePortfolioCollapse({
         reducedMotion ? 0.04 : 0.65,
       )
 
-      // Keep the actual raymarched black hole alive and give it a restrained
-      // forward swell. The full-screen aperture handles the final coverage;
-      // scaling the entire canvas aggressively creates the distorted white ring.
-      if (bhCanvas && !reducedMotion) {
-        timeline.to(bhCanvas, { scale: 1.12, duration: duration * 0.9, ease: 'power2.in' }, 0.05)
-      }
-
       if (voidScreen) {
         timeline.to(
           voidScreen,
@@ -327,7 +307,7 @@ export function usePortfolioCollapse({
       stateRef.current = 'idle'
       setState('idle')
     }
-  }, [blackHoleTargetRef, blackoutRef, reducedMotion, restoreFocusRef, restoreSource, shellRef, surfaceRef, voidScreenRef])
+  }, [collapseTargetRef, blackoutRef, reducedMotion, restoreFocusRef, restoreSource, shellRef, surfaceRef, voidScreenRef])
 
   const restore = useCallback(() => {
     if (stateRef.current !== 'collapsed') return
@@ -336,25 +316,15 @@ export function usePortfolioCollapse({
     const voidScreen = voidScreenRef.current
     const blackout = blackoutRef.current
     if (!surface) return
-    const bhCanvas = shellRef.current?.querySelector<HTMLElement>('.black-hole-canvas')
-
-    const center = getBlackHoleCenter(blackHoleTargetRef.current)
-    const maxBlackoutRadius = Math.hypot(window.innerWidth, window.innerHeight) * 1.5
-    const screenCenterX = window.innerWidth * 0.5
-    const screenCenterY = window.innerHeight * 0.5
-
+    const center = getCollapseTargetCenter(collapseTargetRef.current)
     const updateRestoreVisuals = () => {
       surface.setProgress(progressRef.current.value)
       if (!blackout) return
       const reveal = Math.min(1, Math.max(0, blackoutProgressRef.current.value))
-      const radius = reveal * maxBlackoutRadius
-      const currentX = center.x + (screenCenterX - center.x) * Math.pow(reveal, 1.4)
-      const currentY = center.y + (screenCenterY - center.y) * Math.pow(reveal, 1.4)
-      const scale = reveal <= 0.001 ? 0 : 1 + Math.pow(reveal, 1.5) * maxBlackoutRadius
-      blackout.style.setProperty('--collapse-x', `${currentX}px`)
-      blackout.style.setProperty('--collapse-y', `${currentY}px`)
-      blackout.style.setProperty('--collapse-radius', `${radius}px`)
-      blackout.style.setProperty('--collapse-scale', String(scale))
+      blackout.style.setProperty('--collapse-x', `${center.x}px`)
+      blackout.style.setProperty('--collapse-y', `${center.y}px`)
+      blackout.style.setProperty('--collapse-radius', '0px')
+      blackout.style.setProperty('--collapse-scale', String(reveal <= 0.001 ? 0 : 0.82 + reveal * 0.18))
       blackout.style.opacity = reveal <= 0.001 ? '0' : '1'
     }
 
@@ -409,12 +379,8 @@ export function usePortfolioCollapse({
       reducedMotion ? 0 : 0.06,
     )
 
-    if (bhCanvas && !reducedMotion) {
-      timeline.to(bhCanvas, { scale: 1, duration: 2.2, ease: 'power3.out' }, 0.05)
-    }
-
     timeline.play()
-  }, [blackoutRef, finishRestore, reducedMotion, shellRef, surfaceRef, voidScreenRef])
+  }, [blackoutRef, collapseTargetRef, finishRestore, reducedMotion, surfaceRef, voidScreenRef])
 
   useEffect(() => {
     return () => {
