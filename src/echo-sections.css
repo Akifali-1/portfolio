@@ -464,5 +464,36 @@
 
 .console-line-btn { transition: background 0.18s, color 0.18s; }
 
+/* --- Fix Hero Collapse Control overlapping HYD coordinates --- */
+.hero-collapse-control {
+  top: 123px;
+  right: calc(var(--pad) + 190px);
+  min-width: 0;
+  min-height: 0;
+}
+
+@media (max-width: 900px) {
+  .hero-collapse-control {
+    top: 123px;
+    right: var(--pad);
+  }
+  .hero-location {
+    display: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .hero-collapse-control {
+    top: 98px;
+    right: var(--pad);
+  }
+}
+
+/* --- Prevent layout jump before ClientCarousel WebGL mounts --- */
+.client-carousel {
+  min-height: clamp(420px, 64vh, 610px);
+}
+
+
 
 

@@ -20,9 +20,17 @@ export function ClientCarousel({ onSelect }: ClientCarouselProps) {
   const [mounted, setMounted] = useState(false)
   const [webgl] = useState(hasWebGL)
 
+  // Ensure at least 4 slides in the ring buffer so wrap() has an unambiguous shortest path
+  const normalizedSlides = useMemo(() => {
+    if (clientSlides.length > 0 && clientSlides.length < 4) {
+      return [...clientSlides, ...clientSlides]
+    }
+    return clientSlides
+  }, [])
+
   const items = useMemo<FlexCarouselItem[]>(
     () =>
-      clientSlides.map((slide) => ({
+      normalizedSlides.map((slide) => ({
         src: slide.src,
         alt: `${slide.title} website screenshot`,
         title: slide.title,
@@ -30,10 +38,10 @@ export function ClientCarousel({ onSelect }: ClientCarouselProps) {
         description: slide.description,
         link: slide.link,
       })),
-    [],
+    [normalizedSlides],
   )
 
-  // Only create the WebGL context when the section nears the viewport.
+  // Mount WebGL context ahead of viewport entry without layout shift
   useEffect(() => {
     const holder = holderRef.current
     if (!holder) return
@@ -44,21 +52,21 @@ export function ClientCarousel({ onSelect }: ClientCarouselProps) {
           io.disconnect()
         }
       },
-      { rootMargin: '300px 0px' },
+      { rootMargin: '450px 0px' },
     )
     io.observe(holder)
     return () => io.disconnect()
   }, [])
 
   const open = (index: number) => {
-    const slide = clientSlides[index]
+    const slide = normalizedSlides[index % normalizedSlides.length]
     const project = slide && all.find((p) => p.id === slide.projectId)
     if (project) onSelect(project)
   }
 
   const step = (dir: 1 | -1) => {
     const el = holderRef.current?.querySelector<HTMLElement>('.flex-carousel')
-    el?.focus()
+    el?.focus({ preventScroll: true })
     el?.dispatchEvent(
       new KeyboardEvent('keydown', { key: dir === 1 ? 'ArrowRight' : 'ArrowLeft', bubbles: true }),
     )
@@ -73,9 +81,10 @@ export function ClientCarousel({ onSelect }: ClientCarouselProps) {
             preset="liquid"
             intro="rise"
             cardHeight={0.5}
-            gap={14}
+            gap={18}
             radius={6}
             fit="landscape"
+            captureWheel={false}
             onSelect={open}
           />
         )
@@ -90,10 +99,13 @@ export function ClientCarousel({ onSelect }: ClientCarouselProps) {
         </div>
       )}
       <div className="client-carousel-controls">
-        <button type="button" onClick={() => step(-1)} aria-label="Previous slide">PREV</button>
-        <button type="button" onClick={() => step(1)} aria-label="Next slide">NEXT</button>
+        <button type="button" onClick={() => step(-1)} aria-label="Previous slide">
+          PREV
+        </button>
+        <button type="button" onClick={() => step(1)} aria-label="Next slide">
+          NEXT
+        </button>
       </div>
     </div>
   )
 }
-

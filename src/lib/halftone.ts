@@ -187,6 +187,7 @@ export function textStipple(
   mask.width = w
   mask.height = h
   const mctx = mask.getContext('2d', { willReadFrequently: true })!
+  mctx.clearRect(0, 0, w, h)
   mctx.font = `${fontWeight} ${fontSize}px ${fontFamily}`
   mctx.textBaseline = 'alphabetic'
   mctx.fillStyle = '#fff'
@@ -207,12 +208,13 @@ export function textStipple(
   const xs: number[] = []
   const ys: number[] = []
   const sz: number[] = []
-  for (let y = pitch / 2; y < h; y += pitch) {
-    for (let x = pitch / 2; x < w; x += pitch) {
+  const margin = Math.max(4, pitch * 2.5)
+  for (let y = margin; y < h - margin; y += pitch) {
+    for (let x = margin; x < w - margin; x += pitch) {
       const jx = x + (rnd() - 0.5) * pitch * 0.9
       const jy = y + (rnd() - 0.5) * pitch * 0.9
-      const gx = Math.min(w - 1, Math.max(0, Math.round(jx)))
-      const gy = Math.min(h - 1, Math.max(0, Math.round(jy)))
+      const gx = Math.min(w - 2, Math.max(1, Math.round(jx)))
+      const gy = Math.min(h - 2, Math.max(1, Math.round(jy)))
       const s = sd[gy * w + gx]
       let keep = 0
       let size = 0

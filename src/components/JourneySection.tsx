@@ -42,11 +42,18 @@ export function JourneySection() {
     let target = 0
     let current = 0
     let frame = 0
+    let lastTime = 0
 
-    function render() {
+    function render(now = performance.now()) {
       frame = 0
-      current += (target - current) * 0.12
-      if (Math.abs(target - current) < 0.0004) current = target
+      const dt = lastTime ? Math.min((now - lastTime) / 1000, 0.05) : 1 / 60
+      lastTime = now
+      const alpha = 1 - Math.exp(-9.5 * dt)
+      current += (target - current) * alpha
+      if (Math.abs(target - current) < 0.0004) {
+        current = target
+        lastTime = 0
+      }
       track!.style.transform = `translate3d(${(-current * travel).toFixed(2)}px, 0, 0)`
       track!.style.setProperty('--focus', (current * (count - 1)).toFixed(3))
       if (barRef.current) barRef.current.style.transform = `scaleX(${current.toFixed(4)})`

@@ -58,6 +58,7 @@ export function WorksDrum({ items, onSelect, reducedMotion }: WorksDrumProps) {
     let turn = 0
     let target = 0
     let frame = 0
+    let lastTime = 0
     let visible = true
     let metrics = { cardW: 0, cardH: 0, drumR: 0, bow: 0 }
 
@@ -80,11 +81,18 @@ export function WorksDrum({ items, onSelect, reducedMotion }: WorksDrumProps) {
       request()
     }
 
-    const draw = () => {
+    const draw = (now: number) => {
       frame = 0
+      const dt = lastTime ? Math.min((now - lastTime) / 1000, 0.05) : 1 / 60
+      lastTime = now
       const gap = target - turn
-      if (Math.abs(gap) < 0.0005) turn = target
-      else turn += gap * (reducedMotion ? 1 : EASE)
+      const alpha = reducedMotion ? 1 : 1 - Math.exp(-8.5 * dt)
+      if (Math.abs(gap) < 0.0005) {
+        turn = target
+        lastTime = 0
+      } else {
+        turn += gap * alpha
+      }
 
       const { drumR, bow } = metrics
       wheel.style.transform = `translateZ(${-drumR}px)`
@@ -127,13 +135,14 @@ export function WorksDrum({ items, onSelect, reducedMotion }: WorksDrumProps) {
     }
 
     let settle = 0
+    // Passively sync or allow horizontal swipe without blocking vertical page scroll
     const onWheel = (event: WheelEvent) => {
-      if (Math.abs(event.deltaX) > Math.abs(event.deltaY)) return
+      const isHorizontalSwipe = Math.abs(event.deltaX) > Math.abs(event.deltaY) * 1.2
+      if (!isHorizontalSwipe && !event.shiftKey) return
+      event.preventDefault()
       const unit = event.deltaMode === 1 ? 16 : 1
-      const next = target + (event.deltaY * unit) / WHEEL_UNITS
-      // Inside the range the drum takes the scroll. At either end the page scrolls on.
-      if (next > 0 && next < last) event.preventDefault()
-      target = clamp(next, 0, last)
+      const delta = isHorizontalSwipe ? event.deltaX : event.deltaY
+      target = clamp(target + (delta * unit) / WHEEL_UNITS, 0, last)
       request()
       window.clearTimeout(settle)
       settle = window.setTimeout(() => {

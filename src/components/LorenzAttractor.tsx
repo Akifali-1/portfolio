@@ -6,15 +6,15 @@ type LorenzProps = { reducedMotion: boolean }
 const SIGMA = 10
 const RHO = 28
 const BETA = 8 / 3
-const DT = 0.006
-const TRAIL = 1400
-const STEPS_PER_FRAME = 6
-const RECORD_EVERY = 3
-const BANDS = 14
+const DT = 0.0038
+const TRAIL = 1600
+const STEPS_PER_FRAME = 4
+const RECORD_EVERY = 2
+const BANDS = 16
 const COLORS = ['77, 124, 255', '124, 92, 255', '243, 243, 240']
 
-// Same cursor feel as the AKIF dots.
-const RADIUS = 120
+// Cursor interaction physics matching HalftoneName
+const RADIUS = 125
 const SPRING = 0.075
 const DAMP = 0.84
 const PUSH = 2.8
@@ -41,7 +41,7 @@ function makeParticle(x: number, y: number, z: number, color: string): Particle 
   const styles: string[] = []
   for (let b = 0; b < BANDS; b++) {
     const u = (b + 1) / BANDS
-    styles.push(`rgba(${color}, ${(0.1 + 0.9 * u * u).toFixed(3)})`)
+    styles.push(`rgba(${color}, ${(0.08 + 0.92 * u * u).toFixed(3)})`)
   }
   return {
     x,
@@ -61,7 +61,7 @@ function makeParticle(x: number, y: number, z: number, color: string): Particle 
   }
 }
 
-// Midpoint (RK2) step of the Lorenz system.
+// RK2 Midpoint integration step of the Lorenz system
 function advance(p: Particle) {
   const k1x = SIGMA * (p.y - p.x)
   const k1y = p.x * (RHO - p.z) - p.y
@@ -96,12 +96,12 @@ export function LorenzAttractor({ reducedMotion }: LorenzProps) {
     const canvas = canvasRef.current
     if (!wrap || !canvas) return
 
+    // Seed particles across both wings for immediate symmetry
     const particles = [
-      makeParticle(1, 1, 1, COLORS[0]),
-      makeParticle(1.01, 1, 1, COLORS[1]),
-      makeParticle(1, 1.01, 1, COLORS[2]),
+      makeParticle(-8.2, -8.5, 25.0, COLORS[0]),
+      makeParticle(8.2, 8.5, 25.0, COLORS[1]),
+      makeParticle(0.8, -1.1, 21.0, COLORS[2]),
     ]
-
     let ctx: CanvasRenderingContext2D | null = null
     let w = 0
     let h = 0
@@ -110,8 +110,8 @@ export function LorenzAttractor({ reducedMotion }: LorenzProps) {
     let lastTime = 0
     const pointer = { x: -9999, y: -9999, inside: false }
 
-    // Warm up so the full butterfly exists before the first paint.
-    for (let i = 0; i < 1200; i++) for (const p of particles) advance(p)
+    // Warm up attractor onto the manifold and populate full trail
+    for (let i = 0; i < 1000; i++) for (const p of particles) advance(p)
     for (let i = 0; i < TRAIL * RECORD_EVERY; i++) {
       for (const p of particles) {
         advance(p)
@@ -126,36 +126,55 @@ export function LorenzAttractor({ reducedMotion }: LorenzProps) {
       lastTime = time
       c.clearRect(0, 0, w, h)
 
-      const scale = Math.min(w / 46, h / 62)
-      const sway = reducedMotion ? 0 : Math.sin(time * 0.00018) * 0.18
+      // -0.68 rad (~-39 deg) opens the x=y diagonal butterfly wings perpendicular to camera
+      const baseAngle = -0.68
+      const sway = reducedMotion ? baseAngle : baseAngle + Math.sin(time * 0.00032) * 0.24
       const ca = Math.cos(sway)
       const sa = Math.sin(sway)
-      const cx = w / 2
-      const cy = h * 0.46
+
+      // 3D pitch tilt to give volumetric separation between upper and lower trajectories
+      const pitch = 0.22
+      const cp = Math.cos(pitch)
+      const sp = Math.sin(pitch)
+
+      const scale = Math.min(w / 48, h / 50)
+      const cx = w * 0.5
+      const cy = h * 0.48
       const R2 = RADIUS * RADIUS
       const live = pointer.inside && !reducedMotion
 
       for (const p of particles) {
         if (p.count < 2) continue
         const first = p.count < TRAIL ? 0 : p.head
+
         for (let b = 0; b < BANDS; b++) {
           const from = Math.floor((b / BANDS) * p.count)
           const to = Math.floor(((b + 1) / BANDS) * p.count)
-          const r = 0.6 + ((b + 1) / BANDS) * 1.2
+          const baseRadius = 0.55 + ((b + 1) / BANDS) * 1.15
           c.fillStyle = p.styles[b]
           c.beginPath()
+
           for (let j = from; j < to; j++) {
             const idx = (first + j) % TRAIL
             const x = p.xs[idx]
             const y = p.ys[idx]
-            const persp = 1 + (x * sa + y * ca) * 0.012
-            const bx = cx + (x * ca - y * sa) * scale * persp
-            const by = cy - (p.zs[idx] - 28) * scale * persp
+            const z = p.zs[idx] - 25.0 // True geometric Z centroid of Lorenz butterfly
+
+            // 3D rotation: yaw around Z (sway), then pitch around X
+            const rx = x * ca - y * sa
+            const depthY = x * sa + y * ca
+            const ry = z * cp - depthY * sp
+            const rz = z * sp + depthY * cp
+
+            const persp = 1 / (1 - rz * 0.0085)
+            const bx = cx + rx * scale * persp
+            const by = cy - ry * scale * persp
 
             let ox = p.ox[idx]
             let oy = p.oy[idx]
             let vx = p.vx[idx]
             let vy = p.vy[idx]
+
             if (live) {
               const dx = bx + ox - pointer.x
               const dy = by + oy - pointer.y
@@ -167,6 +186,7 @@ export function LorenzAttractor({ reducedMotion }: LorenzProps) {
                 vy += (dy / d) * f * PUSH + (dx / d) * f * SWIRL
               }
             }
+
             vx = (vx - ox * SPRING * k) * DAMP
             vy = (vy - oy * SPRING * k) * DAMP
             ox += vx * k
@@ -176,22 +196,30 @@ export function LorenzAttractor({ reducedMotion }: LorenzProps) {
             p.vx[idx] = vx
             p.vy[idx] = vy
 
+            const depthScale = Math.max(0.6, Math.min(1.4, persp))
+            const r = baseRadius * depthScale
             c.moveTo(bx + ox + r, by + oy)
             c.arc(bx + ox, by + oy, r, 0, Math.PI * 2)
           }
           c.fill()
         }
 
-        // Head dot at the newest bead.
+        // Bright leading head bead
         const hi = (p.head - 1 + TRAIL) % TRAIL
         const hx = p.xs[hi]
         const hy = p.ys[hi]
-        const hp = 1 + (hx * sa + hy * ca) * 0.012
+        const hz = p.zs[hi] - 25.0
+        const hrx = hx * ca - hy * sa
+        const hDepthY = hx * sa + hy * ca
+        const hry = hz * cp - hDepthY * sp
+        const hrz = hz * sp + hDepthY * cp
+        const hp = 1 / (1 - hrz * 0.0085)
+
         c.fillStyle = `rgb(${p.color})`
         c.beginPath()
         c.arc(
-          cx + (hx * ca - hy * sa) * scale * hp + p.ox[hi],
-          cy - (p.zs[hi] - 28) * scale * hp + p.oy[hi],
+          cx + hrx * scale * hp + p.ox[hi],
+          cy - hry * scale * hp + p.oy[hi],
           2.6,
           0,
           Math.PI * 2,
@@ -229,6 +257,7 @@ export function LorenzAttractor({ reducedMotion }: LorenzProps) {
       pointer.y = event.clientY - rect.top
       pointer.inside = true
     }
+
     const onLeave = () => {
       pointer.inside = false
     }
