@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { ArrowDownRight, ArrowRight, ExternalLink } from 'lucide-react'
 import { Architecture } from '../components/Architecture'
 import { ClientCarousel } from '../components/ClientCarousel'
@@ -149,6 +149,36 @@ export function ResearchSection() {
 export function SignalSection() {
   const graphProject = projects.find((project) => project.id === 'tracemint')
   const [activeStage, setActiveStage] = useState(0)
+  const consoleRef = useRef<HTMLDivElement>(null)
+  const lastStep = useRef(-1)
+
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    let frame = 0
+    const update = () => {
+      frame = 0
+      const el = consoleRef.current
+      if (!el) return
+      const vh = window.innerHeight
+      const t = (vh * 0.9 - el.getBoundingClientRect().top) / (vh * 0.6)
+      const step = Math.min(signalPayloads.length - 1, Math.max(0, Math.floor(t * signalPayloads.length)))
+      if (step !== lastStep.current) {
+        lastStep.current = step
+        setActiveStage(step)
+      }
+    }
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(update)
+    }
+    update()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onScroll)
+    return () => {
+      cancelAnimationFrame(frame)
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+    }
+  }, [])
 
   return (
     <section className="signal-section section-dark" aria-labelledby="signal-title">
@@ -162,7 +192,7 @@ export function SignalSection() {
             <em>in the trail.</em>
           </h2>
         </div>
-        <div className="signal-console">
+        <div className="signal-console" ref={consoleRef}>
           <div className="console-head">
             <span>
               <i className="live-dot" /> SIGNAL CHANNEL // CLICK STAGE TO INSPECT

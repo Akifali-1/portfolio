@@ -462,5 +462,7 @@
 .cursor-dot,
 .cursor-ring:not(.has-label) { mix-blend-mode: difference; }
 
+.console-line-btn { transition: background 0.18s, color 0.18s; }
+
 
 
