@@ -2,11 +2,12 @@ import { useState } from 'react'
 import { ArrowDownRight, ArrowRight, ExternalLink } from 'lucide-react'
 import { Architecture } from '../components/Architecture'
 import { LabCard } from '../components/LabCard'
-import { ProjectRow } from '../components/ProjectRow'
+import { ClientCarousel } from '../components/ClientCarousel'
+import { DotGraph } from '../components/DotGraph'
 import { SectionLabel } from '../components/SectionLabel'
 import { ThreatEmulationPanel } from '../components/ThreatEmulationPanel'
-import { WorkGraph } from '../components/WorkGraph'
-import { clientProjects, exploring, projects, siteConfig, type Project } from '../data'
+import { WorksDrum } from '../components/WorksDrum'
+import { exploring, projects, siteConfig, type Project } from '../data'
 
 type ProjectSelectionProps = {
   onSelect: (project: Project) => void
@@ -69,37 +70,21 @@ export function ManifestoSection() {
 }
 
 export function WorkSection({ onSelect, reducedMotion }: ProjectSelectionProps & { reducedMotion: boolean }) {
-  const [hoveredProject, setHoveredProject] = useState<string | null>(null)
-
   return (
     <section className="work-section section-dark" id="work" aria-labelledby="work-title">
       <div className="page-grid">
-        <SectionLabel index="02">THE WORK GRAPH</SectionLabel>
+        <SectionLabel index="02">SELECTED WORK</SectionLabel>
         <div className="section-heading work-heading" data-reveal="rise">
-          <span className="mono-label">RELATIONAL INDEX / 2026</span>
+          <span className="mono-label">ARTIFACT INDEX / 05</span>
           <h2 id="work-title">
-            Everything
+            Five systems,
             <br />
-            <em>connects.</em>
+            <em>one question.</em>
           </h2>
-          <p>A map of products, research, and ideas in motion. Select a node to look closer.</p>
+          <p>Hover a name to turn the drum. Click a card to open the case study.</p>
         </div>
-        <WorkGraph onSelect={onSelect} reducedMotion={reducedMotion} highlightedProjectId={hoveredProject} />
       </div>
-      <div className="project-list" data-reveal="rise">
-        <div className="project-list-header mono-label">
-          <span>SELECTED WORK</span>
-          <span>ARTIFACT / 05</span>
-        </div>
-        {projects.map((project) => (
-          <ProjectRow
-            key={project.id}
-            project={project}
-            onSelect={onSelect}
-            onHoverChange={setHoveredProject}
-          />
-        ))}
-      </div>
+      <WorksDrum items={projects} onSelect={onSelect} reducedMotion={reducedMotion} />
     </section>
   )
 }
@@ -131,15 +116,7 @@ export function ClientSection({ onSelect }: ProjectSelectionProps) {
           <span className="mono-label">NO PUBLIC SOURCE LINKS</span>
         </div>
       </div>
-      <div className="project-list client-project-list">
-        <div className="project-list-header mono-label">
-          <span>CLIENT PROJECTS</span>
-          <span>WEB / 02</span>
-        </div>
-        {clientProjects.map((project) => (
-          <ProjectRow key={project.id} project={project} onSelect={onSelect} />
-        ))}
-      </div>
+      <ClientCarousel onSelect={onSelect} />
     </section>
   )
 }
@@ -223,7 +200,7 @@ export function SignalSection() {
   return (
     <section className="signal-section section-dark" aria-labelledby="signal-title">
       <div className="page-grid signal-grid">
-        <SectionLabel index="05">LIVE SIGNAL</SectionLabel>
+        <SectionLabel index="04">LIVE SIGNAL</SectionLabel>
         <div className="signal-title-wrap">
           <span className="mono-label">PUBLIC WORK / TRACEABLE BY DESIGN</span>
           <h2 id="signal-title">
@@ -282,7 +259,7 @@ export function AboutSection() {
   return (
     <section className="about-section section-paper" id="about" aria-labelledby="about-title">
       <div className="page-grid">
-        <SectionLabel index="06" light>
+        <SectionLabel index="05" light>
           ABOUT THE BUILDER
         </SectionLabel>
         <div className="about-copy">
@@ -346,6 +323,26 @@ export function ContactSection() {
           </a>
         </div>
         <div className="contact-line" />
+      </div>
+    </section>
+  )
+}
+
+export function GraphSection({ onSelect, reducedMotion }: ProjectSelectionProps & { reducedMotion: boolean }) {
+  return (
+    <section className="graph-section section-dark" id="graph" aria-labelledby="graph-title">
+      <div className="page-grid">
+        <SectionLabel index="06">THE WORK GRAPH</SectionLabel>
+        <div className="section-heading graph-heading" data-reveal="rise">
+          <span className="mono-label">RELATIONAL INDEX / 2026</span>
+          <h2 id="graph-title">
+            Everything
+            <br />
+            <em>connects.</em>
+          </h2>
+          <p>Five projects and the ideas they share. Hover a node to look closer.</p>
+        </div>
+        <DotGraph onSelect={onSelect} reducedMotion={reducedMotion} />
       </div>
     </section>
   )

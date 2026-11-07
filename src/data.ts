@@ -173,3 +173,89 @@ export const exploring = [
   'DEVELOPER TOOLS',
   'FULL-STACK SYSTEMS',
 ]
+
+
+/* ---------- Redesign additions ---------- */
+
+export type JourneyStop = {
+  id: string
+  index: string
+  label: string
+  title: string
+  body: string
+  meta: string[]
+}
+
+// EDIT: keep these factual. Add years once you are happy with the wording.
+export const journey: JourneyStop[] = [
+  {
+    id: 'education',
+    index: '01',
+    label: 'EDUCATION',
+    title: 'Computer science, Hyderabad',
+    body: 'Studying computer science at KMIT. The degree is the base layer: data structures, systems, and the habit of asking how things actually work.',
+    meta: ['KMIT HYDERABAD', 'COMPUTER SCIENCE', 'FOUNDATIONS'],
+  },
+  {
+    id: 'first-projects',
+    index: '02',
+    label: 'FIRST PROJECTS',
+    title: 'Websites for real businesses',
+    body: 'Started by building frontend sites for local clinics and construction companies. Real clients, real deadlines, and a clear lesson in making information easy to understand.',
+    meta: ['BUILDCRAFT', 'BRIGHT CLINIC', 'FREELANCE'],
+  },
+  {
+    id: 'current-work',
+    index: '03',
+    label: 'CURRENT WORK',
+    title: 'Products and research',
+    body: 'Now building TraceMint and researching graph forecasting, clinical graphs, multi-agent fraud detection, and autonomous attack and defense.',
+    meta: ['TRACEMINT', 'ADAPTIVE STGT', 'THREAT EMULATION'],
+  },
+  {
+    id: 'next',
+    index: '04',
+    label: 'NEXT',
+    title: 'AI engineering',
+    body: 'Looking for AI engineering roles and internships where systems, research, and shipping meet.',
+    meta: ['AI SYSTEMS', 'AGENTS', 'INTERNSHIPS'],
+  },
+]
+
+export type ClientSlide = {
+  projectId: string
+  src: string
+  title: string
+  subtitle: string
+  description: string
+  link?: string
+}
+
+// EDIT: add 3 to 4 slides per client. Put new screenshots in /public/clients/ and
+// point `src` at them, for example '/clients/buildcraft-02.png'.
+export const clientSlides: ClientSlide[] = [
+  {
+    projectId: 'buildcraft',
+    src: '/previews/buildcraft_hover.png',
+    title: 'BuildCraft',
+    subtitle: 'Construction business website',
+    description: 'A business and construction-oriented frontend built as client work.',
+    link: 'https://build-craft-lilac.vercel.app/',
+  },
+  {
+    projectId: 'bright-clinic',
+    src: '/previews/clinic_hover.png',
+    title: 'Bright Clinic',
+    subtitle: 'Dental clinic website',
+    description: 'A clear, approachable clinic website built as client work.',
+    link: 'https://dental-puce-theta.vercel.app/',
+  },
+]
+
+export const graphLines: Record<string, string> = {
+  tracemint: 'Turns real GitHub activity into a verified developer profile.',
+  'adaptive-stgt': 'Spatio-temporal graph forecasting for supply-chain demand.',
+  medgraph: 'Graph modeling of clinical entities and temporal signals.',
+  'multi-agent-fraud': 'Multiple agents reading suspicious UPI transactions.',
+  'threat-emulation': 'A Red Agent attacks while a Blue Agent adapts the defenses.',
+}

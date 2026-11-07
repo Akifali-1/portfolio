@@ -4,13 +4,14 @@ import { CommandPalette } from './components/CommandPalette'
 import { CustomCursor } from './components/CustomCursor'
 import { CollapseSurface, type CollapseSurfaceHandle } from './components/CollapseSurface'
 import { Hero } from './components/Hero'
+import { JourneySection } from './components/JourneySection'
 import { Navigation } from './components/Navigation'
 import { ProjectModal } from './components/ProjectModal'
 import {
   AboutSection,
   ClientSection,
   ContactSection,
-  LabSection,
+  GraphSection,
   ManifestoSection,
   ResearchSection,
   SignalSection,
@@ -24,6 +25,7 @@ import './styles.css'
 import './project-preview.css'
 import './ui-overrides.css'
 import './collapse.css'
+import './echo-sections.css'
 
 function App() {
   const reducedMotion = useReducedMotion()
@@ -196,12 +198,13 @@ function App() {
             collapseTargetRef={collapseTargetRef}
           />
           <ManifestoSection />
+          <JourneySection />
           <WorkSection onSelect={handleSelectProject} reducedMotion={reducedMotion} />
           <ClientSection onSelect={handleSelectProject} />
           <ResearchSection />
-          <LabSection onSelect={handleSelectProject} />
           <SignalSection />
           <AboutSection />
+          <GraphSection onSelect={handleSelectProject} reducedMotion={reducedMotion} />
           <ContactSection />
         </main>
         <ProjectModal

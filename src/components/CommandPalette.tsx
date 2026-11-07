@@ -38,11 +38,13 @@ export function CommandPalette({ open, onClose, onSelectProject }: CommandPalett
   }))
 
   const baseCommands: Command[] = [
-    { id: 'nav-work', label: 'Work graph & selected artifacts', keywords: 'work graph projects', meta: 'SECTION / 02', action: () => { goTo('work'); onClose() } },
-    { id: 'nav-research', label: 'Research monograph (Adaptive STGT & Threat Emulation)', keywords: 'research paper stgt threat emulation', meta: 'SECTION / 03', action: () => { goTo('research'); onClose() } },
-    { id: 'nav-lab', label: 'Research lab & open questions', keywords: 'lab experiments', meta: 'SECTION / 04', action: () => { goTo('lab'); onClose() } },
+    { id: 'nav-journey', label: 'The Journey (How I got here)', keywords: 'journey path education history', meta: 'SECTION / 01B', action: () => { goTo('journey'); onClose() } },
+    { id: 'nav-work', label: 'Work drum & selected artifacts', keywords: 'work drum projects', meta: 'SECTION / 02', action: () => { goTo('work'); onClose() } },
     { id: 'nav-client', label: 'Freelance / client web surface', keywords: 'client freelance web', meta: 'SECTION / 02B', action: () => { goTo('freelance'); onClose() } },
-    { id: 'nav-about', label: 'About the builder', keywords: 'about bio', meta: 'SECTION / 06', action: () => { goTo('about'); onClose() } },
+    { id: 'nav-research', label: 'Research monograph (Adaptive STGT & Threat Emulation)', keywords: 'research paper stgt threat emulation', meta: 'SECTION / 03', action: () => { goTo('research'); onClose() } },
+    { id: 'nav-about', label: 'About the builder', keywords: 'about bio', meta: 'SECTION / 05', action: () => { goTo('about'); onClose() } },
+    { id: 'nav-graph', label: 'The Work Graph (Relational index)', keywords: 'graph network relations ideas', meta: 'SECTION / 06', action: () => { goTo('graph'); onClose() } },
+    { id: 'nav-contact', label: 'Open channel & contact', keywords: 'contact email connect', meta: 'SECTION / 07', action: () => { goTo('contact'); onClose() } },
     {
       id: 'act-copy-email',
       label: copied ? `Copied ${siteConfig.email} to buffer` : `Copy email (${siteConfig.email})`,

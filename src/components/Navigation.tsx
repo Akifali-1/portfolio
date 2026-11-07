@@ -2,11 +2,12 @@ import { Menu, X } from 'lucide-react'
 import { siteConfig } from '../data'
 
 const navigationItems = [
+  { label: 'JOURNEY', href: '#journey' },
   { label: 'WORK', href: '#work' },
-  { label: 'CLIENT WORK', href: '#freelance' },
+  { label: 'CLIENT', href: '#freelance' },
   { label: 'RESEARCH', href: '#research' },
-  { label: 'LAB', href: '#lab' },
   { label: 'ABOUT', href: '#about' },
+  { label: 'GRAPH', href: '#graph' },
   { label: 'CONTACT', href: '#contact' },
 ]
 
@@ -26,7 +27,7 @@ export function Navigation({ onCommand, scrolled, mobileOpen, onToggleMobile, on
           AKIF<span>.SYSTEM</span>
         </a>
         <nav className="desktop-nav" aria-label="Primary navigation">
-          {navigationItems.slice(0, 5).map((item) => (
+          {navigationItems.map((item) => (
             <a key={item.href} href={item.href} data-cursor={item.label}>
               {item.label}
             </a>
