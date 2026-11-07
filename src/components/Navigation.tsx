@@ -11,6 +11,8 @@ const navigationItems = [
   { label: 'CONTACT', href: '#contact' },
 ]
 
+const desktopHidden = new Set(['#graph', '#contact'])
+
 type NavigationProps = {
   onCommand: () => void
   scrolled: boolean
@@ -27,7 +29,7 @@ export function Navigation({ onCommand, scrolled, mobileOpen, onToggleMobile, on
           AKIF<span>.SYSTEM</span>
         </a>
         <nav className="desktop-nav" aria-label="Primary navigation">
-          {navigationItems.map((item) => (
+          {navigationItems.filter((item) => !desktopHidden.has(item.href)).map((item) => (
             <a key={item.href} href={item.href} data-cursor={item.label}>
               {item.label}
             </a>

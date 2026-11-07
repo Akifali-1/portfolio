@@ -445,3 +445,9 @@
   .drum-card { transition: none; }
 }
 
+/* Nav: social links would collide with the centered links on laptop widths */
+@media (max-width: 1360px) {
+  .nav-social { display: none; }
+}
+
+
