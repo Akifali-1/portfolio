@@ -102,7 +102,7 @@ export function Hero({ booted = true, reducedMotion, collapseState, onCollapse, 
               </div>
             </div>
           </div>
-          <div className="hero-lorenz">
+          <div className="hero-lorenz-slot">
             <LorenzAttractor reducedMotion={reducedMotion} />
           </div>
         </div>

@@ -805,6 +805,7 @@ body:has(.boot-curtain-stage) {
 .portfolio-shell.is-hero-waiting .hero-collapse-control,
 .portfolio-shell.is-hero-waiting .hero-footer,
 .portfolio-shell.is-hero-waiting .hero-words,
+.portfolio-shell.is-hero-waiting .hero-lorenz-slot,
 .portfolio-shell.is-hero-waiting .falling-tech-logo-field {
   opacity: 0;
   transform: translate3d(0, 36px, 0);
@@ -818,6 +819,7 @@ body:has(.boot-curtain-stage) {
 .portfolio-shell.is-hero-entered .hero-collapse-control,
 .portfolio-shell.is-hero-entered .hero-footer,
 .portfolio-shell.is-hero-entered .hero-words,
+.portfolio-shell.is-hero-entered .hero-lorenz-slot,
 .portfolio-shell.is-hero-entered .falling-tech-logo-field {
   opacity: 1;
   transform: translate3d(0, 0, 0);
@@ -831,6 +833,7 @@ body:has(.boot-curtain-stage) {
 .portfolio-shell.is-hero-entered .hero-index { transition-delay: 100ms; }
 .portfolio-shell.is-hero-entered .hero-title { transition-delay: 160ms; }
 .portfolio-shell.is-hero-entered .hero-subline { transition-delay: 250ms; }
+.portfolio-shell.is-hero-entered .hero-lorenz-slot { transition-delay: 300ms; }
 .portfolio-shell.is-hero-entered .hero-collapse-control { transition-delay: 320ms; }
 .portfolio-shell.is-hero-entered .hero-footer,
 .portfolio-shell.is-hero-entered .hero-words,

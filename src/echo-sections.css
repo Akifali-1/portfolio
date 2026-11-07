@@ -8,7 +8,7 @@
 /* ---------- Hero: halftone name left, Lorenz right ---------- */
 .hero-stage {
   display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
   align-items: center;
   gap: clamp(24px, 4vw, 72px);
 }
@@ -22,8 +22,8 @@
 }
 .halftone-name {
   position: relative;
-  width: 75%;
-  max-width: none;
+  width: calc(100% - 92px);
+  max-width: 940px;
   transform: translateY(calc(var(--hero-progress) * -24px));
   opacity: calc(1 - var(--hero-progress) * 0.6);
 }
@@ -43,13 +43,11 @@
 .hero-stage .hero-statement-column {
   margin-left: clamp(48px, 8vw, 130px);
 }
+.hero-lorenz-slot { min-width: 0; width: 100%; }
 .hero-lorenz {
   position: relative;
   width: 100%;
-  aspect-ratio: 1 / 1;
-  min-height: 380px;
-  max-height: 70vh;
-  justify-self: end;
+  height: clamp(420px, 68vh, 720px);
   opacity: calc(1 - var(--hero-progress) * 0.7);
 }
 .hero-lorenz canvas { position: absolute; inset: 0; display: block; }
@@ -69,7 +67,8 @@
 
 @media (max-width: 1000px) {
   .hero-stage { grid-template-columns: 1fr; gap: 28px; }
-  .hero-lorenz { order: 2; aspect-ratio: 16 / 10; min-height: 0; max-height: 300px; }
+  .hero-lorenz-slot { order: 2; }
+  .hero-lorenz { height: clamp(240px, 42vh, 320px); }
   .hero-stage .hero-subline { margin-top: 30px; }
   .hero-stage .hero-statement-column { margin-left: 0; }
 }

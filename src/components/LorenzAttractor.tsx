@@ -103,7 +103,7 @@ export function LorenzAttractor({ reducedMotion }: LorenzProps) {
       c.clearRect(0, 0, w, h)
       c.lineCap = 'round'
       c.lineJoin = 'round'
-      const scale = Math.min(w / 56, h / 78)
+      const scale = Math.min(w / 52, h / 68)
       const idle = reducedMotion ? 0 : Math.sin(time * 0.00018) * 0.18
       const angle = yaw + idle
       const ca = Math.cos(angle)
