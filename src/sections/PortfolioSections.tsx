@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { ArrowDownRight, ArrowRight, ExternalLink } from 'lucide-react'
 import { Architecture } from '../components/Architecture'
-import { LabCard } from '../components/LabCard'
 import { ClientCarousel } from '../components/ClientCarousel'
 import { DotGraph } from '../components/DotGraph'
 import { SectionLabel } from '../components/SectionLabel'
@@ -159,34 +158,6 @@ export function ResearchSection() {
             <em>become signal.</em>
           </strong>
           <span className="mono-label">AKIF.SYSTEM / RESEARCH SURFACE</span>
-        </div>
-      </div>
-    </section>
-  )
-}
-
-export function LabSection({ onSelect }: ProjectSelectionProps) {
-  return (
-    <section className="lab-section section-dark" id="lab" aria-labelledby="lab-title">
-      <div className="page-grid">
-        <SectionLabel index="04">RESEARCH LAB</SectionLabel>
-        <div className="lab-heading">
-          <div>
-            <span className="mono-label">// OPEN QUESTIONS</span>
-            <h2 id="lab-title">
-              Not everything
-              <br />
-              needs to be <em>finished.</em>
-            </h2>
-          </div>
-          <p>Some systems are shipped. Some are watched. The lab keeps the uncertain parts visible.</p>
-        </div>
-        <div className="lab-grid">
-          {projects
-            .filter((project) => project.kind === 'research' || project.kind === 'prototype')
-            .map((project) => (
-              <LabCard key={project.id} project={project} onSelect={onSelect} />
-            ))}
         </div>
       </div>
     </section>
