@@ -135,14 +135,30 @@ export function WorksDrum({ items, onSelect, reducedMotion }: WorksDrumProps) {
     }
 
     let settle = 0
-    // Passively sync or allow horizontal swipe without blocking vertical page scroll
     const onWheel = (event: WheelEvent) => {
-      const isHorizontalSwipe = Math.abs(event.deltaX) > Math.abs(event.deltaY) * 1.2
-      if (!isHorizontalSwipe && !event.shiftKey) return
-      event.preventDefault()
+      if (Math.abs(event.deltaX) > Math.abs(event.deltaY)) return
+
+      // Only capture vertical wheel when the drum is well within the viewport
+      const rect = root.getBoundingClientRect()
+      const viewCenter = window.innerHeight / 2
+      const drumCenter = rect.top + rect.height / 2
+      const isCentered = Math.abs(drumCenter - viewCenter) < window.innerHeight * 0.28
+
       const unit = event.deltaMode === 1 ? 16 : 1
-      const delta = isHorizontalSwipe ? event.deltaX : event.deltaY
-      target = clamp(target + (delta * unit) / WHEEL_UNITS, 0, last)
+      const stepDelta = (event.deltaY * unit) / WHEEL_UNITS
+      const goingDown = stepDelta > 0
+      const goingUp = stepDelta < 0
+
+      // Release scroll to the page once the user reaches the first (0) or last (05) card
+      const canSpinDown = goingDown && target < last - 0.02
+      const canSpinUp = goingUp && target > 0.02
+
+      if (!isCentered || (!canSpinDown && !canSpinUp)) {
+        return
+      }
+
+      event.preventDefault()
+      target = clamp(target + stepDelta, 0, last)
       request()
       window.clearTimeout(settle)
       settle = window.setTimeout(() => {

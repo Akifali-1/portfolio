@@ -17,7 +17,7 @@ function hasWebGL() {
 
 export function ClientCarousel({ onSelect }: ClientCarouselProps) {
   const holderRef = useRef<HTMLDivElement>(null)
-  const [mounted, setMounted] = useState(false)
+  const [mounted, setMounted] = useState(true)
   const [webgl] = useState(hasWebGL)
 
   // Ensure at least 4 slides in the ring buffer so wrap() has an unambiguous shortest path
@@ -73,7 +73,7 @@ export function ClientCarousel({ onSelect }: ClientCarouselProps) {
   }
 
   return (
-    <div ref={holderRef} className="client-carousel" data-reveal="rise">
+    <div ref={holderRef} className="client-carousel">
       {webgl ? (
         mounted && (
           <FlexCarousel
