@@ -4,13 +4,14 @@ import { FallingTechLogos, type CollapseAnimationState } from './FallingTechLogo
 import { siteConfig } from '../data'
 
 type HeroProps = {
+  booted?: boolean
   reducedMotion: boolean
   collapseState: CollapseAnimationState
   onCollapse: () => void
   collapseTargetRef: RefObject<HTMLSpanElement | null>
 }
 
-export function Hero({ reducedMotion, collapseState, onCollapse, collapseTargetRef }: HeroProps) {
+export function Hero({ booted = true, reducedMotion, collapseState, onCollapse, collapseTargetRef }: HeroProps) {
   const letters = 'AKIF'.split('')
   const [clock, setClock] = useState('')
   const heroRef = useRef<HTMLElement>(null)
@@ -60,7 +61,7 @@ export function Hero({ reducedMotion, collapseState, onCollapse, collapseTargetR
     <section ref={heroRef} className="hero" id="top">
       <FallingTechLogos
         reducedMotion={reducedMotion}
-        active
+        active={booted}
         state={collapseState}
       />
       <div className="hero-noise" />

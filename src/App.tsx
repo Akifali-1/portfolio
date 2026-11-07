@@ -166,7 +166,11 @@ function App() {
   return (
     <>
       {!booted && <BootScreen onComplete={finishBoot} reducedMotion={reducedMotion} />}
-      <div ref={portfolioShellRef} className="portfolio-shell" aria-hidden={collapseState !== 'idle'}>
+      <div
+        ref={portfolioShellRef}
+        className={`portfolio-shell ${booted ? 'is-hero-entered' : 'is-hero-waiting'}`}
+        aria-hidden={collapseState !== 'idle'}
+      >
         <CustomCursor />
         <Navigation
           onCommand={() => {
@@ -185,6 +189,7 @@ function App() {
         />
         <main className="site-main">
           <Hero
+            booted={booted}
             reducedMotion={reducedMotion}
             collapseState={collapseState}
             onCollapse={startCollapse}

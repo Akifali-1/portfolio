@@ -68,24 +68,28 @@ class SoundEngine {
     osc.stop(ctx.currentTime + 0.24)
   }
 
-  // Crystalline fracture burst when screen shatters at 100%
-  public playShatter() {
+  // Smooth mechanical whoosh when the curtains pull apart at 100%
+  public playCurtainReveal() {
     const ctx = this.getContext()
     if (!ctx) return
-    const freqs = [1420, 2180, 3100, 4400, 190]
+    const freqs = [220, 330, 440]
     freqs.forEach((f, idx) => {
       const osc = ctx.createOscillator()
       const gain = ctx.createGain()
-      osc.type = idx === 4 ? 'sawtooth' : 'triangle'
-      osc.frequency.setValueAtTime(f, ctx.currentTime + idx * 0.012)
-      osc.frequency.exponentialRampToValueAtTime(f * 0.35, ctx.currentTime + 0.32)
-      gain.gain.setValueAtTime(idx === 4 ? 0.12 : 0.04, ctx.currentTime + idx * 0.012)
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35)
+      osc.type = 'sine'
+      osc.frequency.setValueAtTime(f, ctx.currentTime + idx * 0.04)
+      osc.frequency.exponentialRampToValueAtTime(f * 1.8, ctx.currentTime + 0.45)
+      gain.gain.setValueAtTime(0.035, ctx.currentTime + idx * 0.04)
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.48)
       osc.connect(gain)
       gain.connect(ctx.destination)
-      osc.start(ctx.currentTime + idx * 0.012)
-      osc.stop(ctx.currentTime + 0.36)
+      osc.start(ctx.currentTime + idx * 0.04)
+      osc.stop(ctx.currentTime + 0.5)
     })
+  }
+
+  public playShatter() {
+    this.playCurtainReveal()
   }
 }
 

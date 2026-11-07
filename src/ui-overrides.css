@@ -234,119 +234,7 @@
   margin-top: 14px;
 }
 
-/* standby screen */
-.boot-offline {
-  overflow: hidden;
-  background: radial-gradient(circle at 50% 42%, rgba(77, 124, 255, .08), transparent 28%), var(--black);
-}
 
-.boot-offline::before {
-  position: absolute;
-  inset: 0;
-  background-image: linear-gradient(rgba(243, 243, 240, .025) 1px, transparent 1px), linear-gradient(90deg, rgba(243, 243, 240, .025) 1px, transparent 1px);
-  background-size: 72px 72px;
-  content: '';
-  mask-image: linear-gradient(to bottom, transparent, black 25%, black 75%, transparent);
-  pointer-events: none;
-}
-
-.offline-core {
-  position: relative;
-  width: min(560px, calc(100vw - 40px));
-  padding: 30px 32px 28px;
-  border: 1px solid var(--line);
-  background: linear-gradient(135deg, rgba(16, 16, 16, .9), rgba(5, 5, 5, .72));
-  box-shadow: 0 30px 100px rgba(0, 0, 0, .42), inset 0 0 45px rgba(77, 124, 255, .035);
-}
-
-.offline-core::before,
-.offline-core::after {
-  position: absolute;
-  width: 20px;
-  height: 20px;
-  border-color: rgba(77, 124, 255, .7);
-  content: '';
-}
-
-.offline-core::before { top: -1px; left: -1px; border-top: 1px solid; border-left: 1px solid; }
-.offline-core::after { right: -1px; bottom: -1px; border-right: 1px solid; border-bottom: 1px solid; }
-
-.offline-status {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  color: var(--muted);
-  font-size: 10px;
-  letter-spacing: .12em;
-}
-
-.offline-dot {
-  width: 6px;
-  height: 6px;
-  border: 1px solid var(--blue);
-  border-radius: 50%;
-  box-shadow: 0 0 12px rgba(77, 124, 255, .65);
-}
-
-.offline-title {
-  margin: 48px 0 23px;
-  color: var(--white);
-  font: 500 clamp(58px, 11vw, 108px) var(--display);
-  letter-spacing: -.1em;
-  line-height: .78;
-}
-
-.offline-title em {
-  color: var(--paper-muted);
-  font-family: var(--editorial);
-  font-size: 1.04em;
-  font-weight: 400;
-  letter-spacing: -.06em;
-}
-
-.offline-core p {
-  max-width: 300px;
-  margin: 0 0 30px;
-  color: var(--muted);
-  font: 14px var(--display);
-  line-height: 1.4;
-}
-
-.offline-action {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 16px;
-}
-
-.offline-button {
-  display: inline-flex;
-  align-items: center;
-  gap: 11px;
-  min-height: 42px;
-  padding: 0 15px;
-  border: 1px solid rgba(77, 124, 255, .62);
-  background: rgba(77, 124, 255, .12);
-  color: var(--white);
-  font: 10px var(--mono);
-  letter-spacing: .1em;
-  cursor: pointer;
-  transition: background .25s var(--ease), border-color .25s, box-shadow .25s, transform .25s var(--ease);
-}
-
-.offline-button:hover,
-.offline-button:focus-visible {
-  border-color: var(--blue);
-  background: var(--blue);
-  box-shadow: 0 0 28px rgba(77, 124, 255, .28);
-  outline: 0;
-  transform: translateY(-2px);
-}
-
-.power-mark { color: var(--blue); font-family: var(--display); font-size: 16px; transition: color .25s; }
-.offline-button:hover .power-mark,
-.offline-button:focus-visible .power-mark { color: var(--white); }
-.offline-hint { color: var(--faint); font-size: 9px; letter-spacing: .1em; }
 
 /* project links */
 .project-title-line {
@@ -581,247 +469,7 @@
   .mobile-navigation-panel { animation: none; }
 }
 
-/* --- 1. Standby & Initial Click Impact Tremor --- */
-.offline-button.is-pulsing {
-  position: relative;
-  animation: button-attract-pulse 1.05s ease-in-out infinite alternate;
-}
 
-.offline-button.is-pressed {
-  transform: scale(0.91) !important;
-  background: var(--blue) !important;
-  border-color: var(--white) !important;
-  box-shadow: 0 0 54px rgba(77, 124, 255, 0.9) !important;
-}
-
-.impact-shockwave {
-  position: absolute;
-  inset: -6px;
-  border: 1.5px solid var(--white);
-  pointer-events: none;
-  animation: shockwave-expand 0.38s var(--ease) forwards;
-}
-
-.phantom-cursor {
-  position: absolute;
-  z-index: 20;
-  bottom: -40px;
-  right: -30px;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  pointer-events: none;
-  opacity: 0;
-  transform: translate3d(130px, 95px, 0) rotate(-14deg);
-  transition:
-    transform var(--glide-ms, 700ms) cubic-bezier(0.22, 1, 0.36, 1),
-    opacity 0.2s ease;
-}
-
-.phantom-cursor.is-arrived {
-  opacity: 1;
-  transform: translate3d(-265px, -34px, 0) rotate(0deg);
-}
-
-.phantom-cursor.is-clicking {
-  transform: translate3d(-265px, -30px, 0) scale(0.82);
-  transition: transform 0.08s ease;
-}
-
-.phantom-cursor-tag {
-  padding: 3px 6px;
-  border: 1px solid rgba(77, 124, 255, 0.65);
-  background: rgba(5, 5, 5, 0.94);
-  color: var(--blue);
-  font: 8px var(--mono);
-  letter-spacing: 0.1em;
-  white-space: nowrap;
-}
-
-/* Heavy initial jolt when button is clicked */
-.boot-offline.is-impact-quake .offline-core {
-  animation: initial-impact-quake 0.36s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
-}
-
-@keyframes initial-impact-quake {
-  0% { transform: translate3d(0, 0, 0) scale(1); }
-  15% { transform: translate3d(-14px, 10px, 0) rotate(-1.8deg) scale(0.98); }
-  30% { transform: translate3d(12px, -12px, 0) rotate(1.6deg); }
-  45% { transform: translate3d(-10px, -6px, 0) rotate(-1.1deg); }
-  65% { transform: translate3d(8px, 7px, 0) rotate(0.8deg); }
-  85% { transform: translate3d(-4px, -3px, 0); }
-  100% { transform: translate3d(0, 0, 0) scale(1); }
-}
-
-/* --- 2. Progressive Seismic Escalation & Chromatic Overload --- */
-.boot-screen.is-quaking {
-  --quake-intensity: 0;
-  overflow: hidden;
-  background:
-    radial-gradient(
-      circle at 50% 50%,
-      rgba(77, 124, 255, calc(var(--quake-intensity) * 0.26)),
-      transparent 55%
-    ),
-    var(--black);
-}
-
-.boot-screen.is-quaking .boot-core {
-  will-change: transform;
-}
-
-/* RGB Chromatic Split as resonance exceeds 75% */
-.boot-screen.is-critical-overload .boot-lines {
-  text-shadow:
-    calc(var(--quake-intensity) * -3.5px) 0 0 rgba(255, 70, 95, 0.75),
-    calc(var(--quake-intensity) * 3.5px) 0 0 rgba(77, 124, 255, 0.85);
-}
-
-.boot-screen.is-critical-overload .boot-progress span {
-  background: var(--white);
-  box-shadow: 0 0 24px var(--blue), 0 0 48px var(--white);
-}
-
-.boot-telemetry-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 22px;
-  color: var(--blue);
-  font-size: 9px;
-  letter-spacing: 0.12em;
-}
-
-.boot-telemetry-row .boot-skip {
-  margin-top: 0;
-}
-
-/* Lock scrollbar during boot and 3D shatter so right scrollbar never flashes */
-body:has(.boot-screen),
-body:has(.shatter-viewport) {
-  overflow: hidden !important;
-}
-
-/* Keep boot text crisp above the fracture layer */
-.boot-core {
-  position: relative;
-  z-index: 5;
-}
-
-/* Radial mask hides cracks directly behind the text core so lines radiate outward cleanly */
-.fracture-overlay {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 2;
-  transition: opacity 0.08s linear;
-  mask-image: radial-gradient(
-    ellipse 240px 150px at 48% 50%,
-    transparent 15%,
-    rgba(0, 0, 0, 0.35) 52%,
-    black 82%
-  );
-  -webkit-mask-image: radial-gradient(
-    ellipse 240px 150px at 48% 50%,
-    transparent 15%,
-    rgba(0, 0, 0, 0.35) 52%,
-    black 82%
-  );
-}
-
-.fracture-primary path {
-  fill: none;
-  stroke: rgba(220, 235, 255, 0.92);
-  stroke-width: 1.35;
-  stroke-linejoin: bevel;
-  stroke-linecap: square;
-  filter: drop-shadow(0 0 6px rgba(77, 124, 255, 0.9));
-  stroke-dasharray: 950;
-  stroke-dashoffset: calc((1 - var(--quake-intensity, 0)) * 680);
-}
-
-.fracture-micro path {
-  fill: none;
-  stroke: rgba(130, 170, 255, 0.52);
-  stroke-width: 0.65;
-  stroke-linejoin: bevel;
-  stroke-dasharray: 500;
-  stroke-dashoffset: calc((1 - var(--quake-intensity, 0)) * 420);
-}
-
-/* --- 4. 3D Voronoi Glass Shatter Detonation --- */
-.shatter-viewport {
-  position: fixed;
-  z-index: 105;
-  inset: 0;
-  perspective: 1400px;
-  pointer-events: none;
-  overflow: hidden;
-}
-
-.shatter-flash {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at 50% 50%, rgba(243, 243, 240, 0.85), rgba(77, 124, 255, 0.35) 45%, transparent 75%);
-  animation: shatter-flash-out 0.42s var(--ease) forwards;
-}
-
-.shatter-shard {
-  position: absolute;
-  inset: 0;
-  transform-style: preserve-3d;
-  will-change: transform, opacity;
-  animation: shard-detonate var(--shatter-ms, 1150ms) cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.shard-inner-surface {
-  width: 100%;
-  height: 100%;
-  background:
-    radial-gradient(circle at 50% 50%, rgba(77, 124, 255, 0.18), transparent 45%),
-    linear-gradient(135deg, #11131a 0%, #050505 65%, #0c0f17 100%);
-  box-shadow: inset 0 0 0 1.5px rgba(175, 205, 255, 0.55);
-}
-
-@keyframes shatter-flash-out {
-  0% { opacity: 0.95; }
-  100% { opacity: 0; }
-}
-
-@keyframes shard-detonate {
-  0% {
-    opacity: 1;
-    transform: translate3d(0, 0, 0) rotateX(0deg) rotateY(0deg) rotateZ(0deg) scale(1);
-  }
-  18% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-    transform:
-      translate3d(var(--tx), var(--ty), var(--tz))
-      rotateX(var(--rx))
-      rotateY(var(--ry))
-      rotateZ(var(--rz))
-      scale(0.72);
-  }
-}
-
-@keyframes button-attract-pulse {
-  from {
-    box-shadow: 0 0 0 0 rgba(77, 124, 255, 0.2), inset 0 0 12px rgba(77, 124, 255, 0.12);
-  }
-  to {
-    box-shadow: 0 0 28px 5px rgba(77, 124, 255, 0.48), inset 0 0 24px rgba(77, 124, 255, 0.3);
-  }
-}
-
-@keyframes shockwave-expand {
-  0% { opacity: 1; transform: scale(0.95); }
-  100% { opacity: 0; transform: scale(1.65); }
-}
 
 /* --- Sound Trigger & Hero Clock --- */
 .sound-trigger {
@@ -1082,6 +730,166 @@ body::-webkit-scrollbar {
 /* Fix bottom-right overlap between 01-07 and WORK RESEARCH LAB SYSTEM */
 .hero-footer-right {
   display: none !important;
+}
+
+/* --- Minimalist Warm-Amber Loader & Left-to-Right Staircase Curtain Reveal --- */
+body:has(.boot-curtain-stage) {
+  overflow: hidden !important;
+}
+
+.boot-curtain-stage {
+  position: fixed;
+  z-index: 105;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: all;
+}
+
+.boot-curtain-stage.is-opening {
+  pointer-events: none;
+}
+
+/* 5-Column Curtain Grid */
+.boot-curtain-grid {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.boot-curtain-col {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: #050505;
+  border-right: 1px solid rgba(243, 243, 240, 0.04);
+  will-change: transform, background-color;
+  transition:
+    background-color 0.14s ease,
+    border-color 0.14s ease,
+    box-shadow 0.14s ease,
+    transform var(--curtain-slide-ms, 900ms) cubic-bezier(0.76, 0, 0.24, 1);
+  transition-delay:
+    0ms,
+    0ms,
+    0ms,
+    calc(var(--col-index, 0) * var(--curtain-stagger-ms, 90ms));
+}
+
+.boot-curtain-col:last-child {
+  border-right: none;
+}
+
+/* At 100%, columns shift to crisp off-white with subtle seam lines */
+.boot-curtain-stage.is-arming .boot-curtain-col,
+.boot-curtain-stage.is-opening .boot-curtain-col {
+  background: #f3f3f0;
+  border-right: 1px solid rgba(5, 5, 5, 0.14);
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.35);
+}
+
+/* All columns pull straight UP from Left to Right (Stepped Staircase) */
+.boot-curtain-stage.is-opening .boot-curtain-col {
+  transform: translate3d(0, -102%, 0);
+}
+
+/* --- Keep Hero Blank During Curtain Pull, Slide In After --- */
+.portfolio-shell.is-hero-waiting .hero-intro,
+.portfolio-shell.is-hero-waiting .hero-index,
+.portfolio-shell.is-hero-waiting .hero-title,
+.portfolio-shell.is-hero-waiting .hero-subline,
+.portfolio-shell.is-hero-waiting .hero-collapse-control,
+.portfolio-shell.is-hero-waiting .hero-footer,
+.portfolio-shell.is-hero-waiting .hero-words,
+.portfolio-shell.is-hero-waiting .falling-tech-logo-field {
+  opacity: 0;
+  transform: translate3d(0, 36px, 0);
+  pointer-events: none;
+}
+
+.portfolio-shell.is-hero-entered .hero-intro,
+.portfolio-shell.is-hero-entered .hero-index,
+.portfolio-shell.is-hero-entered .hero-title,
+.portfolio-shell.is-hero-entered .hero-subline,
+.portfolio-shell.is-hero-entered .hero-collapse-control,
+.portfolio-shell.is-hero-entered .hero-footer,
+.portfolio-shell.is-hero-entered .hero-words,
+.portfolio-shell.is-hero-entered .falling-tech-logo-field {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  transition:
+    opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Staggered entrance delays once curtains clear */
+.portfolio-shell.is-hero-entered .hero-intro { transition-delay: 40ms; }
+.portfolio-shell.is-hero-entered .hero-index { transition-delay: 100ms; }
+.portfolio-shell.is-hero-entered .hero-title { transition-delay: 160ms; }
+.portfolio-shell.is-hero-entered .hero-subline { transition-delay: 250ms; }
+.portfolio-shell.is-hero-entered .hero-collapse-control { transition-delay: 320ms; }
+.portfolio-shell.is-hero-entered .hero-footer,
+.portfolio-shell.is-hero-entered .hero-words,
+.portfolio-shell.is-hero-entered .falling-tech-logo-field { transition-delay: 380ms; }
+
+/* Centered Minimalist Amber-Orange Loader */
+.boot-minimal-loader {
+  position: relative;
+  z-index: 2;
+  width: min(340px, calc(100vw - 56px));
+  display: grid;
+  gap: 12px;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.boot-minimal-loader.is-hidden {
+  opacity: 0;
+  transform: scale(0.97);
+  pointer-events: none;
+}
+
+.boot-minimal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-family: var(--mono);
+}
+
+.boot-minimal-tag {
+  color: rgba(245, 158, 11, 0.55);
+  font-size: 9px;
+  letter-spacing: 0.16em;
+}
+
+.boot-minimal-percent {
+  color: #ff9e3b;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 18px rgba(245, 158, 11, 0.35);
+}
+
+.boot-minimal-track {
+  position: relative;
+  width: 100%;
+  height: 2px;
+  background: rgba(245, 158, 11, 0.14);
+  overflow: hidden;
+}
+
+.boot-minimal-fill {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, #d97706, #ff9e3b, #fbbf24);
+  box-shadow: 0 0 16px rgba(245, 158, 11, 0.55);
+  transform-origin: left center;
+  will-change: transform;
 }
 
 
