@@ -8,7 +8,7 @@
 /* ---------- Hero: halftone name left, Lorenz right ---------- */
 .hero-stage {
   display: grid;
-  grid-template-columns: minmax(0, 1.5fr) minmax(0, 0.7fr);
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
   align-items: center;
   gap: clamp(24px, 4vw, 72px);
 }
@@ -46,20 +46,30 @@
 .hero-lorenz {
   position: relative;
   width: 100%;
-  aspect-ratio: 1.15 / 1;
-  max-height: 68vh;
+  aspect-ratio: 1 / 1;
+  min-height: 380px;
+  max-height: 70vh;
   justify-self: end;
   opacity: calc(1 - var(--hero-progress) * 0.7);
-  background-image: radial-gradient(rgba(243, 243, 240, 0.14) 1px, transparent 1.4px);
-  background-size: 22px 22px;
-  -webkit-mask-image: linear-gradient(90deg, #000, transparent 75%);
-  mask-image: linear-gradient(90deg, #000, transparent 75%);
 }
-.hero-lorenz canvas { display: block; width: 100%; height: 100%; }
+.hero-lorenz canvas { position: absolute; inset: 0; display: block; }
+.lorenz-readout {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  display: grid;
+  gap: 4px;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  color: var(--faint);
+  pointer-events: none;
+}
+.lorenz-readout span:nth-child(2) { color: var(--muted); }
+.lorenz-readout b { color: var(--white); font-weight: 400; }
 
 @media (max-width: 1000px) {
   .hero-stage { grid-template-columns: 1fr; gap: 28px; }
-  .hero-lorenz { order: 2; aspect-ratio: 16 / 10; max-height: 300px; }
+  .hero-lorenz { order: 2; aspect-ratio: 16 / 10; min-height: 0; max-height: 300px; }
   .hero-stage .hero-subline { margin-top: 30px; }
   .hero-stage .hero-statement-column { margin-left: 0; }
 }
