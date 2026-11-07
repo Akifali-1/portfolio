@@ -70,18 +70,14 @@ export function ManifestoSection() {
 
 export function WorkSection({ onSelect, reducedMotion }: ProjectSelectionProps & { reducedMotion: boolean }) {
   return (
-    <section className="work-section section-dark" id="work" aria-labelledby="work-title">
+    <section className="work-section section-paper" id="work" aria-labelledby="work-title">
       <div className="page-grid">
-        <SectionLabel index="02">SELECTED WORK</SectionLabel>
-        <div className="section-heading work-heading" data-reveal="rise">
-          <span className="mono-label">ARTIFACT INDEX / 05</span>
-          <h2 id="work-title">
-            Five systems,
-            <br />
-            <em>one question.</em>
-          </h2>
-          <p>Hover a name to turn the drum. Click a card to open the case study.</p>
-        </div>
+        <SectionLabel index="02" light>
+          SELECTED WORK / FIVE SYSTEMS, ONE QUESTION
+        </SectionLabel>
+        <h2 id="work-title" className="sr-only">
+          Selected work
+        </h2>
       </div>
       <WorksDrum items={projects} onSelect={onSelect} reducedMotion={reducedMotion} />
     </section>

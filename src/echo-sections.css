@@ -395,6 +395,33 @@
   .dot-axis { display: none; }
 }
 
+/* ---------- Work on paper ---------- */
+.work-section.section-paper { padding-bottom: 110px; }
+.work-section .works-drum {
+  margin-top: 56px;
+  height: clamp(600px, 88vh, 860px);
+  border-block: 1px solid var(--line-dark);
+  background: radial-gradient(ellipse at 50% 50%, #f4f4ef, transparent 70%), var(--paper);
+}
+.work-section .drum-shade { background: var(--paper); }
+.work-section .drum-face { border-color: rgba(5, 5, 5, 0.18); box-shadow: 0 28px 60px rgba(5, 5, 5, 0.28); }
+.work-section .drum-card:hover .drum-face { border-color: rgba(5, 5, 5, 0.55); }
+.work-section .drum-stage:focus-visible { outline-color: rgba(5, 5, 5, 0.4); }
+.work-section .drum-title .mono-label,
+.work-section .drum-counter,
+.work-section .drum-hint { color: #6b6a64; }
+.work-section .drum-title strong { color: var(--black); }
+.work-section .drum-title p { color: #5e5d58; }
+.work-section .drum-title .text-arrow { color: var(--black); }
+.work-section .drum-title .text-arrow:hover { color: #3b5ed2; }
+.work-section .drum-index button,
+.work-section .drum-index button small { color: #85847c; }
+.work-section .drum-index button:hover,
+.work-section .drum-index button.is-active { color: var(--black); }
+.work-section .drum-index button.is-active small { color: #3b5ed2; }
+.work-section .works-strip-card .mono-label { color: #6b6a64; }
+.work-section .works-strip-card strong { color: var(--black); }
+
 /* ---------- Reduced motion ---------- */
 @media (prefers-reduced-motion: reduce) {
   .halftone-name, .hero-lorenz { transform: none !important; opacity: 1 !important; }

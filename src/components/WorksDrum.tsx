@@ -11,13 +11,12 @@ import type { Project } from '../data'
  * - below 760px the drum is replaced by a scroll-snap strip (see CSS)
  */
 
-const CARD_H = 0.4
-const CARD_MAX_W = 0.4
+const CARD_H = 0.56
 const CARD_RATIO = 1.85
 const STEP = 40
-const DRUM = 2.2
+const DRUM = 1.6
 const LENS = 2.7
-const BOW = 1.7
+const BOW = 1.2
 const CULL = 1.6
 const DRAG_UNITS = 380
 const WHEEL_UNITS = 700
@@ -65,7 +64,8 @@ export function WorksDrum({ items, onSelect, reducedMotion }: WorksDrumProps) {
     const measure = () => {
       const w = stage.clientWidth || 800
       const h = stage.clientHeight || 600
-      const cardW = Math.min(h * CARD_H * CARD_RATIO, w * CARD_MAX_W)
+      const side = clamp(w * 0.25, 220, 400)
+      const cardW = Math.min(h * CARD_H * CARD_RATIO, w - side * 2)
       const cardH = cardW / CARD_RATIO
       metrics = { cardW, cardH, drumR: cardH * DRUM, bow: cardH * BOW }
       stage.style.perspective = `${cardH * LENS}px`
