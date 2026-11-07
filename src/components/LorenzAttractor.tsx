@@ -7,7 +7,7 @@ const SIGMA = 10
 const BETA = 8 / 3
 const RHO_DEFAULT = 28
 const RHO_MIN = 25
-const RHO_MAX = 38
+const RHO_MAX = 36
 const DT = 0.006
 const TRAIL = 1500
 const STEPS_PER_FRAME = 6
@@ -103,13 +103,13 @@ export function LorenzAttractor({ reducedMotion }: LorenzProps) {
       c.clearRect(0, 0, w, h)
       c.lineCap = 'round'
       c.lineJoin = 'round'
-      const scale = Math.min(w / 52, h / 68)
+      const scale = Math.min(w / 46, h / 62)
       const idle = reducedMotion ? 0 : Math.sin(time * 0.00018) * 0.18
       const angle = yaw + idle
       const ca = Math.cos(angle)
       const sa = Math.sin(angle)
       const cx = w / 2
-      const cy = h * 0.52
+      const cy = h * 0.46
 
       for (const p of particles) {
         if (p.count < 2) continue
@@ -183,7 +183,7 @@ export function LorenzAttractor({ reducedMotion }: LorenzProps) {
       const u = clamp(event.clientX / Math.max(1, window.innerWidth), 0, 1)
       const v = clamp(event.clientY / Math.max(1, window.innerHeight), 0, 1)
       rhoTarget = RHO_MIN + u * (RHO_MAX - RHO_MIN)
-      yawTarget = (v - 0.5) * 1.1
+      yawTarget = (v - 0.5) * 0.6
     }
 
     const ro = new ResizeObserver(resize)

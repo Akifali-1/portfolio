@@ -434,4 +434,33 @@
   .nav-social { display: none; }
 }
 
+/* Lorenz readout under the attractor */
+.lorenz-readout { left: auto; right: 0; justify-items: end; text-align: right; }
+
+/* Collapse trigger: match the bracketed mono links in the nav */
+.hero-collapse-control .hero-collapse-trigger {
+  min-height: 0; padding: 0; gap: 0;
+  border: 0; border-radius: 0; background: none; box-shadow: none;
+}
+.hero-collapse-control .collapse-trigger-orbit,
+.hero-collapse-control .collapse-trigger-status,
+.hero-collapse-control .collapse-trigger-arrow { display: none; }
+.hero-collapse-control .collapse-trigger-copy { display: inline-flex; }
+.hero-collapse-control .collapse-trigger-label {
+  color: var(--muted); font: 9px var(--mono); letter-spacing: 0.1em; transition: color 0.25s;
+}
+.hero-collapse-control .collapse-trigger-label::before { content: '[ '; color: var(--blue); }
+.hero-collapse-control .collapse-trigger-label::after { content: ' ]'; color: var(--blue); }
+.hero-collapse-control .hero-collapse-trigger:hover .collapse-trigger-label,
+.hero-collapse-control .hero-collapse-trigger:focus-visible .collapse-trigger-label { color: var(--white); }
+
+/* Work on paper: card label stays light, cursor stays visible */
+.work-section .drum-card-meta,
+.work-section .drum-card-meta span,
+.work-section .drum-card-meta i { color: var(--white); }
+.work-section .drum-title .mono-label { text-transform: uppercase; }
+.cursor-dot,
+.cursor-ring:not(.has-label) { mix-blend-mode: difference; }
+
+
 

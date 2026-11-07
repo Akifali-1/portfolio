@@ -97,7 +97,7 @@ export function WorksDrum({ items, onSelect, reducedMotion }: WorksDrumProps) {
         card.style.opacity = Math.abs(d) > CULL ? '0' : '1'
         card.style.pointerEvents = Math.abs(d) > CULL ? 'none' : 'auto'
         card.style.zIndex = String(Math.round(100 - Math.abs(d) * 2))
-        card.style.setProperty('--shade', String(clamp(Math.abs(d) * 0.5, 0, 0.78)))
+        card.style.setProperty('--shade', String(clamp(Math.abs(d) * 0.35, 0, 0.5)))
       }
       const near = clamp(Math.round(turn), 0, last)
       if (near !== activeRef.current) {

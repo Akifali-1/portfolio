@@ -141,20 +141,6 @@ export function ResearchSection() {
         <Architecture />
 
         <ThreatEmulationPanel />
-        <div className="research-foot">
-          <span className="mono-label">ADAPTIVE STGT · THREAT EMULATION</span>
-          <span className="mono-label">INTERPRETABLE GRAPH & AGENT RESEARCH</span>
-          <span className="research-index">[ 01 — 04 ]</span>
-        </div>
-        <div className="research-bottom-mark" data-reveal="rise">
-          <span className="mono-label">THE NEXT VARIABLE / 004</span>
-          <strong>
-            Relations
-            <br />
-            <em>become signal.</em>
-          </strong>
-          <span className="mono-label">AKIF.SYSTEM / RESEARCH SURFACE</span>
-        </div>
       </div>
     </section>
   )
@@ -276,10 +262,6 @@ export function ContactSection() {
           </a>
         </div>
         <div className="contact-links">
-          <a href={siteConfig.tracemint} target="_blank" rel="noreferrer" data-cursor="VISIT">
-            <span>TRACEMINT</span>
-            <ExternalLink size={16} />
-          </a>
           <a href={`mailto:${siteConfig.email}`} data-cursor="EMAIL">
             <span>EMAIL AKIF</span>
             <span className="contact-link-detail">{siteConfig.email}</span>
