@@ -167,7 +167,7 @@ export const clientProjects: Project[] = [
 
 export const exploring = [
   'AI SYSTEMS',
-  'GRAPH ML',
+  'LANDING PAGES',
   'AGENTIC SYSTEMS',
   'CYBERSECURITY',
   'DEVELOPER TOOLS',
