@@ -181,44 +181,70 @@ export type JourneyStop = {
   id: string
   index: string
   label: string
-  title: string
+  pill: string
+  headline: [string, string]
+  ghost: [string, string]
   body: string
-  meta: string[]
+  details: { k: string; v: string }[]
 }
 
-// EDIT: keep these factual. Add years once you are happy with the wording.
+// EDIT: keep these factual. Add dates once you are happy with the wording.
 export const journey: JourneyStop[] = [
   {
     id: 'education',
     index: '01',
     label: 'EDUCATION',
-    title: 'Computer science, Hyderabad',
+    pill: 'FOUNDATION',
+    headline: ['COMPUTER', 'SCIENCE'],
+    ghost: ['KMIT', 'HYDERABAD'],
     body: 'Studying computer science at KMIT. The degree is the base layer: data structures, systems, and the habit of asking how things actually work.',
-    meta: ['KMIT HYDERABAD', 'COMPUTER SCIENCE', 'FOUNDATIONS'],
+    details: [
+      { k: 'WHERE', v: 'KMIT, Hyderabad' },
+      { k: 'STUDY', v: 'Computer science' },
+      { k: 'BASE LAYER', v: 'Data structures, systems, and how things actually work' },
+    ],
   },
   {
     id: 'first-projects',
     index: '02',
     label: 'FIRST PROJECTS',
-    title: 'Websites for real businesses',
+    pill: 'CLIENT WORK',
+    headline: ['REAL', 'CLIENTS'],
+    ghost: ['FREELANCE', 'WEB'],
     body: 'Started by building frontend sites for local clinics and construction companies. Real clients, real deadlines, and a clear lesson in making information easy to understand.',
-    meta: ['BUILDCRAFT', 'BRIGHT CLINIC', 'FREELANCE'],
+    details: [
+      { k: 'BUILT', v: 'BuildCraft, a construction business website' },
+      { k: 'AND', v: 'Bright Clinic, a dental clinic website' },
+      { k: 'LESSON', v: 'Make information easy to understand' },
+    ],
   },
   {
     id: 'current-work',
     index: '03',
     label: 'CURRENT WORK',
-    title: 'Products and research',
+    pill: 'PRODUCT / RESEARCH',
+    headline: ['PRODUCTS', '& RESEARCH'],
+    ghost: ['BUILDING', 'RESEARCH'],
     body: 'Now building TraceMint and researching graph forecasting, clinical graphs, multi-agent fraud detection, and autonomous attack and defense.',
-    meta: ['TRACEMINT', 'ADAPTIVE STGT', 'THREAT EMULATION'],
+    details: [
+      { k: 'PRODUCT', v: 'TraceMint, verified developer profiles from real GitHub work' },
+      { k: 'RESEARCH', v: 'Adaptive STGT and MedGraph, graph models for forecasting and clinical data' },
+      { k: 'SECURITY', v: 'Multi-agent fraud detection and an adaptive attack and defense testbed' },
+    ],
   },
   {
     id: 'next',
     index: '04',
     label: 'NEXT',
-    title: 'AI engineering',
+    pill: 'OPEN',
+    headline: ['AI', 'ENGINEERING'],
+    ghost: ['NEXT', 'CHAPTER'],
     body: 'Looking for AI engineering roles and internships where systems, research, and shipping meet.',
-    meta: ['AI SYSTEMS', 'AGENTS', 'INTERNSHIPS'],
+    details: [
+      { k: 'LOOKING FOR', v: 'AI engineering roles and internships' },
+      { k: 'WHERE', v: 'Where systems, research, and shipping meet' },
+      { k: 'EXPLORING', v: 'Agents, graph ML, cybersecurity, developer tools' },
+    ],
   },
 ]
 

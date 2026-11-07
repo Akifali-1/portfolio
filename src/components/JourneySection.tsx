@@ -1,20 +1,24 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { journey } from '../data'
-import { SectionLabel } from './SectionLabel'
 
 /**
- * Horizontal scroll journey. Vertical scroll drives a sticky track sideways.
- * Native scrolling is never blocked. Below 760px or with reduced motion, the
- * stops stack vertically and nothing is pinned.
+ * Full-screen horizontal journey. Vertical scroll drives a sticky track
+ * sideways, one panel per screen. Ghost words behind each panel move slower
+ * than the panel for depth. Native scroll is never blocked. Below 900px or
+ * with reduced motion the panels stack vertically and nothing is pinned.
  */
 export function JourneySection() {
   const sectionRef = useRef<HTMLElement>(null)
+  const viewportRef = useRef<HTMLDivElement>(null)
   const trackRef = useRef<HTMLDivElement>(null)
+  const barRef = useRef<HTMLSpanElement>(null)
   const [compact, setCompact] = useState(false)
-  const [progress, setProgress] = useState(0)
+  const [active, setActive] = useState(0)
+  const activeRef = useRef(0)
+  const count = journey.length
 
   useEffect(() => {
-    const query = window.matchMedia('(max-width: 760px), (prefers-reduced-motion: reduce)')
+    const query = window.matchMedia('(max-width: 900px), (prefers-reduced-motion: reduce)')
     const update = () => setCompact(query.matches)
     update()
     query.addEventListener('change', update)
@@ -23,11 +27,14 @@ export function JourneySection() {
 
   useEffect(() => {
     const section = sectionRef.current
+    const viewport = viewportRef.current
     const track = trackRef.current
-    if (!section || !track) return
+    if (!section || !viewport || !track) return
+
     if (compact) {
       section.style.height = ''
       track.style.transform = ''
+      track.style.removeProperty('--focus')
       return
     }
 
@@ -35,12 +42,20 @@ export function JourneySection() {
     let target = 0
     let current = 0
     let frame = 0
-    let lastReported = -1
 
-    const measure = () => {
-      travel = Math.max(0, track.scrollWidth - window.innerWidth)
-      section.style.height = `${window.innerHeight + travel}px`
-      readScroll()
+    function render() {
+      frame = 0
+      current += (target - current) * 0.12
+      if (Math.abs(target - current) < 0.0004) current = target
+      track!.style.transform = `translate3d(${(-current * travel).toFixed(2)}px, 0, 0)`
+      track!.style.setProperty('--focus', (current * (count - 1)).toFixed(3))
+      if (barRef.current) barRef.current.style.transform = `scaleX(${current.toFixed(4)})`
+      const next = Math.min(count - 1, Math.round(current * (count - 1)))
+      if (next !== activeRef.current) {
+        activeRef.current = next
+        setActive(next)
+      }
+      if (current !== target) frame = requestAnimationFrame(render)
     }
     function readScroll() {
       const rect = section!.getBoundingClientRect()
@@ -48,46 +63,38 @@ export function JourneySection() {
       target = Math.min(Math.max(-rect.top / total, 0), 1)
       if (!frame) frame = requestAnimationFrame(render)
     }
-    function render() {
-      frame = 0
-      current += (target - current) * 0.12
-      if (Math.abs(target - current) < 0.0005) current = target
-      track!.style.transform = `translate3d(${(-current * travel).toFixed(2)}px,0,0)`
-      const rounded = Math.round(current * 100) / 100
-      if (rounded !== lastReported) {
-        lastReported = rounded
-        setProgress(rounded)
-      }
-      if (current !== target) frame = requestAnimationFrame(render)
+    function measure() {
+      travel = Math.max(0, track!.offsetWidth - viewport!.clientWidth)
+      section!.style.height = `${window.innerHeight + travel}px`
+      readScroll()
     }
 
     measure()
+    current = target
+    render()
     window.addEventListener('scroll', readScroll, { passive: true })
     window.addEventListener('resize', measure)
-    const fonts = document.fonts?.ready.then(measure)
-    void fonts
+    void document.fonts?.ready.then(measure)
     return () => {
       cancelAnimationFrame(frame)
       window.removeEventListener('scroll', readScroll)
       window.removeEventListener('resize', measure)
       section.style.height = ''
     }
-  }, [compact])
+  }, [compact, count])
 
   const jump = (index: number) => {
     const section = sectionRef.current
     if (!section) return
     if (compact) {
-      section.querySelectorAll('.journey-stop')[index]?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      section.querySelectorAll('.journey-panel')[index]?.scrollIntoView({ behavior: 'smooth', block: 'start' })
       return
     }
     const total = section.offsetHeight - window.innerHeight
-    const p = journey.length > 1 ? index / (journey.length - 1) : 0
+    const p = count > 1 ? index / (count - 1) : 0
     const top = section.getBoundingClientRect().top + window.scrollY + p * total
     window.scrollTo({ top, behavior: 'smooth' })
   }
-
-  const activeIndex = Math.min(journey.length - 1, Math.round(progress * (journey.length - 1)))
 
   return (
     <section
@@ -97,63 +104,71 @@ export function JourneySection() {
       aria-labelledby="journey-title"
     >
       <div className="journey-pin">
-        <div className="journey-head page-grid">
-          <SectionLabel index="01B">THE JOURNEY</SectionLabel>
-          <div className="journey-title-wrap">
-            <h2 id="journey-title">
-              How I got
-              <br />
-              <em>here.</em>
-            </h2>
+        <div className="journey-topbar">
+          <span className="journey-topbar-index">01B</span>
+          <h2 id="journey-title" className="journey-topbar-title">
+            THE JOURNEY / HOW I GOT HERE
+          </h2>
+          <span className="journey-topbar-now">
+            [{journey[active].index}] {journey[active].label}
+          </span>
+          <div className="journey-bar" aria-hidden="true">
+            <span ref={barRef} />
           </div>
         </div>
-        <div className="journey-viewport">
-          <div ref={trackRef} className="journey-track">
-            <div className="journey-rail" aria-hidden="true" />
+
+        <div ref={viewportRef} className="journey-viewport">
+          <div ref={trackRef} className="journey-track" style={{ '--n': count } as CSSProperties}>
             {journey.map((stop, i) => (
               <article
                 key={stop.id}
-                className={`journey-stop ${i === activeIndex ? 'is-active' : ''}`}
-                style={{ '--stop-i': i } as CSSProperties}
+                className={`journey-panel ${i === active ? 'is-active' : ''}`}
+                style={{ '--i': i } as CSSProperties}
               >
-                <span className="journey-numeral" aria-hidden="true">
-                  {stop.index}
-                </span>
-                <span className="journey-dot" aria-hidden="true" />
-                <span className="mono-label journey-label">
-                  [{stop.index}] {stop.label}
-                </span>
-                <h3>{stop.title}</h3>
-                <p>{stop.body}</p>
-                <ul className="journey-meta mono-label">
-                  {stop.meta.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
+                <div className="journey-ghost" aria-hidden="true">
+                  <span>{stop.ghost[0]}</span>
+                  <span>{stop.ghost[1]}</span>
+                </div>
+                <div className="journey-content">
+                  <div className="journey-meta-row">
+                    <b>[{stop.index}]</b>
+                    <i />
+                    <strong>{stop.label}</strong>
+                    <span className="journey-pill">{stop.pill}</span>
+                  </div>
+                  <h3 className="journey-headline">
+                    <span>{stop.headline[0]}</span>
+                    <span>{stop.headline[1]}</span>
+                  </h3>
+                  <p className="journey-body">{stop.body}</p>
+                  <dl className="journey-details">
+                    {stop.details.map((d) => (
+                      <div key={d.k}>
+                        <dt>{d.k}</dt>
+                        <dd>{d.v}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                </div>
               </article>
             ))}
           </div>
         </div>
-        <div className="journey-hud">
-          <div className="journey-bar" aria-hidden="true">
-            <span style={{ transform: `scaleX(${progress})` }} />
-          </div>
-          <div className="journey-jumps">
-            {journey.map((stop, i) => (
-              <button
-                key={stop.id}
-                type="button"
-                className={i === activeIndex ? 'is-current' : ''}
-                onClick={() => jump(i)}
-                data-cursor="JUMP"
-              >
-                {stop.index} {stop.label}
-              </button>
-            ))}
-          </div>
+
+        <div className="journey-tabs">
+          {journey.map((stop, i) => (
+            <button
+              key={stop.id}
+              type="button"
+              className={i === active ? 'is-current' : ''}
+              onClick={() => jump(i)}
+              data-cursor="JUMP"
+            >
+              {stop.index} {stop.label}
+            </button>
+          ))}
         </div>
       </div>
     </section>
   )
 }
-
