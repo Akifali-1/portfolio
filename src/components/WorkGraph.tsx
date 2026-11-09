@@ -15,9 +15,10 @@ type GraphNode = {
 const systemGraphNodes: GraphNode[] = [
   { id: 'core', x: 50, y: 50, label: 'AKIF', central: true },
   { id: 'trace', x: 20, y: 28, label: 'TRACE MINT', project: 'tracemint' },
+  { id: 'spantrace', x: 18, y: 52, label: 'SPAN TRACE', project: 'spantrace' },
   { id: 'adaptive', x: 73, y: 20, label: 'ADAPTIVE STGT', project: 'adaptive-stgt' },
   { id: 'medgraph', x: 84, y: 47, label: 'MEDGRAPH', project: 'medgraph' },
-  { id: 'fraud', x: 25, y: 71, label: 'MULTI-AGENT FRAUD', project: 'multi-agent-fraud' },
+  { id: 'fraud', x: 25, y: 76, label: 'MULTI-AGENT FRAUD', project: 'multi-agent-fraud' },
   { id: 'threat', x: 73, y: 73, label: 'THREAT EMULATION', project: 'threat-emulation' },
   { id: 'graph', x: 50, y: 12, label: 'GRAPH ML' },
   { id: 'security', x: 51, y: 86, label: 'SECURITY' },
@@ -26,17 +27,21 @@ const systemGraphNodes: GraphNode[] = [
 const clientGraphNodes: GraphNode[] = [
   { id: 'core', x: 50, y: 50, label: 'AKIF', central: true },
   { id: 'client-work', x: 72, y: 50, label: 'CLIENT WORK', clientGroup: true },
-  { id: 'buildcraft', x: 88, y: 29, label: 'BUILDCRAFT', project: 'buildcraft' },
-  { id: 'bright-clinic', x: 88, y: 71, label: 'BRIGHT CLINIC', project: 'bright-clinic' },
+  { id: 'buildcraft', x: 88, y: 20, label: 'BUILDCRAFT', project: 'buildcraft' },
+  { id: 'bright-clinic', x: 88, y: 40, label: 'BRIGHT CLINIC', project: 'bright-clinic' },
+  { id: 'demo-waffles', x: 88, y: 60, label: 'DEMO WAFFLES', project: 'demo-waffles' },
+  { id: 'demo-cafe', x: 88, y: 80, label: 'DEMO CAFE', project: 'demo-cafe' },
 ]
 
 const systemGraphEdges: [string, string][] = [
   ['core', 'trace'],
+  ['core', 'spantrace'],
   ['core', 'adaptive'],
   ['core', 'medgraph'],
   ['core', 'fraud'],
   ['core', 'threat'],
   ['trace', 'graph'],
+  ['spantrace', 'security'],
   ['adaptive', 'graph'],
   ['medgraph', 'graph'],
   ['fraud', 'security'],
@@ -47,6 +52,8 @@ const clientGraphEdges: [string, string][] = [
   ['core', 'client-work'],
   ['client-work', 'buildcraft'],
   ['client-work', 'bright-clinic'],
+  ['client-work', 'demo-waffles'],
+  ['client-work', 'demo-cafe'],
 ]
 
 function curvePath(start: GraphNode, end: GraphNode, index: number) {

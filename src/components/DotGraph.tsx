@@ -6,17 +6,20 @@ import { clamp, discHalftone, setupCanvas } from '../lib/halftone'
 type Node = { id: string; label: string; x: number; y: number; project?: Project; core?: boolean }
 type Edge = [string, string]
 
-// Five projects around the core. Positions are percentages of the graph box.
+// Six projects around the core. Positions are percentages of the graph box.
 const NODE_POS: Record<string, [number, number]> = {
-  tracemint: [15, 38],
+  tracemint: [15, 32],
+  spantrace: [15, 64],
   'adaptive-stgt': [50, 14],
   medgraph: [85, 38],
   'threat-emulation': [72, 80],
-  'multi-agent-fraud': [28, 80],
+  'multi-agent-fraud': [36, 82],
 }
 
 // Direct relations that used to hang off the GRAPH ML and SECURITY topic nodes.
 const RELATIONS: Edge[] = [
+  ['tracemint', 'spantrace'],
+  ['spantrace', 'multi-agent-fraud'],
   ['tracemint', 'adaptive-stgt'],
   ['adaptive-stgt', 'medgraph'],
   ['multi-agent-fraud', 'threat-emulation'],

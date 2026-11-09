@@ -1,4 +1,4 @@
-export type ArtifactKind = 'trace' | 'stgt' | 'medgraph' | 'fraud' | 'threat' | 'iot' | 'construction' | 'clinic'
+export type ArtifactKind = 'trace' | 'stgt' | 'medgraph' | 'fraud' | 'threat' | 'iot' | 'construction' | 'clinic' | 'spantrace' | 'cafe' | 'waffles'
 
 export type Project = {
   id: string
@@ -122,6 +122,24 @@ export const projects: Project[] = [
     baselines: ['Default Wazuh + script block logging', 'One-shot LLM rules', 'Public Sigma rules', 'Hand-written expert rules'],
     previewImage: '/previews/threatemulation_hover.jpeg',
   },
+  {
+    id: 'spantrace',
+    index: '006',
+    title: 'SpanTrace',
+    shortTitle: 'SPAN TRACE',
+    category: 'Developer Platform / Observability / AI Agents',
+    description: 'A local-first developer platform for understanding multi-agent executions, policy incidents, and evidence-backed instrumentation.',
+    status: 'OPEN SOURCE / IN DEVELOPMENT',
+    technologies: ['OpenTelemetry', 'FastAPI', 'Next.js 15', 'Python SDK', 'SQLite / PostgreSQL'],
+    signal: 'CAPTURE → PERSIST → INSPECT → DETECT INCIDENT → REGRESSION VERIFICATION',
+    artifact: 'spantrace',
+    kind: 'product',
+    what: 'A local-first observability and debugging platform for multi-agent workflows that turns runtime traces into verifiable evidence and regression tests.',
+    why: 'When multi-agent systems fail or deviate from policy, post-hoc logs and opaque traces make root-cause diagnosis difficult. How can teams inspect agent handoffs, detect incidents, and verify deterministic regressions from real telemetry evidence?',
+    how: ['OTEL TELEMETRY', 'RUNTIME CAPTURE', 'INCIDENT DETECTION', 'ROOT CAUSE ANALYSIS', 'REGRESSION SUITE'],
+    actually: 'Engineered the modular monolith: standalone Python SDK with OpenTelemetry instrumentation adapters, FastAPI telemetry ingestion API, and Next.js 15 execution dashboard.',
+    previewImage: '/previews/spantrace_hover.jpeg',
+  },
 ]
 
 export const clientProjects: Project[] = [
@@ -162,6 +180,42 @@ export const clientProjects: Project[] = [
     actually: 'Built the frontend and design surface as client work.',
     link: 'https://dental-puce-theta.vercel.app/',
     previewImage: '/previews/clinic_hover.png',
+  },
+  {
+    id: 'demo-waffles',
+    index: 'C03',
+    title: 'Demo Waffles',
+    shortTitle: 'DEMO WAFFLES',
+    category: 'Client / artisanal food brand',
+    description: 'An artisanal Belgian waffle brand website featuring dual-buffer seamless video hero loops, dynamic background color sampling, and an interactive custom Waffle Lab builder.',
+    status: 'CLIENT / WEB DEVELOPMENT',
+    technologies: ['Vite / Vanilla JS', 'GSAP ScrollTrigger', 'Interactive Waffle Lab', 'Dual-buffer Video Loop'],
+    signal: 'SEAMLESS VIDEO LOOP → PALETTE SAMPLING → WAFFLE LAB → ORDER MANAGEMENT',
+    artifact: 'waffles',
+    kind: 'client',
+    what: 'An artisanal Belgian waffle brand website and interactive custom ordering experience.',
+    why: 'Elevate culinary brand storytelling with high-impact visual media and an engaging interactive builder that converts visitors into customers.',
+    how: ['DUAL-BUFFER VIDEO HERO', 'DYNAMIC PALETTE SAMPLING', 'CUSTOM WAFFLE BUILDER', 'SLIDE-OVER BAG / CART'],
+    actually: 'Built the client-side SPA, seamless video loop, GSAP 3D tilt effects, dynamic color sampling engine, and the interactive Waffle Lab builder.',
+    previewImage: '/previews/waffle_hover.jpeg',
+  },
+  {
+    id: 'demo-cafe',
+    index: 'C04',
+    title: 'Demo Cafe',
+    shortTitle: 'DEMO CAFE',
+    category: 'Client / specialty cafe website',
+    description: 'A high-performance editorial single-page website for an independent specialty cafe and roastery, featuring GSAP scroll-linked animations, Lenis momentum scrolling, and custom Leaflet maps.',
+    status: 'CLIENT / WEB DEVELOPMENT',
+    technologies: ['Vite', 'GSAP 3 / ScrollTrigger', 'Lenis Smooth Scroll', 'Leaflet Maps'],
+    signal: 'WARM EDITORIAL DESIGN → GSAP TIMELINE → LENIS MOMENTUM → INTERACTIVE MAP',
+    artifact: 'cafe',
+    kind: 'client',
+    what: 'A specialty cafe and espresso roastery website crafted with an editorial publication aesthetic.',
+    why: 'Communicate the tactile atmosphere, seasonal drink roasts, and physical roastery locations through fluid physics-based motion and custom maps.',
+    how: ['EDITORIAL LAYOUT', 'GSAP SCROLLTRIGGER', 'LENIS RAF TICKER', 'LEAFLET TILES & PINS'],
+    actually: 'Engineered the zero-framework single-page experience, GSAP scroll-linked animation timeline, transparent drink assets with editorial grading, and custom styled Leaflet map.',
+    previewImage: '/previews/cafe_hover.jpeg',
   },
 ]
 
@@ -211,11 +265,11 @@ export const journey: JourneyStop[] = [
     pill: 'CLIENT WORK',
     headline: ['REAL', 'CLIENTS'],
     ghost: ['FREELANCE', 'WEB'],
-    body: 'Started by building frontend sites for local clinics and construction companies. Real clients, real deadlines, and a clear lesson in making information easy to understand.',
+    body: 'Started by building web experiences for food brands, clinics, and businesses. Real clients, real deadlines, and a clear lesson in storytelling, motion, and clarity.',
     details: [
-      { k: 'BUILT', v: 'BuildCraft, a construction business website' },
-      { k: 'AND', v: 'Bright Clinic, a dental clinic website' },
-      { k: 'LESSON', v: 'Make information easy to understand' },
+      { k: 'BUILT', v: 'Demo Waffles & Demo Cafe (specialty food & drink web experiences)' },
+      { k: 'AND', v: 'BuildCraft & Bright Clinic (construction & healthcare sites)' },
+      { k: 'LESSON', v: 'Make information easy to understand and interact with' },
     ],
   },
   {
@@ -225,9 +279,9 @@ export const journey: JourneyStop[] = [
     pill: 'PRODUCT / RESEARCH',
     headline: ['PRODUCTS', '& RESEARCH'],
     ghost: ['BUILDING', 'RESEARCH'],
-    body: 'Now building TraceMint and researching graph forecasting, clinical graphs, multi-agent fraud detection, and autonomous attack and defense.',
+    body: 'Now building TraceMint and SpanTrace, and researching graph forecasting, clinical graphs, multi-agent fraud detection, and autonomous attack and defense.',
     details: [
-      { k: 'PRODUCT', v: 'TraceMint, verified developer profiles from real GitHub work' },
+      { k: 'PRODUCTS', v: 'TraceMint & SpanTrace, verified developer profiles and multi-agent observability' },
       { k: 'RESEARCH', v: 'Adaptive STGT and MedGraph, graph models for forecasting and clinical data' },
       { k: 'SECURITY', v: 'Multi-agent fraud detection and an adaptive attack and defense testbed' },
     ],
@@ -261,6 +315,20 @@ export type ClientSlide = {
 // point `src` at them, for example '/clients/buildcraft-02.png'.
 export const clientSlides: ClientSlide[] = [
   {
+    projectId: 'demo-waffles',
+    src: '/previews/waffle_hover.jpeg',
+    title: 'Demo Waffles',
+    subtitle: 'Artisanal Belgian Waffle Co.',
+    description: 'Dual-buffer video loop hero, dynamic color extraction, and interactive Waffle Lab builder.',
+  },
+  {
+    projectId: 'demo-cafe',
+    src: '/previews/cafe_hover.jpeg',
+    title: 'Demo Cafe',
+    subtitle: 'Specialty cafe & espresso roastery',
+    description: 'Warm editorial layout with GSAP physics-based scroll animations and Lenis momentum.',
+  },
+  {
     projectId: 'buildcraft',
     src: '/previews/buildcraft_hover.png',
     title: 'BuildCraft',
@@ -284,4 +352,5 @@ export const graphLines: Record<string, string> = {
   medgraph: 'Graph modeling of clinical entities and temporal signals.',
   'multi-agent-fraud': 'Multiple agents reading suspicious UPI transactions.',
   'threat-emulation': 'A Red Agent attacks while a Blue Agent adapts the defenses.',
+  spantrace: 'Local-first multi-agent trace capture, incident inspection, and regression verification.',
 }

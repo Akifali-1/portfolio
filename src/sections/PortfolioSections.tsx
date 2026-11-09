@@ -319,7 +319,7 @@ export function GraphSection({ onSelect, reducedMotion }: ProjectSelectionProps 
             <br />
             <em>connects.</em>
           </h2>
-          <p>Five projects and the ideas they share. Hover a node to look closer.</p>
+          <p>Six projects and the ideas they share. Hover a node to look closer.</p>
         </div>
         <DotGraph onSelect={onSelect} reducedMotion={reducedMotion} />
       </div>

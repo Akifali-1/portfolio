@@ -49,6 +49,20 @@ export function ProjectArtifact({ project, compact = false }: ProjectArtifactPro
         <div className="clinic-lines"><i /><i /><i /></div>
         <div className="artifact-chip">CLIENT / FRONTEND</div>
       </>}
+      {project.artifact === 'spantrace' && <>
+        <div className="threat-loop"><span className="red">SPANS</span><i>→</i><span className="telemetry">OTEL / INVARIANTS</span><i>→</i><span className="blue">REGRESSION</span></div>
+        <div className="trace-bars"><i /><i /><i /><i /><i /><i /><i /></div>
+        <div className="artifact-chip">CAPTURE → INCIDENT → REGRESSION</div>
+      </>}
+      {project.artifact === 'waffles' && <>
+        <div className="client-blueprint"><span /><span /><span /><b>WAFFLE</b></div>
+        <div className="artifact-chip">CLIENT / BRAND & BUILDER</div>
+      </>}
+      {project.artifact === 'cafe' && <>
+        <div className="client-clinic-mark">☕</div>
+        <div className="clinic-lines"><i /><i /><i /></div>
+        <div className="artifact-chip">CLIENT / EDITORIAL WEB</div>
+      </>}
     </div>
   )
 }

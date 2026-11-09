@@ -110,7 +110,7 @@ export function ProjectModal({ project, onClose, onSelect }: ProjectModalProps) 
           <div>
             <span className="detail-label">HOW DOES IT WORK?</span>
             <div className="detail-signal">
-              {project.signal.split(' · ').map((item, index, arr) => (
+              {project.signal.split(/\s*(?:·|→)\s*/).map((item, index, arr) => (
                 <span key={item}>
                   <b>{item}</b>
                   {index < arr.length - 1 && <i>→</i>}
