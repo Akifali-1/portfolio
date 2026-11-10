@@ -1008,3 +1008,648 @@
   opacity: 0;
   transform: scale(0.4);
 }
+
+/* ==========================================================================
+   MOBILE & TABLET RESPONSIVENESS OVERHAUL (HERO, HORIZONTAL CAROUSELS, GRIDS)
+   ========================================================================== */
+
+/* 1. HERO SECTION: Fit properly on Tablet (<= 1024px) & Mobile (<= 600px) */
+@media (max-width: 1024px) {
+  .hero.hero--cards {
+    height: auto;
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  /* Prevent top telemetry bar and collapse trigger from colliding */
+  .hero--cards .hero-intro {
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    padding: 84px var(--pad) 0;
+    flex-wrap: wrap;
+    gap: 8px 12px;
+    z-index: 6;
+  }
+
+  .hero--cards .hero-location {
+    display: none;
+  }
+
+  .hero-collapse-control {
+    position: absolute;
+    top: 80px;
+    right: var(--pad);
+    z-index: 10;
+  }
+
+  /* Merge pillar card and halftone centerpiece into the same visual stage */
+  .hero-card-composition {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr auto;
+    padding: 20px var(--pad) 0;
+    gap: 24px;
+    height: auto;
+  }
+
+  .hero-card-base {
+    grid-column: 1 / -1;
+    grid-row: 1 / -1;
+    margin-left: calc(var(--pad) * -1);
+    border-left: 0;
+    border-top-left-radius: 0;
+  }
+
+  .hero-card-pillar {
+    grid-column: 1 / -1;
+    grid-row: 1 / 2;
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    border-radius: 6px;
+  }
+
+  .hero-centerpiece {
+    grid-column: 1 / -1;
+    grid-row: 1 / 2;
+    position: relative;
+    top: 0;
+    left: 0;
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: clamp(24px, 4vh, 44px) clamp(18px, 4vw, 36px);
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .hero--cards .hero-index {
+    margin-bottom: 10px;
+  }
+
+  .hero--cards .halftone-name {
+    width: 100% !important;
+    max-width: 560px !important;
+    margin: 0;
+  }
+
+  .hero--cards .hero-title-suffix {
+    display: block !important;
+    margin-top: 10px;
+    font-size: 8.5px;
+  }
+
+  .hero--cards .hero-editorial-column {
+    grid-column: 1 / -1;
+    grid-row: 2 / 3;
+    top: 0;
+    align-self: center;
+    padding: 4px 4px 12px;
+    gap: 14px;
+  }
+
+  .hero--cards .hero-statement {
+    max-width: 100%;
+    font-size: clamp(26px, 5.5vw, 40px);
+    line-height: 1.04;
+  }
+
+  .hero-editorial-body {
+    max-width: 480px;
+    font-size: clamp(13px, 2vw, 15px);
+    line-height: 1.5;
+  }
+
+  .hero--cards .hero-actions {
+    flex-direction: row !important;
+    align-items: center !important;
+    flex-wrap: wrap;
+    gap: 14px 24px;
+    margin-top: 6px;
+  }
+
+  .hero-editorial-cta {
+    font-size: 10px;
+    padding-bottom: 6px;
+  }
+
+  .hero--cards .hero-cta-secondary {
+    font-size: 10px;
+    padding: 6px 0;
+  }
+
+  .hero--cards .hero-card-dock {
+    grid-column: 1 / -1;
+    grid-row: 3 / 4;
+    margin-inline: calc(var(--pad) * -1);
+    padding: 18px var(--pad);
+    border-left: 0;
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 600px) {
+  .hero--cards .hero-intro {
+    padding: 74px var(--pad) 0;
+    font-size: 8px;
+    max-width: 62%;
+  }
+
+  .hero--cards .hero-clock {
+    display: none;
+  }
+
+  .hero-collapse-control {
+    top: 72px;
+    right: var(--pad);
+  }
+
+  .hero-card-composition {
+    padding: 14px var(--pad) 0;
+    gap: 18px;
+  }
+
+  .hero-centerpiece {
+    padding: 20px 16px 22px;
+  }
+
+  .hero--cards .hero-statement {
+    font-size: clamp(24px, 7.2vw, 32px);
+  }
+
+  .hero-editorial-body {
+    font-size: 12.5px;
+  }
+
+  .hero--cards .hero-card-dock {
+    padding: 15px var(--pad);
+  }
+
+  .hero-dock-link {
+    font-size: 9px;
+    letter-spacing: 0.11em;
+    padding-bottom: 6px;
+  }
+}
+
+/* 2. JOURNEY SECTION: Horizontal Scroll-Snap Carousel on Mobile & Tablet (<= 900px) */
+.journey-section.is-stacked {
+  height: auto !important;
+  padding-bottom: 48px;
+}
+
+.journey-section.is-stacked .journey-pin {
+  position: relative;
+  height: auto;
+  padding-top: 0;
+  overflow: hidden;
+}
+
+.journey-section.is-stacked .journey-topbar {
+  padding: 24px var(--pad) 16px;
+  height: auto;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+}
+
+.journey-section.is-stacked .journey-bar {
+  display: block;
+  width: 100%;
+  order: 4;
+  margin-top: 4px;
+}
+
+.journey-section.is-stacked .journey-viewport {
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  padding: 24px var(--pad);
+}
+
+.journey-section.is-stacked .journey-viewport::-webkit-scrollbar {
+  display: none;
+}
+
+.journey-section.is-stacked .journey-track {
+  display: flex;
+  width: max-content;
+  gap: 16px;
+  transform: none !important;
+}
+
+.journey-section.is-stacked .journey-panel {
+  flex: 0 0 min(86vw, 540px);
+  width: min(86vw, 540px);
+  scroll-snap-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: clamp(24px, 4vw, 36px);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(14, 14, 16, 0.9);
+  min-height: 420px;
+}
+
+.journey-section.is-stacked .journey-ghost {
+  top: 24%;
+  right: 12px;
+  left: auto;
+  transform: none;
+  font-size: clamp(64px, 18vw, 120px);
+  text-align: right;
+  opacity: 0.7;
+}
+
+.journey-section.is-stacked .journey-ghost span:nth-child(2) {
+  margin-left: 0;
+}
+
+.journey-section.is-stacked .journey-content {
+  padding-left: 0;
+  opacity: 1;
+  transform: none;
+}
+
+.journey-section.is-stacked .journey-meta-row {
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.journey-section.is-stacked .journey-headline {
+  font-size: clamp(34px, 9.5vw, 56px);
+}
+
+.journey-section.is-stacked .journey-body {
+  font-size: 14px;
+  line-height: 1.48;
+  margin-top: 14px;
+}
+
+.journey-section.is-stacked .journey-details {
+  grid-template-columns: 1fr;
+  gap: 14px;
+  margin-top: 20px;
+  padding-top: 16px;
+}
+
+.journey-section.is-stacked .journey-details dd {
+  margin-top: 4px;
+  font-size: 13px;
+}
+
+.journey-section.is-stacked .journey-tabs {
+  display: flex;
+  height: auto;
+  padding: 14px var(--pad) 0;
+  border-top: 0;
+}
+
+/* 3. SELECTED WORK: Horizontal Scroll Carousel for Tablet & Mobile (<= 1024px) */
+.works-strip-wrap {
+  display: none;
+}
+
+@media (max-width: 1024px) {
+  .works-pin {
+    display: none !important;
+  }
+
+  .work-section.section-paper {
+    min-height: auto;
+    padding-bottom: 84px;
+  }
+
+  .works-strip-wrap {
+    display: block;
+    margin-top: 36px;
+  }
+
+  .works-strip-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 var(--pad) 14px;
+    color: #6b6a64;
+    font-size: 9px;
+  }
+
+  .works-strip {
+    display: flex;
+    gap: 18px;
+    margin-top: 0;
+    padding: 4px var(--pad) 16px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .works-strip::-webkit-scrollbar {
+    display: none;
+  }
+
+  .works-strip-card {
+    flex: 0 0 min(82vw, 440px);
+    width: min(82vw, 440px);
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    border: 1px solid rgba(5, 5, 5, 0.16);
+    border-radius: 8px;
+    background: #deded7;
+    color: var(--black);
+    text-align: left;
+    scroll-snap-align: center;
+    overflow: hidden;
+    cursor: pointer;
+    box-shadow: 0 16px 36px -18px rgba(5, 5, 5, 0.22);
+    transition: transform 0.25s var(--ease), border-color 0.25s;
+  }
+
+  .works-strip-card:active {
+    transform: scale(0.985);
+  }
+
+  .works-strip-media {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border-bottom: 1px solid rgba(5, 5, 5, 0.12);
+    background: #0d1018;
+  }
+
+  .works-strip-media img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+    border: 0;
+    border-radius: 0;
+  }
+
+  .works-strip-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background: rgba(5, 5, 5, 0.78);
+    color: var(--white) !important;
+    font-size: 9px;
+    backdrop-filter: blur(6px);
+  }
+
+  .works-strip-body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    padding: 18px 18px 20px;
+  }
+
+  .works-strip-category {
+    margin-top: 0 !important;
+    color: #3b5ed2 !important;
+    font-size: 9px;
+  }
+
+  .works-strip-body strong {
+    display: block;
+    margin-top: 6px;
+    color: var(--black);
+    font-size: clamp(22px, 4.5vw, 28px);
+    font-weight: 600;
+    letter-spacing: -0.05em;
+    line-height: 1.05;
+  }
+
+  .works-strip-body p {
+    margin: 10px 0 18px;
+    color: #4f4e49;
+    font-size: 13px;
+    line-height: 1.45;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .works-strip-cta {
+    margin-top: auto;
+    color: var(--black);
+    font-size: 9.5px;
+  }
+}
+
+/* 4. CLIENT CAROUSEL: Horizontal Scroll-Snap Strip on Mobile & Tablet (<= 900px) */
+@media (max-width: 900px) {
+  .client-section {
+    min-height: auto;
+    padding-bottom: 90px;
+  }
+
+  .client-pin {
+    height: auto !important;
+  }
+
+  .client-pin-sticky {
+    position: static !important;
+    height: auto !important;
+  }
+
+  .client-pin-sticky .client-carousel {
+    width: 100%;
+    min-height: 0;
+    margin-top: 40px;
+  }
+}
+
+.client-carousel-mobile {
+  display: flex;
+  gap: 16px;
+  padding: 4px var(--pad) 16px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.client-carousel-mobile::-webkit-scrollbar {
+  display: none;
+}
+
+.client-mobile-card {
+  flex: 0 0 min(84vw, 440px);
+  width: min(84vw, 440px);
+  scroll-snap-align: center;
+}
+
+.client-mobile-card-trigger {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #0e0f13;
+  color: var(--white);
+  text-align: left;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.client-mobile-media {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9.5;
+  overflow: hidden;
+  border-bottom: 1px solid var(--line);
+  background: #07080a;
+}
+
+.client-mobile-media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+}
+
+.client-mobile-index {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 4px 8px;
+  border: 1px solid rgba(243, 243, 240, 0.2);
+  border-radius: 4px;
+  background: rgba(5, 5, 5, 0.78);
+  color: var(--blue);
+  font-size: 9px;
+}
+
+.client-mobile-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: 18px;
+}
+
+.client-mobile-subtitle {
+  color: var(--blue);
+  font-size: 9px;
+}
+
+.client-mobile-body strong {
+  display: block;
+  margin-top: 6px;
+  font-size: 24px;
+  font-weight: 500;
+  letter-spacing: -0.04em;
+}
+
+.client-mobile-body p {
+  margin: 10px 0 18px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.client-mobile-actions {
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.client-mobile-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--muted);
+  font-size: 9px;
+}
+
+.client-carousel-counter {
+  display: inline-flex;
+  align-items: center;
+  color: var(--muted);
+  font-size: 10px;
+}
+
+/* 5. RESEARCH ARCHITECTURE & DOT GRAPH MOBILE REFINEMENTS */
+@media (max-width: 850px) {
+  .architecture {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    margin-top: 64px;
+    padding: 32px var(--pad);
+  }
+
+  .architecture-plus {
+    display: none !important;
+  }
+
+  .architecture-step {
+    width: 100%;
+    min-height: 150px;
+    padding: 16px 12px !important;
+    border: 1px solid rgba(5, 5, 5, 0.14) !important;
+    border-radius: 6px;
+    background: rgba(5, 5, 5, 0.025) !important;
+  }
+
+  .architecture-step:nth-of-type(n),
+  .architecture-step.is-final {
+    grid-column: auto !important;
+    margin-top: 0 !important;
+  }
+
+  .architecture-readout {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 14px var(--pad);
+  }
+
+  .architecture-readout code {
+    font-size: 11px;
+    line-height: 1.45;
+    word-break: break-word;
+  }
+}
+
+@media (max-width: 760px) {
+  .dot-graph-box {
+    aspect-ratio: 1 / 1.05;
+    min-height: 360px;
+  }
+
+  .dot-card,
+  .dot-card.is-above,
+  .dot-card.is-below,
+  .dot-card.is-left,
+  .dot-card.is-right,
+  .dot-card.is-center {
+    position: relative !important;
+    inset: auto !important;
+    left: auto !important;
+    top: auto !important;
+    width: 100% !important;
+    margin: 16px 0 0 !important;
+    transform: none !important;
+  }
+}

@@ -25,7 +25,7 @@ const easeInOutCubic = (t: number) =>
 
 export function SectionSweep({ reducedMotion }: { reducedMotion: boolean }) {
   useEffect(() => {
-    if (reducedMotion) return
+    if (reducedMotion || window.matchMedia('(max-width: 900px)').matches) return
 
     const papers = () =>
       Array.from(document.querySelectorAll<HTMLElement>('main > section.section-paper:not(#research):not(.no-sweep)'))

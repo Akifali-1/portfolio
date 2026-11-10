@@ -726,16 +726,34 @@ export function WorksDrum({ items, onSelect, reducedMotion }: WorksDrumProps) {
         </div>
       </div>
 
-      <div className="works-strip" data-reveal="rise">
-        {items.map((project) => (
-          <button key={project.id} type="button" className="works-strip-card" onClick={() => onSelect(project)}>
-            <img src={project.previewImage} alt="" loading="lazy" />
-            <span className="mono-label">
-              [{project.index}] {project.category}
-            </span>
-            <strong>{project.title}</strong>
-          </button>
-        ))}
+      <div className="works-strip-wrap" data-reveal="rise">
+        <div className="works-strip-header mono-label">
+          <span>SWIPE HORIZONTALLY TO BROWSE</span>
+          <span>{String(items.length).padStart(2, '0')} SYSTEMS</span>
+        </div>
+        <div className="works-strip" role="region" aria-label="Selected work carousel">
+          {items.map((project) => (
+            <button
+              key={project.id}
+              type="button"
+              className="works-strip-card"
+              onClick={() => onSelect(project)}
+            >
+              <div className="works-strip-media">
+                <img src={project.previewImage} alt={project.title} loading="lazy" />
+                <span className="works-strip-badge mono-label">[{project.index}]</span>
+              </div>
+              <div className="works-strip-body">
+                <span className="mono-label works-strip-category">{project.category}</span>
+                <strong>{project.title}</strong>
+                <p>{project.description}</p>
+                <span className="text-arrow works-strip-cta">
+                  OPEN CASE STUDY <ArrowRight size={14} />
+                </span>
+              </div>
+            </button>
+          ))}
+        </div>
       </div>
     </>
   )

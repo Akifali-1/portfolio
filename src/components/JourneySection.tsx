@@ -2,10 +2,10 @@ import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { journey } from '../data'
 
 /**
- * Full-screen horizontal journey. Vertical scroll drives a sticky track
- * sideways, one panel per screen. Ghost words behind each panel move slower
- * than the panel for depth. Native scroll is never blocked. Below 900px or
- * with reduced motion the panels stack vertically and nothing is pinned.
+ * Full-screen horizontal journey.
+ * - Desktop (> 900px): Vertical scroll drives a sticky horizontal track.
+ * - Mobile / Tablet (<= 900px) or Reduced Motion: Native horizontal scroll-snap
+ *   carousel with synced tabs and progress bar.
  */
 export function JourneySection() {
   const sectionRef = useRef<HTMLElement>(null)
@@ -25,6 +25,7 @@ export function JourneySection() {
     return () => query.removeEventListener('change', update)
   }, [])
 
+  // Desktop sticky scroll-driven horizontal track
   useEffect(() => {
     const section = sectionRef.current
     const viewport = viewportRef.current
@@ -54,22 +55,27 @@ export function JourneySection() {
         current = target
         lastTime = 0
       }
+
       track!.style.transform = `translate3d(${(-current * travel).toFixed(2)}px, 0, 0)`
       track!.style.setProperty('--focus', (current * (count - 1)).toFixed(3))
       if (barRef.current) barRef.current.style.transform = `scaleX(${current.toFixed(4)})`
+
       const next = Math.min(count - 1, Math.round(current * (count - 1)))
       if (next !== activeRef.current) {
         activeRef.current = next
         setActive(next)
       }
+
       if (current !== target) frame = requestAnimationFrame(render)
     }
+
     function readScroll() {
       const rect = section!.getBoundingClientRect()
       const total = Math.max(1, section!.offsetHeight - window.innerHeight)
       target = Math.min(Math.max(-rect.top / total, 0), 1)
       if (!frame) frame = requestAnimationFrame(render)
     }
+
     function measure() {
       travel = Math.max(0, track!.offsetWidth - viewport!.clientWidth)
       section!.style.height = `${window.innerHeight + travel}px`
@@ -79,6 +85,7 @@ export function JourneySection() {
     measure()
     current = target
     render()
+
     window.addEventListener('scroll', readScroll, { passive: true })
     window.addEventListener('resize', measure)
     void document.fonts?.ready.then(measure)
@@ -90,11 +97,46 @@ export function JourneySection() {
     }
   }, [compact, count])
 
+  // Mobile / Tablet native horizontal scroll-snap sync
+  useEffect(() => {
+    const viewport = viewportRef.current
+    if (!compact || !viewport) return
+
+    const onScroll = () => {
+      const maxScroll = Math.max(1, viewport.scrollWidth - viewport.clientWidth)
+      const progress = Math.min(1, Math.max(0, viewport.scrollLeft / maxScroll))
+      if (barRef.current) {
+        barRef.current.style.transform = `scaleX(${progress.toFixed(4)})`
+      }
+      const next = Math.min(count - 1, Math.max(0, Math.round(progress * (count - 1))))
+      if (next !== activeRef.current) {
+        activeRef.current = next
+        setActive(next)
+      }
+    }
+
+    onScroll()
+    viewport.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onScroll)
+    return () => {
+      viewport.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+    }
+  }, [compact, count])
+
   const jump = (index: number) => {
     const section = sectionRef.current
+    const viewport = viewportRef.current
     if (!section) return
-    if (compact) {
-      section.querySelectorAll('.journey-panel')[index]?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    if (compact && viewport) {
+      const panels = viewport.querySelectorAll<HTMLElement>('.journey-panel')
+      const targetPanel = panels[index]
+      if (targetPanel) {
+        viewport.scrollTo({
+          left: targetPanel.offsetLeft - viewport.offsetLeft,
+          behavior: 'smooth',
+        })
+      }
       return
     }
     const total = section.offsetHeight - window.innerHeight
@@ -136,6 +178,7 @@ export function JourneySection() {
                   <span>{stop.ghost[0]}</span>
                   <span>{stop.ghost[1]}</span>
                 </div>
+
                 <div className="journey-content">
                   <div className="journey-meta-row">
                     <b>[{stop.index}]</b>
@@ -143,11 +186,14 @@ export function JourneySection() {
                     <strong>{stop.label}</strong>
                     <span className="journey-pill">{stop.pill}</span>
                   </div>
+
                   <h3 className="journey-headline">
                     <span>{stop.headline[0]}</span>
                     <span>{stop.headline[1]}</span>
                   </h3>
+
                   <p className="journey-body">{stop.body}</p>
+
                   <dl className="journey-details">
                     {stop.details.map((d) => (
                       <div key={d.k}>
