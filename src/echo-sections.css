@@ -152,7 +152,7 @@
 }
 .drum-stage:active { cursor: grabbing; }
 .drum-stage:focus-visible { outline: 1px solid rgba(243, 243, 240, 0.4); outline-offset: -6px; }
-.drum-wheel { position: absolute; top: 50%; left: 50%; transform-style: preserve-3d; pointer-events: none; }
+.drum-wheel { position: absolute; top: 50%; left: calc(50% + clamp(32px, 3.5vw, 60px)); transform-style: preserve-3d; pointer-events: none; }
 .drum-card {
   position: absolute;
   cursor: pointer;
@@ -246,11 +246,24 @@
 .drum-index button.is-active { transform: translateX(-6px); }
 .drum-index button.is-active small { color: var(--blue); }
 .drum-counter { position: absolute; left: var(--pad); bottom: 20px; z-index: 6; }
-.drum-hint { position: absolute; right: var(--pad); bottom: 20px; z-index: 6; color: var(--faint); }
+.drum-hint {
+  position: absolute;
+  right: var(--pad);
+  bottom: 20px;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+  gap: 3px;
+  color: var(--faint);
+  line-height: 1.35;
+}
 
 .works-strip { display: none; }
 
 @media (max-width: 1100px) {
+  .drum-wheel { left: 50%; }
   .drum-index { display: none; }
   .drum-hint { display: none; }
 }

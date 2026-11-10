@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type PointerEvent } from 'react'
+import { useCallback, useEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type PointerEvent } from 'react'
 import { ArrowRight } from 'lucide-react'
 import type { Project } from '../data'
 
@@ -351,7 +351,10 @@ export function WorksDrum({ items, onSelect, reducedMotion }: WorksDrumProps) {
             <div className="drum-counter mono-label">
               {String(active + 1).padStart(2, '0')} / {String(count).padStart(2, '0')}
             </div>
-            <div className="drum-hint mono-label">SCROLL, DRAG OR HOVER A NAME / CLICK A CARD TO OPEN</div>
+            <div className="drum-hint mono-label">
+              <span>SCROLL, DRAG OR HOVER A NAME</span>
+              <span>CLICK A CARD TO OPEN</span>
+            </div>
           </div>
         </div>
       </div>
