@@ -599,11 +599,14 @@
   pointer-events: none;
 }
 
-/* 4. Centerpiece: Halftone AKIF (+25% size = 780px max-width, shifted up by 25px) */
+/* 4. Centerpiece: Halftone AKIF (Nudged up 45px and right 25px for optical balance) */
 .hero-centerpiece {
   grid-column: 4 / 8;
   grid-row: 2 / 3;
   z-index: 4;
+  position: relative;
+  top: -45px; /* Upward lift -45px */
+  left: 35px; /* Right shift +25px */
   align-self: center;
   justify-self: center;
   width: calc(100% + clamp(90px, 9vw, 160px));
@@ -614,7 +617,6 @@
   align-items: center;
   justify-content: center;
   text-align: center;
-  transform: translateY(calc(-4% - 25px));
 }
 
 .hero--cards .hero-index {
@@ -649,11 +651,13 @@
   letter-spacing: 0.16em;
 }
 
-/* 5. Right Editorial Copy Column (Significantly reduced size so it doesn't compete) */
+/* 5. Right Editorial Copy Column (Significantly reduced size, aligned with halftone) */
 .hero--cards .hero-editorial-column {
   grid-column: 8 / 12;
   grid-row: 2 / 3;
   z-index: 4;
+  position: relative;
+  top: -45px; /* Aligned vertically with halftone centerpiece */
   align-self: center;
   display: flex;
   flex-direction: column;
@@ -753,18 +757,29 @@
 /* Entrance animations synced with BootScreen */
 .portfolio-shell.is-hero-waiting .hero-card-base,
 .portfolio-shell.is-hero-waiting .hero-card-pillar,
-.portfolio-shell.is-hero-waiting .hero-centerpiece,
 .portfolio-shell.is-hero-waiting .hero-outlined-mark {
+  opacity: 0;
+  transform: translate3d(0, 28px, 0);
+}
+
+.portfolio-shell.is-hero-waiting .hero-centerpiece {
   opacity: 0;
   transform: translate3d(0, 28px, 0);
 }
 
 .portfolio-shell.is-hero-entered .hero-card-base,
 .portfolio-shell.is-hero-entered .hero-card-pillar,
-.portfolio-shell.is-hero-entered .hero-centerpiece,
 .portfolio-shell.is-hero-entered .hero-outlined-mark {
   opacity: 1;
   transform: translate3d(0, 0, 0);
+  transition:
+    opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.portfolio-shell.is-hero-entered .hero-centerpiece {
+  opacity: 1;
+  transform: none;
   transition:
     opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1),
     transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
@@ -811,6 +826,8 @@
     width: 100%;
     max-width: 100%;
     margin-left: 0;
+    top: 0;
+    left: 0;
     padding: 0 24px;
     transform: none;
   }
@@ -818,6 +835,7 @@
   .hero--cards .hero-editorial-column {
     grid-column: 1 / -1;
     grid-row: 3;
+    top: 0;
     padding: 0 24px 20px;
   }
 
@@ -830,6 +848,54 @@
     grid-row: 4;
     padding: 24px 16px;
   }
+}
+
+/* --- Architecture Sequential Stagger & Alignment Fixes --- */
+.architecture {
+  display: grid;
+  grid-template-columns: 1fr 36px 1fr 36px 1fr 36px 1fr;
+  align-items: center;
+  justify-items: center;
+  gap: clamp(12px, 2vw, 28px);
+  margin-top: 140px;
+  padding: 60px var(--pad);
+  border-top: 1px solid var(--line-dark);
+  border-bottom: 1px solid var(--line-dark);
+  background: rgba(5, 5, 5, 0.02);
+}
+
+.architecture-step {
+  opacity: 0;
+  transform: translateY(18px) scale(0.96);
+  transition: opacity 0.65s var(--ease), transform 0.65s var(--ease), border-color 0.25s, background 0.25s;
+}
+
+.architecture-step.is-stagger-revealed {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.architecture-plus {
+  opacity: 0;
+  transform: scale(0.7);
+  transition: opacity 0.45s var(--ease) 0.15s, transform 0.45s var(--ease) 0.15s;
+}
+
+.architecture-plus.is-stagger-revealed {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.arch-signal {
+  border-radius: 4px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.architecture-readout {
+  margin-top: 1px;
+  border-top: 0;
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
 }
 
 

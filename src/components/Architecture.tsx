@@ -1,4 +1,5 @@
-import { useState } from 'react'
+// File: src/components/Architecture.tsx
+import { useEffect, useRef, useState } from 'react'
 
 const stages = [
   {
@@ -6,7 +7,7 @@ const stages = [
     title: 'TEMPORAL',
     sub: 'TIME SIGNAL',
     signalClass: 'signal-bars',
-    formula: 'X_t ∈ ℝ^{N × T × F} // Captures seasonality, lead-time lag, and demand velocity across time horizons.',
+    formula: 'X_t ∈ ℝ^{N × F} // Captures seasonality, lead-time lag, and demand velocity across time horizons.',
   },
   {
     index: '02',
@@ -20,7 +21,7 @@ const stages = [
     title: 'ATTENTION',
     sub: 'ADAPTIVE FUSION',
     signalClass: 'signal-ring',
-    formula: 'α_{ij} = Softmax(Q_t · K_s^T / √d) // Dynamically weights which relational edge matters at timestep t.',
+    formula: 'α_{ij} = Softmax(Q_t K_s^T / √d) // Dynamically weights which relational edge matters at timestep t.',
   },
   {
     index: '04',
@@ -34,37 +35,65 @@ const stages = [
 
 export function Architecture() {
   const [activeStep, setActiveStep] = useState(3)
+  const [revealedSteps, setRevealedSteps] = useState<number[]>([])
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  // Sequential staggered reveal as the section scrolls into view
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          stages.forEach((_, idx) => {
+            window.setTimeout(() => {
+              setRevealedSteps((prev) => (prev.includes(idx) ? prev : [...prev, idx]))
+            }, idx * 220) // 220ms stagger per step: 01 -> 02 -> 03 -> 04
+          })
+          observer.disconnect()
+        }
+      },
+      { threshold: 0.2 },
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
 
   return (
-    <div className="architecture-interactive-wrap" data-reveal="rise">
+    <div ref={containerRef} className="architecture-interactive-wrap" data-reveal="rise">
       <div className="architecture" aria-label="Adaptive STGT architecture: temporal, spatial, attention, and forecast">
         <div className="architecture-track" />
-        {stages.map((stage, idx) => (
-          <div key={stage.index} className="architecture-fragment">
-            <button
-              type="button"
-              className={`architecture-step ${stage.isFinal ? 'is-final' : ''} ${activeStep === idx ? 'is-inspected' : ''}`}
-              onMouseEnter={() => {
-                setActiveStep(idx)
-              }}
-              onClick={() => setActiveStep(idx)}
-              data-cursor="STAGE"
-            >
-              <span>{stage.index}</span>
-              <i className={`arch-signal ${stage.signalClass}`}>
-                <b />
-                <b />
-                <b />
-                {stage.signalClass === 'signal-bars' && <b />}
-              </i>
-              <strong>{stage.title}</strong>
-              <small>{stage.sub}</small>
-            </button>
-            {idx < stages.length - 1 && (
-              <div className="architecture-plus">{idx === 2 ? '→' : '+'}</div>
-            )}
-          </div>
-        ))}
+        {stages.map((stage, idx) => {
+          const isVisible = revealedSteps.includes(idx)
+          return (
+            <div key={stage.index} className="architecture-fragment">
+              <button
+                type="button"
+                className={`architecture-step ${stage.isFinal ? 'is-final' : ''} ${
+                  activeStep === idx ? 'is-inspected' : ''
+                } ${isVisible ? 'is-stagger-revealed' : ''}`}
+                style={{ transitionDelay: `${idx * 80}ms` }}
+                onMouseEnter={() => setActiveStep(idx)}
+                onClick={() => setActiveStep(idx)}
+                data-cursor="STAGE"
+              >
+                <span>{stage.index}</span>
+                <i className={`arch-signal ${stage.signalClass}`}>
+                  <b />
+                  <b />
+                  <b />
+                  {stage.signalClass === 'signal-bars' && <b />}
+                </i>
+                <strong>{stage.title}</strong>
+                <small>{stage.sub}</small>
+              </button>
+              {idx < stages.length - 1 && (
+                <div className={`architecture-plus ${isVisible ? 'is-stagger-revealed' : ''}`}>{idx === 2 ? '=' : '+'}</div>
+              )}
+            </div>
+          )
+        })}
       </div>
       <div className="architecture-readout mono-label">
         <span>[ STAGE {stages[activeStep].index} // {stages[activeStep].title} TELEMETRY ]</span>

@@ -102,7 +102,7 @@ export function Hero({
         {/* Card 1: Wide Metallic Base Surface */}
         <div className="hero-card-base" aria-hidden="true" />
 
-        {/* Card 2: Tall Metallic Pillar (Clean top, drops from top edge) */}
+        {/* Card 2: Tall Metallic Pillar */}
         <div className="hero-card-pillar" aria-hidden="true" />
 
         {/* Outlined Bottom-Left Display Watermark: DEVELOPER */}
@@ -111,7 +111,7 @@ export function Hero({
           <span>OPER</span>
         </div>
 
-        {/* Centerpiece: Halftone AKIF Centered Horizontally on the Pillar */}
+        {/* Centerpiece: Halftone AKIF (Perfected Size, Nudged Up & Right) */}
         <div className="hero-centerpiece">
           <div className="hero-index mono-label">
             [ 00 / 05 ] <span>THE WORKSHOP</span>
@@ -122,7 +122,7 @@ export function Hero({
           <span className="hero-title-suffix mono-label">AKIF.SYSTEM // LIVING ARCHIVE</span>
         </div>
 
-        {/* Right Editorial Copy Column (Scaled down headline) */}
+        {/* Right Editorial Copy Column */}
         <div className="hero-subline hero-editorial-column">
           <p className="hero-statement">
             I build systems
@@ -145,7 +145,7 @@ export function Hero({
           </div>
         </div>
 
-        {/* Bottom-Right Metallic Dock Bar: ENGINEER / BUILDER / RESEARCHER */}
+        {/* Bottom-Right Metallic Dock Bar */}
         <div className="hero-footer hero-card-dock" aria-label="Core roles">
           <span className="hero-dock-link">
             <span>ENGINEER</span>
