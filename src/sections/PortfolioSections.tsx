@@ -7,6 +7,8 @@ import { SectionLabel } from '../components/SectionLabel'
 import { ThreatEmulationPanel } from '../components/ThreatEmulationPanel'
 import { WorksDrum } from '../components/WorksDrum'
 import { exploring, projects, siteConfig, type Project } from '../data'
+import { sound } from '../sound'
+import { useReducedMotion } from '../hooks'
 
 type ProjectSelectionProps = {
   onSelect: (project: Project) => void
@@ -120,21 +122,166 @@ export function ClientSection({ onSelect }: ProjectSelectionProps) {
   )
 }
 
+const ABOUT_LINE1 = 'I like building'
+const ABOUT_LINE2 = "things I don't"
+const ABOUT_LINE3 = 'fully understand yet.'
+const TOTAL_ABOUT_CHARS = ABOUT_LINE1.length + ABOUT_LINE2.length + ABOUT_LINE3.length
+
 export function AboutSection() {
+  const reducedMotion = useReducedMotion()
+  const sectionRef = useRef<HTMLElement>(null)
+  const [started, setStarted] = useState(false)
+  const [charCount, setCharCount] = useState(0)
+  const [finished, setFinished] = useState(false)
+  const startedRef = useRef(false)
+
+  // Trigger typing after sweep completion or when scrolled into view
+  useEffect(() => {
+    const section = sectionRef.current
+    if (!section) return
+
+    if (reducedMotion) {
+      setStarted(true)
+      setCharCount(TOTAL_ABOUT_CHARS)
+      setFinished(true)
+      startedRef.current = true
+      return
+    }
+
+    const trigger = () => {
+      if (startedRef.current) return
+      startedRef.current = true
+      window.setTimeout(() => {
+        setStarted(true)
+      }, 100)
+    }
+
+    const onSweepComplete = () => trigger()
+    section.addEventListener('section-sweep-complete', onSweepComplete)
+
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !section.classList.contains('is-sweeping')) {
+          trigger()
+          io.disconnect()
+        }
+      },
+      { threshold: 0.25 },
+    )
+    io.observe(section)
+
+    return () => {
+      section.removeEventListener('section-sweep-complete', onSweepComplete)
+      io.disconnect()
+    }
+  }, [reducedMotion])
+
+  // Typewriter effect
+  useEffect(() => {
+    if (!started || finished || reducedMotion) return
+
+    let timer: number
+    const nextChar = () => {
+      setCharCount((prev) => {
+        const next = prev + 1
+        if (next >= TOTAL_ABOUT_CHARS) {
+          window.setTimeout(() => setFinished(true), 400)
+          return TOTAL_ABOUT_CHARS
+        }
+
+        let charAtCursor = ''
+        let isEndOfLine = false
+        if (next <= ABOUT_LINE1.length) {
+          charAtCursor = ABOUT_LINE1[next - 1]
+          isEndOfLine = next === ABOUT_LINE1.length
+        } else if (next <= ABOUT_LINE1.length + ABOUT_LINE2.length) {
+          const idx = next - ABOUT_LINE1.length - 1
+          charAtCursor = ABOUT_LINE2[idx]
+          isEndOfLine = next === ABOUT_LINE1.length + ABOUT_LINE2.length
+        } else {
+          const idx = next - ABOUT_LINE1.length - ABOUT_LINE2.length - 1
+          charAtCursor = ABOUT_LINE3[idx]
+        }
+
+        let delay = 32
+        if (isEndOfLine) {
+          delay = 180
+        } else if (charAtCursor === ' ') {
+          delay = 85
+        } else if (charAtCursor === "'") {
+          delay = 45
+        }
+
+        if (sound.enabled && next % 2 === 0) {
+          sound.playClick(680 + (next % 5) * 40, 0.007)
+        }
+
+        timer = window.setTimeout(nextChar, delay)
+        return next
+      })
+    }
+
+    timer = window.setTimeout(nextChar, 40)
+    return () => window.clearTimeout(timer)
+  }, [started, finished, reducedMotion])
+
+  const l1Count = Math.min(charCount, ABOUT_LINE1.length)
+  const l2Count = Math.min(Math.max(0, charCount - ABOUT_LINE1.length), ABOUT_LINE2.length)
+  const l3Count = Math.min(Math.max(0, charCount - ABOUT_LINE1.length - ABOUT_LINE2.length), ABOUT_LINE3.length)
+
+  const typedLine1 = ABOUT_LINE1.slice(0, l1Count)
+  const ghostLine1 = ABOUT_LINE1.slice(l1Count)
+
+  const typedLine2 = ABOUT_LINE2.slice(0, l2Count)
+  const ghostLine2 = ABOUT_LINE2.slice(l2Count)
+
+  const typedLine3 = ABOUT_LINE3.slice(0, l3Count)
+  const ghostLine3 = ABOUT_LINE3.slice(l3Count)
+
+  const isDone = charCount >= TOTAL_ABOUT_CHARS
+  const activeLine = !started
+    ? 0
+    : isDone
+    ? 0
+    : charCount <= ABOUT_LINE1.length
+    ? 1
+    : charCount <= ABOUT_LINE1.length + ABOUT_LINE2.length
+    ? 2
+    : 3
+
   return (
-    <section className="about-section section-paper" id="about" aria-labelledby="about-title">
+    <section
+      ref={sectionRef}
+      className={`about-section section-paper ${started ? 'is-started' : ''} ${finished ? 'is-finished' : ''}`}
+      id="about"
+      aria-labelledby="about-title"
+    >
       <div className="page-grid">
         <SectionLabel index="03" light>
           ABOUT THE BUILDER
         </SectionLabel>
         <div className="about-copy">
           <span className="mono-label">A SHORT OPERATING MANUAL</span>
-          <h2 id="about-title">
-            I like building
+          <h2 id="about-title" aria-label="I like building things I don't fully understand yet.">
+            <span className="typing-line">
+              <span className="typing-visible">{typedLine1}</span>
+              {activeLine === 1 && <span className="typing-caret" aria-hidden="true" />}
+              <span className="typing-ghost" aria-hidden="true">{ghostLine1}</span>
+            </span>
             <br />
-            things I don't
+            <span className="typing-line">
+              <span className="typing-visible">{typedLine2}</span>
+              {activeLine === 2 && <span className="typing-caret" aria-hidden="true" />}
+              <span className="typing-ghost" aria-hidden="true">{ghostLine2}</span>
+            </span>
             <br />
-            <em>fully understand yet.</em>
+            <span className="typing-line">
+              <em className="typing-visible">{typedLine3}</em>
+              {(activeLine === 3 || (isDone && !finished)) && (
+                <span className="typing-caret" aria-hidden="true" />
+              )}
+              <em className="typing-ghost" aria-hidden="true">{ghostLine3}</em>
+            </span>
           </h2>
           <p>
             I work across software engineering, AI systems, research, and experimentation. I like taking difficult

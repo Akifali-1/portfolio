@@ -159,3 +159,74 @@ main > section.section-paper.is-sweeping {
     margin-top: 48px;
   }
 }
+
+/* --- About Section Progressive Typewriter Reveal --- */
+.typing-line {
+  display: inline;
+}
+
+.typing-visible {
+  display: inline;
+}
+
+.typing-ghost {
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  user-select: none;
+}
+
+.typing-caret {
+  display: inline-block;
+  width: 3px;
+  height: 0.82em;
+  background: var(--black);
+  margin-left: 3px;
+  margin-right: -6px;
+  vertical-align: -0.02em;
+  animation: typing-caret-blink 0.65s infinite;
+}
+
+@keyframes typing-caret-blink {
+  0%, 45% { opacity: 1; }
+  50%, 95% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+.about-section .about-copy .mono-label {
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+.about-section:not(.is-started) .about-copy .mono-label {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+.about-section .about-copy p {
+  transition: opacity 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.about-section:not(.is-finished) .about-copy p {
+  opacity: 0;
+  transform: translateY(14px);
+}
+
+.about-section .exploring {
+  transition: opacity 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) 0.1s, transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) 0.1s;
+}
+.about-section:not(.is-finished) .exploring {
+  opacity: 0;
+  transform: translateY(14px);
+}
+
+.about-section .exploring-list span {
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+.about-section:not(.is-finished) .exploring-list span {
+  opacity: 0;
+  transform: translateX(12px);
+}
+.about-section.is-finished .exploring-list span:nth-child(1) { transition-delay: 0.15s; }
+.about-section.is-finished .exploring-list span:nth-child(2) { transition-delay: 0.22s; }
+.about-section.is-finished .exploring-list span:nth-child(3) { transition-delay: 0.29s; }
+.about-section.is-finished .exploring-list span:nth-child(4) { transition-delay: 0.36s; }
+.about-section.is-finished .exploring-list span:nth-child(5) { transition-delay: 0.43s; }
+.about-section.is-finished .exploring-list span:nth-child(6) { transition-delay: 0.50s; }

@@ -128,6 +128,7 @@ export function SectionSweep({ reducedMotion }: { reducedMotion: boolean }) {
         setLock(false)
         const rearmLine = getRearmLine()
         armed = papers().map((el) => el !== section && el.getBoundingClientRect().top > rearmLine)
+        section.dispatchEvent(new CustomEvent('section-sweep-complete', { bubbles: true }))
       }
     }
 
