@@ -573,7 +573,8 @@ body {
   }
 
   .hero-card-composition {
-    padding: 104px var(--pad) 0 !important;
+    grid-template-rows: auto auto auto !important;
+    padding: 104px var(--pad) 24px !important;
     gap: 20px !important;
   }
 
@@ -587,7 +588,10 @@ body {
   .hero-centerpiece {
     grid-column: 1 / -1 !important;
     grid-row: 1 !important;
-    padding: 24px 16px 8px !important;
+    align-self: start !important;
+    padding: 16px 16px 8px !important;
+    margin-top: 0 !important;
+    top: 0 !important;
   }
 
   .hero--cards .hero-editorial-column {
@@ -659,7 +663,11 @@ body {
   }
 
   .hero-card-composition {
-    padding: 96px 0 0 !important;
+    padding: 98px 0 24px !important;
+  }
+
+  .hero-centerpiece {
+    padding: 16px var(--pad) 8px !important;
   }
 
   .hero-card-base {
