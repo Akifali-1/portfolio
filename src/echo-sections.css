@@ -268,30 +268,7 @@
   .drum-hint { display: none; }
 }
 @media (max-width: 760px) {
-  .works-drum { display: none; }
-  .works-strip {
-    display: flex;
-    gap: 14px;
-    margin-top: 48px;
-    padding: 0 var(--pad) 8px;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    scrollbar-width: none;
-  }
-  .works-strip::-webkit-scrollbar { display: none; }
-  .works-strip-card {
-    flex: none;
-    width: 78vw;
-    padding: 0;
-    border: 0;
-    background: none;
-    text-align: left;
-    scroll-snap-align: center;
-    cursor: pointer;
-  }
-  .works-strip-card img { display: block; width: 100%; aspect-ratio: 1.85; object-fit: cover; object-position: top; border: 1px solid var(--line); border-radius: 6px; }
-  .works-strip-card .mono-label { display: block; margin-top: 12px; }
-  .works-strip-card strong { display: block; margin-top: 6px; font-size: 24px; font-weight: 500; letter-spacing: -0.05em; }
+  .works-strip { display: none !important; }
 }
 
 /* ---------- Client carousel (WebGL) ---------- */
@@ -1182,16 +1159,19 @@
     justify-content: space-between;
   }
 
-  /* Prevent top telemetry bar and collapse trigger from colliding */
+  /* Same-level alignment for top telemetry and collapse trigger */
   .hero--cards .hero-intro {
-    position: relative;
-    top: auto;
-    left: auto;
+    position: absolute;
+    top: 74px;
+    left: var(--pad);
     right: auto;
-    padding: 84px var(--pad) 0;
-    flex-wrap: wrap;
-    gap: 8px 12px;
-    z-index: 6;
+    padding: 0;
+    margin: 0;
+    height: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 10;
   }
 
   .hero--cards .hero-location {
@@ -1200,8 +1180,14 @@
 
   .hero-collapse-control {
     position: absolute;
-    top: 80px;
+    top: 74px;
     right: var(--pad);
+    left: auto;
+    padding: 0;
+    margin: 0;
+    height: 20px;
+    display: inline-flex;
+    align-items: center;
     z-index: 10;
   }
 
@@ -1316,18 +1302,36 @@
 
 @media (max-width: 600px) {
   .hero--cards .hero-intro {
-    padding: 74px var(--pad) 0;
-    font-size: 8px;
-    max-width: 62%;
+    position: absolute;
+    top: 68px;
+    left: var(--pad);
+    right: auto;
+    padding: 0;
+    margin: 0;
+    height: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 8.5px;
+    z-index: 10;
   }
 
-  .hero--cards .hero-clock {
+  .hero--cards .hero-clock,
+  .hero--cards .hero-location {
     display: none;
   }
 
   .hero-collapse-control {
-    top: 72px;
+    position: absolute;
+    top: 68px;
     right: var(--pad);
+    left: auto;
+    height: 20px;
+    display: inline-flex;
+    align-items: center;
+    padding: 0;
+    margin: 0;
+    z-index: 10;
   }
 
   .hero-card-composition {
@@ -1481,7 +1485,7 @@
 
 @media (max-width: 1024px) {
   .works-pin {
-    display: none !important;
+    display: block !important;
   }
 
   .work-section.section-paper {
@@ -1490,8 +1494,7 @@
   }
 
   .works-strip-wrap {
-    display: block;
-    margin-top: 36px;
+    display: none !important;
   }
 
   .works-strip-header {

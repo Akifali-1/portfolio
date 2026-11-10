@@ -500,26 +500,59 @@ main > section.section-paper.is-sweeping {
   border-right: none !important;
 }
 
-/* Lock SYSTEM ONLINE (.hero-intro) and [ INITIATE COLLAPSE ] (.hero-collapse-control)
-   to the exact same vertical centerline across desktop, tablet, and mobile */
+/* Fix position: sticky across the entire page on mobile & desktop */
+html,
+body {
+  overflow-x: clip !important;
+}
+
+/* ==========================================================================
+   MOBILE & TABLET TELEMETRY, COLLAPSE, & WORKS DRUM FIXES
+   1. Same-level alignment for SYSTEM ONLINE and [ INITIATE COLLAPSE ]
+   2. Seamless hero layout without top gap
+   3. Always keep 3D Works Drum Carousel visible, sticky, and touch-interactive
+   ========================================================================== */
+
+/* 1. Same-level alignment for SYSTEM ONLINE (.hero-intro) and [ INITIATE COLLAPSE ] (.hero-collapse-control) */
 .hero--cards .hero-intro,
 .hero-collapse-control {
-  top: 92px !important;
+  position: absolute !important;
+  top: 88px !important;
   height: 20px !important;
   min-height: 20px !important;
+  min-width: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
   display: inline-flex !important;
   align-items: center !important;
   line-height: 1 !important;
+  z-index: 10 !important;
+}
+
+.hero--cards .hero-intro {
+  left: var(--pad) !important;
+  right: auto !important;
+  gap: 8px !important;
+  max-width: none !important;
+}
+
+.hero-collapse-control {
+  right: var(--pad) !important;
+  left: auto !important;
 }
 
 .hero-collapse-control .hero-collapse-trigger {
   display: inline-flex !important;
   align-items: center !important;
+  justify-content: flex-end !important;
   height: 20px !important;
   min-height: 20px !important;
+  min-width: 0 !important;
+  width: auto !important;
   padding: 0 !important;
+  margin: 0 !important;
   line-height: 1 !important;
-  transform: none;
+  transform: none !important;
 }
 
 .hero-collapse-control .collapse-trigger-copy,
@@ -529,68 +562,14 @@ main > section.section-paper.is-sweeping {
   line-height: 1 !important;
 }
 
-@media (max-width: 900px) {
-  .hero--cards .hero-intro,
-  .hero-collapse-control {
-    top: 82px !important;
-  }
-}
-
-@media (max-width: 600px) {
-  .hero--cards .hero-intro,
-  .hero-collapse-control {
-    top: 74px !important;
-    height: 18px !important;
-    min-height: 18px !important;
-  }
-
-  .hero-collapse-control .hero-collapse-trigger {
-    height: 18px !important;
-    min-height: 18px !important;
-  }
-
-  .hero--cards .hero-intro,
-  .hero-collapse-control .collapse-trigger-label {
-    font-size: 8.5px !important;
-  }
-}
-
-/* Fix position: sticky across the entire page on mobile & desktop */
-html,
-body {
-  overflow-x: clip !important;
-}
-
-/* ==========================================================================
-   MOBILE & TABLET FIXES:
-   1. Same-level alignment for SYSTEM ONLINE and [ INITIATE COLLAPSE ]
-   2. Eliminate extra top gap above Hero card & merge pillar/centerpiece row
-   3. Keep 3D Works Drum Carousel visible and responsive on mobile screens
-   ========================================================================== */
-
-.hero--cards .hero-intro,
-.hero-collapse-control {
-  top: 88px !important;
-  height: 20px !important;
-  min-height: 0 !important;
-  min-width: 0 !important;
-  display: inline-flex !important;
-  align-items: center !important;
-}
-
-.hero-collapse-control .hero-collapse-trigger {
-  min-width: 0 !important;
-  min-height: 0 !important;
-  padding: 0 !important;
-  width: auto !important;
-  height: auto !important;
-  justify-content: flex-end !important;
-}
-
 @media (max-width: 1024px) {
   .hero--cards .hero-intro,
   .hero-collapse-control {
     top: 74px !important;
+  }
+
+  .hero--cards .hero-intro .hero-location {
+    display: none !important;
   }
 
   .hero-card-composition {
@@ -621,16 +600,61 @@ body {
     grid-column: 1 / -1 !important;
     grid-row: 3 !important;
   }
+
+  /* 3D Works Drum on Tablet */
+  .work-section.section-paper {
+    min-height: auto !important;
+    padding-bottom: 48px !important;
+  }
+
+  .works-pin {
+    display: block !important;
+    position: relative !important;
+    height: calc(100svh + (var(--works-n, 6) - 1) * 48svh) !important;
+  }
+
+  .works-pin-sticky {
+    position: sticky !important;
+    top: 0 !important;
+    height: 100svh !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+  }
+
+  .work-section .works-drum,
+  .works-drum {
+    display: block !important;
+    width: 100% !important;
+    height: clamp(500px, 82svh, 700px) !important;
+    margin-top: 0 !important;
+  }
+
+  .works-strip-wrap,
+  .works-strip {
+    display: none !important;
+  }
 }
 
 @media (max-width: 600px) {
   .hero--cards .hero-intro,
   .hero-collapse-control {
     top: 68px !important;
+    height: 18px !important;
+    min-height: 18px !important;
     font-size: 8.5px !important;
+    padding: 0 !important;
+    margin: 0 !important;
   }
 
-  .hero-clock {
+  .hero-collapse-control .hero-collapse-trigger {
+    height: 18px !important;
+    min-height: 18px !important;
+    padding: 0 !important;
+  }
+
+  .hero--cards .hero-intro .hero-clock,
+  .hero--cards .hero-intro .hero-location {
     display: none !important;
   }
 
@@ -644,13 +668,16 @@ body {
   }
 }
 
+/* 3. Works 3D Drum on Mobile */
 @media (max-width: 760px) {
   .work-section.section-paper {
-    padding-bottom: 64px !important;
+    padding-bottom: 40px !important;
     min-height: auto !important;
   }
 
   .works-pin {
+    display: block !important;
+    position: relative !important;
     height: calc(100svh + (var(--works-n, 6) - 1) * 45svh) !important;
   }
 
@@ -663,52 +690,66 @@ body {
     justify-content: center !important;
   }
 
-  .work-section .works-drum {
+  .work-section .works-drum,
+  .works-drum {
     display: block !important;
-    height: clamp(500px, 82svh, 680px) !important;
-    margin-top: 16px !important;
+    width: 100% !important;
+    height: clamp(480px, 80svh, 660px) !important;
+    margin-top: 0 !important;
   }
 
+  .works-strip-wrap,
   .works-strip {
     display: none !important;
   }
 
+  .drum-stage {
+    position: absolute !important;
+    inset: 0 !important;
+    touch-action: pan-y;
+  }
+
   .drum-wheel {
     left: 50% !important;
-    top: 38% !important;
+    top: 36% !important;
   }
 
   .drum-title {
     top: auto !important;
-    bottom: 48px !important;
+    bottom: 38px !important;
     left: var(--pad) !important;
     right: var(--pad) !important;
     width: auto !important;
     transform: none !important;
-    background: rgba(233, 233, 227, 0.88);
-    backdrop-filter: blur(8px);
-    padding: 12px 14px;
-    border: 1px solid var(--line-dark);
-    border-radius: 6px;
+    background: rgba(233, 233, 227, 0.92) !important;
+    backdrop-filter: blur(10px) !important;
+    padding: 12px 14px !important;
+    border: 1px solid rgba(5, 5, 5, 0.14) !important;
+    border-radius: 6px !important;
   }
 
   .drum-title strong {
-    margin-top: 6px !important;
-    font-size: clamp(22px, 6vw, 30px) !important;
+    margin-top: 4px !important;
+    font-size: clamp(20px, 6vw, 28px) !important;
   }
 
   .drum-title p {
-    margin-top: 6px !important;
-    font-size: 12px !important;
+    margin-top: 4px !important;
+    font-size: 11.5px !important;
+    line-height: 1.35 !important;
     -webkit-line-clamp: 2 !important;
   }
 
   .drum-title .text-arrow {
-    margin-top: 10px !important;
+    margin-top: 8px !important;
   }
 
   .drum-counter {
-    bottom: 14px !important;
+    bottom: 12px !important;
     left: var(--pad) !important;
+  }
+
+  .drum-hint {
+    display: none !important;
   }
 }
