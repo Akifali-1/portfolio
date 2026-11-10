@@ -560,3 +560,155 @@ html,
 body {
   overflow-x: clip !important;
 }
+
+/* ==========================================================================
+   MOBILE & TABLET FIXES:
+   1. Same-level alignment for SYSTEM ONLINE and [ INITIATE COLLAPSE ]
+   2. Eliminate extra top gap above Hero card & merge pillar/centerpiece row
+   3. Keep 3D Works Drum Carousel visible and responsive on mobile screens
+   ========================================================================== */
+
+.hero--cards .hero-intro,
+.hero-collapse-control {
+  top: 88px !important;
+  height: 20px !important;
+  min-height: 0 !important;
+  min-width: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+
+.hero-collapse-control .hero-collapse-trigger {
+  min-width: 0 !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  width: auto !important;
+  height: auto !important;
+  justify-content: flex-end !important;
+}
+
+@media (max-width: 1024px) {
+  .hero--cards .hero-intro,
+  .hero-collapse-control {
+    top: 74px !important;
+  }
+
+  .hero-card-composition {
+    padding: 104px var(--pad) 0 !important;
+    gap: 20px !important;
+  }
+
+  .hero-card-pillar {
+    grid-column: 1 / -1 !important;
+    grid-row: 1 / 3 !important;
+    height: 100% !important;
+    padding: 0 !important;
+  }
+
+  .hero-centerpiece {
+    grid-column: 1 / -1 !important;
+    grid-row: 1 !important;
+    padding: 24px 16px 8px !important;
+  }
+
+  .hero--cards .hero-editorial-column {
+    grid-column: 1 / -1 !important;
+    grid-row: 2 !important;
+    padding: 0 16px 20px !important;
+  }
+
+  .hero--cards .hero-card-dock {
+    grid-column: 1 / -1 !important;
+    grid-row: 3 !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .hero--cards .hero-intro,
+  .hero-collapse-control {
+    top: 68px !important;
+    font-size: 8.5px !important;
+  }
+
+  .hero-clock {
+    display: none !important;
+  }
+
+  .hero-card-composition {
+    padding: 96px 0 0 !important;
+  }
+
+  .hero-card-base {
+    border-left: 0 !important;
+    border-top-left-radius: 0 !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .work-section.section-paper {
+    padding-bottom: 64px !important;
+    min-height: auto !important;
+  }
+
+  .works-pin {
+    height: calc(100svh + (var(--works-n, 6) - 1) * 45svh) !important;
+  }
+
+  .works-pin-sticky {
+    position: sticky !important;
+    top: 0 !important;
+    height: 100svh !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+  }
+
+  .work-section .works-drum {
+    display: block !important;
+    height: clamp(500px, 82svh, 680px) !important;
+    margin-top: 16px !important;
+  }
+
+  .works-strip {
+    display: none !important;
+  }
+
+  .drum-wheel {
+    left: 50% !important;
+    top: 38% !important;
+  }
+
+  .drum-title {
+    top: auto !important;
+    bottom: 48px !important;
+    left: var(--pad) !important;
+    right: var(--pad) !important;
+    width: auto !important;
+    transform: none !important;
+    background: rgba(233, 233, 227, 0.88);
+    backdrop-filter: blur(8px);
+    padding: 12px 14px;
+    border: 1px solid var(--line-dark);
+    border-radius: 6px;
+  }
+
+  .drum-title strong {
+    margin-top: 6px !important;
+    font-size: clamp(22px, 6vw, 30px) !important;
+  }
+
+  .drum-title p {
+    margin-top: 6px !important;
+    font-size: 12px !important;
+    -webkit-line-clamp: 2 !important;
+  }
+
+  .drum-title .text-arrow {
+    margin-top: 10px !important;
+  }
+
+  .drum-counter {
+    bottom: 14px !important;
+    left: var(--pad) !important;
+  }
+}

@@ -329,13 +329,22 @@ export function WorksDrum({ items, onSelect, reducedMotion }: WorksDrumProps) {
     }
 
     const measure = () => {
-      const w = stage.clientWidth || 800
-      const h = stage.clientHeight || 600
+      const w = stage.clientWidth || window.innerWidth || 390
+      const h = stage.clientHeight || 560
       const isMobile = w <= 760
-      const cardW = isMobile
-        ? clamp(w * 0.84, 240, 380)
-        : Math.min(h * CARD_H * CARD_RATIO, w - clamp(w * 0.25, 220, 400) * 2)
-      const cardH = cardW / CARD_RATIO
+
+      let cardW: number
+      let cardH: number
+
+      if (isMobile) {
+        cardW = Math.min(w * 0.86, 360)
+        cardH = cardW / CARD_RATIO
+      } else {
+        const side = clamp(w * 0.25, 220, 400)
+        cardW = Math.max(220, Math.min(h * CARD_H * CARD_RATIO, w - side * 2))
+        cardH = cardW / CARD_RATIO
+      }
+
       const stepPx = cardH * STEP_GAP
       const centerXOffset = !isMobile && w > 1100 ? clamp(w * 0.035, 32, 60) : 0
 
