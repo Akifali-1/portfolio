@@ -508,19 +508,16 @@
 }
 
 button.architecture-step {
-  padding: 14px 10px;
-  border: 1px solid transparent;
+  padding: 0;
+  border: none;
   background: transparent;
   color: inherit;
   cursor: pointer;
-  transition: border-color 0.25s, background 0.25s, transform 0.25s var(--ease);
 }
 
 button.architecture-step:hover,
 button.architecture-step.is-inspected {
-  border-color: rgba(5, 5, 5, 0.28);
-  background: rgba(5, 5, 5, 0.04);
-  transform: translateY(-3px);
+  transform: none;
 }
 
 .architecture-readout {
