@@ -1,21 +1,27 @@
+// File: src/components/SectionSweep.tsx
 import { useEffect } from 'react'
-import { SWEEP_EASE, circleAt, coverRadius } from '../lib/circle'
+import { circleAt, coverRadius } from '../lib/circle'
 
 /**
- * Seamless Circular Clip-Path Reveal directly over the outgoing dark section:
- * - No black intermediate screen.
- * - When scrolling down into a .section-paper section, the section is fixed over the
- *   current viewport while the outgoing dark section stays visible underneath.
- * - The paper section and its contents expand from the top-center via clip-path: circle().
- * - Once the circle covers 100% of the screen, the scroll position is synced to the
- *   section top and normal document flow resumes seamlessly.
+ * Ultra-smooth Circular Clip-Path Reveal over outgoing dark sections:
+ * - Uses a silky exponential ease-out curve (900ms) instead of an abrupt snap.
+ * - Smoothly interpolates window.scrollY to the section top *during* the circle
+ *   expansion so when `position: fixed` releases at the end, the section is already
+ *   at the exact pixel position in document flow (zero 1-frame jump or hitch).
  */
-const REVEAL_MS = 680
+
+const REVEAL_MS = 900
 const USER_INPUT_WINDOW_MS = 800
 const LOCK_KEYS = new Set(['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', 'Home', 'End', ' '])
 
-const getTriggerLine = () => window.innerHeight * 0.85
+const getTriggerLine = () => window.innerHeight * 0.82
 const getRearmLine = () => window.innerHeight * 0.92
+
+// Silky quintic ease-out for both scroll alignment and clip-path radius
+const easeOutQuint = (t: number) => 1 - Math.pow(1 - t, 5)
+// Smooth ease-in-out for the circular iris expansion
+const easeInOutCubic = (t: number) =>
+  t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2
 
 export function SectionSweep({ reducedMotion }: { reducedMotion: boolean }) {
   useEffect(() => {
@@ -27,6 +33,7 @@ export function SectionSweep({ reducedMotion }: { reducedMotion: boolean }) {
     let armed: boolean[] = papers().map((el) => el.getBoundingClientRect().top > getRearmLine())
     let busy = false
     let frame = 0
+    let sweepRaf = 0
     let lastUserInput = -Infinity
     let activeSection: HTMLElement | null = null
     let placeholder: HTMLDivElement | null = null
@@ -59,30 +66,31 @@ export function SectionSweep({ reducedMotion }: { reducedMotion: boolean }) {
       markInput()
     }
 
-    const releaseSection = (section: HTMLElement | null, syncScroll: boolean) => {
+    const releaseSection = (section: HTMLElement | null, finalScrollY: number | null) => {
       if (!section) return
-      section.getAnimations().forEach((a) => a.cancel())
-
-      let targetScrollY: number | null = null
-      if (syncScroll && placeholder) {
-        targetScrollY = window.scrollY + placeholder.getBoundingClientRect().top
+      if (sweepRaf) {
+        window.cancelAnimationFrame(sweepRaf)
+        sweepRaf = 0
       }
+
+      const root = document.documentElement
+      const previousBehavior = root.style.scrollBehavior
+      root.style.scrollBehavior = 'auto'
 
       section.classList.remove('is-sweeping')
       section.style.clipPath = ''
+      section.style.transform = ''
 
       if (placeholder) {
         placeholder.remove()
         placeholder = null
       }
 
-      if (targetScrollY !== null) {
-        const root = document.documentElement
-        const previous = root.style.scrollBehavior
-        root.style.scrollBehavior = 'auto'
-        window.scrollTo(0, targetScrollY)
-        root.style.scrollBehavior = previous
+      if (finalScrollY !== null) {
+        window.scrollTo(0, finalScrollY)
       }
+
+      root.style.scrollBehavior = previousBehavior
     }
 
     const play = (section: HTMLElement) => {
@@ -90,9 +98,11 @@ export function SectionSweep({ reducedMotion }: { reducedMotion: boolean }) {
       activeSection = section
       setLock(true)
 
-      // 1. Insert a flow placeholder with the exact height of the section so fixing
-      //    the section doesn't shift the outgoing dark section's scroll position.
       const rect = section.getBoundingClientRect()
+      const startScrollY = window.scrollY
+      const targetScrollY = startScrollY + rect.top
+
+      // 1. Insert placeholder to keep document height and outgoing section stable
       placeholder = document.createElement('div')
       placeholder.style.height = `${rect.height}px`
       placeholder.style.width = '100%'
@@ -100,36 +110,51 @@ export function SectionSweep({ reducedMotion }: { reducedMotion: boolean }) {
       placeholder.setAttribute('aria-hidden', 'true')
       section.parentNode?.insertBefore(placeholder, section)
 
-      // 2. Pin the incoming paper section over the viewport, clipped to 0px at top-center.
-      //    The outgoing dark section remains untouched and visible underneath.
+      // 2. Fix incoming paper section over the viewport and pre-reveal its items
       section.classList.add('is-sweeping')
       section.style.clipPath = circleAt(0)
 
-      // 3. Reveal any [data-reveal] elements inside the section so they are visible inside the circle.
       section.querySelectorAll<HTMLElement>('[data-reveal]').forEach((item) => {
         item.classList.add('is-revealed')
       })
 
-      // 4. Fire a resize tick so sticky/measured children (like WorksDrum) size accurately to 100svh.
       window.dispatchEvent(new Event('resize'))
 
-      // 5. Expand the paper section circle over the outgoing dark section.
-      const r = coverRadius()
-      const reveal = section.animate([{ clipPath: circleAt(0) }, { clipPath: circleAt(r) }], {
-        duration: REVEAL_MS,
-        easing: SWEEP_EASE,
-        fill: 'forwards',
-      })
+      const maxRadius = coverRadius()
+      const startTime = performance.now()
+      const root = document.documentElement
+      const prevBehavior = root.style.scrollBehavior
+      root.style.scrollBehavior = 'auto'
 
-      reveal.onfinish = () => {
-        releaseSection(section, true)
-        activeSection = null
-        busy = false
-        setLock(false)
-        const rearmLine = getRearmLine()
-        armed = papers().map((el) => el !== section && el.getBoundingClientRect().top > rearmLine)
-        section.dispatchEvent(new CustomEvent('section-sweep-complete', { bubbles: true }))
+      // 3. Single RAF loop driving both clip-path and subtle scroll-sync so release is 100% seamless
+      const step = (now: number) => {
+        const raw = Math.min(1, Math.max(0, (now - startTime) / REVEAL_MS))
+        const radiusProgress = easeInOutCubic(raw)
+        const scrollProgress = easeOutQuint(raw)
+
+        const currentRadius = radiusProgress * maxRadius
+        section.style.clipPath = circleAt(currentRadius)
+
+        // Glide underlying scroll position smoothly toward the section top
+        const nextY = startScrollY + (targetScrollY - startScrollY) * scrollProgress
+        window.scrollTo(0, nextY)
+
+        if (raw < 1) {
+          sweepRaf = window.requestAnimationFrame(step)
+        } else {
+          sweepRaf = 0
+          root.style.scrollBehavior = prevBehavior
+          releaseSection(section, targetScrollY)
+          activeSection = null
+          busy = false
+          setLock(false)
+          const rearmLine = getRearmLine()
+          armed = papers().map((el) => el !== section && el.getBoundingClientRect().top > rearmLine)
+          section.dispatchEvent(new CustomEvent('section-sweep-complete', { bubbles: true }))
+        }
       }
+
+      sweepRaf = window.requestAnimationFrame(step)
     }
 
     const check = () => {
@@ -175,8 +200,9 @@ export function SectionSweep({ reducedMotion }: { reducedMotion: boolean }) {
       window.removeEventListener('scroll', onScroll)
       window.removeEventListener('resize', onScroll)
       window.cancelAnimationFrame(frame)
+      if (sweepRaf) window.cancelAnimationFrame(sweepRaf)
       setLock(false)
-      releaseSection(activeSection, false)
+      releaseSection(activeSection, null)
       busy = false
     }
   }, [reducedMotion])

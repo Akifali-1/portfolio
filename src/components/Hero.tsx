@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState, type CSSProperties, type RefObject } from 'react'
+// File: src/components/Hero.tsx
+import { useEffect, useRef, useState, type RefObject } from 'react'
 import { ArrowRight } from 'lucide-react'
 import type { CollapseAnimationState } from './FallingTechLogos'
 import { HalftoneName } from './HalftoneName'
-import { LorenzAttractor } from './LorenzAttractor'
 import { siteConfig } from '../data'
 
 type HeroProps = {
@@ -13,7 +13,13 @@ type HeroProps = {
   collapseTargetRef: RefObject<HTMLSpanElement | null>
 }
 
-export function Hero({ booted = true, reducedMotion, collapseState, onCollapse, collapseTargetRef }: HeroProps) {
+export function Hero({
+  booted = true,
+  reducedMotion,
+  collapseState,
+  onCollapse,
+  collapseTargetRef,
+}: HeroProps) {
   const [clock, setClock] = useState('')
   const heroRef = useRef<HTMLElement>(null)
 
@@ -30,7 +36,6 @@ export function Hero({ booted = true, reducedMotion, collapseState, onCollapse, 
     const queueUpdate = () => {
       if (!frame) frame = window.requestAnimationFrame(update)
     }
-
     update()
     window.addEventListener('scroll', queueUpdate, { passive: true })
     window.addEventListener('resize', queueUpdate)
@@ -59,54 +64,17 @@ export function Hero({ booted = true, reducedMotion, collapseState, onCollapse, 
   }, [])
 
   return (
-    <section ref={heroRef} className="hero" id="top">
+    <section ref={heroRef} className="hero hero--cards" id="top">
       <div className="hero-noise" />
-      <div className="hero-grid" aria-hidden="true" />
+
+      {/* Top Telemetry Bar */}
       <div className="hero-intro">
         <span className="live-dot" /> SYSTEM ONLINE
         {clock && <span className="hero-clock">// {clock}</span>}
         <span className="hero-location">HYD 17.38° N / 78.48° E</span>
       </div>
-      <div className="hero-content">
-        <div className="hero-stage">
-          <div className="hero-copy">
-            <div className="hero-index mono-label">
-              [ 00 / 05 ] <span>THE WORKSHOP</span>
-            </div>
-            <h1 className="hero-title hero-title--halftone" aria-label="Akif">
-              <HalftoneName text="AKIF" active={booted} reducedMotion={reducedMotion} />
-              <span className="hero-title-suffix">.SYSTEM</span>
-            </h1>
-            <div className="hero-subline">
-              <div className="role-stack">
-                <span>ENGINEER</span>
-                <span>RESEARCHER</span>
-                <span>BUILDER</span>
-              </div>
-              <div className="hero-statement-column">
-                <p className="hero-statement">
-                  I build systems
-                  <br />
-                  <em>that turn ideas</em>
-                  <br />
-                  <strong>into reality.</strong>
-                </p>
-                <div className="hero-actions">
-                  <a className="hero-cta" href="#contact">
-                    START A CONVERSATION <ArrowRight size={14} />
-                  </a>
-                  <a className="hero-cta-secondary" href={`mailto:${siteConfig.email}`}>
-                    EMAIL AKIF
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="hero-lorenz-slot">
-            <LorenzAttractor reducedMotion={reducedMotion} />
-          </div>
-        </div>
-      </div>
+
+      {/* Collapse Trigger */}
       <div className={`hero-collapse-control ${collapseState !== 'idle' ? 'is-collapse-active' : ''}`}>
         <button
           className={`hero-collapse-trigger ${collapseState !== 'idle' ? 'is-collapsed-trigger' : ''}`}
@@ -128,18 +96,67 @@ export function Hero({ booted = true, reducedMotion, collapseState, onCollapse, 
         </button>
         <span ref={collapseTargetRef} className="hero-collapse-target" aria-hidden="true" />
       </div>
-      <div className="hero-footer">
-        <span className="mono-label">SCROLL TO DECOMPILE</span>
-        <span className="scroll-mark">
-          <span />
-        </span>
-        <span className="mono-label hero-footer-right">01 — 07</span>
-      </div>
-      <div className="hero-words" aria-hidden="true">
-        <span>WORK</span>
-        <span>RESEARCH</span>
-        <span>LAB</span>
-        <span>SYSTEM</span>
+
+      {/* Layered Metallic Card Architecture */}
+      <div className="hero-card-composition">
+        {/* Card 1: Wide Metallic Base Surface */}
+        <div className="hero-card-base" aria-hidden="true" />
+
+        {/* Card 2: Tall Metallic Pillar (Clean top, drops from top edge) */}
+        <div className="hero-card-pillar" aria-hidden="true" />
+
+        {/* Outlined Bottom-Left Display Watermark: DEVELOPER */}
+        <div className="hero-outlined-mark" aria-hidden="true">
+          <span>DEVEL</span>
+          <span>OPER</span>
+        </div>
+
+        {/* Centerpiece: Halftone AKIF Centered Horizontally on the Pillar */}
+        <div className="hero-centerpiece">
+          <div className="hero-index mono-label">
+            [ 00 / 05 ] <span>THE WORKSHOP</span>
+          </div>
+          <h1 className="hero-title hero-title--halftone" aria-label="Akif">
+            <HalftoneName text="AKIF" active={booted} reducedMotion={reducedMotion} />
+          </h1>
+          <span className="hero-title-suffix mono-label">AKIF.SYSTEM // LIVING ARCHIVE</span>
+        </div>
+
+        {/* Right Editorial Copy Column (Scaled down headline) */}
+        <div className="hero-subline hero-editorial-column">
+          <p className="hero-statement">
+            I build systems
+            <br />
+            <em>that turn ideas</em>
+            <br />
+            <strong>into reality.</strong>
+          </p>
+          <p className="hero-editorial-body">
+            Building intelligent systems, developer tools, and experimental research — turning difficult questions into
+            inspectable, working software.
+          </p>
+          <div className="hero-actions">
+            <a className="hero-editorial-cta" href="#contact" data-cursor="CONTACT">
+              START A CONVERSATION <ArrowRight size={14} />
+            </a>
+            <a className="hero-cta-secondary" href={`mailto:${siteConfig.email}`} data-cursor="EMAIL">
+              EMAIL AKIF
+            </a>
+          </div>
+        </div>
+
+        {/* Bottom-Right Metallic Dock Bar: ENGINEER / BUILDER / RESEARCHER */}
+        <div className="hero-footer hero-card-dock" aria-label="Core roles">
+          <span className="hero-dock-link">
+            <span>ENGINEER</span>
+          </span>
+          <span className="hero-dock-link">
+            <span>BUILDER</span>
+          </span>
+          <span className="hero-dock-link">
+            <span>RESEARCHER</span>
+          </span>
+        </div>
       </div>
     </section>
   )

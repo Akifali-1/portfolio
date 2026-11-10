@@ -464,17 +464,18 @@
 
 .console-line-btn { transition: background 0.18s, color 0.18s; }
 
-/* --- Fix Hero Collapse Control overlapping HYD coordinates --- */
+/* --- Hero Collapse Control: positioned directly below CMD K in the desktop header --- */
 .hero-collapse-control {
-  top: 123px;
-  right: calc(var(--pad) + 190px);
+  z-index: 10;
+  top: 92px;
+  right: var(--pad);
   min-width: 0;
   min-height: 0;
 }
 
 @media (max-width: 900px) {
   .hero-collapse-control {
-    top: 123px;
+    top: 92px;
     right: var(--pad);
   }
   .hero-location {
@@ -484,7 +485,7 @@
 
 @media (max-width: 600px) {
   .hero-collapse-control {
-    top: 98px;
+    top: 84px;
     right: var(--pad);
   }
 }
@@ -492,6 +493,343 @@
 /* --- Prevent layout jump before ClientCarousel WebGL mounts --- */
 .client-carousel {
   min-height: clamp(420px, 64vh, 610px);
+}
+
+/* ==========================================================================
+   Hero Redesign: Layered Gunmetal/Metallic Cards + Centered Halftone AKIF
+   ========================================================================== */
+
+.hero.hero--cards {
+  position: relative;
+  height: 100svh;
+  min-height: 680px;
+  padding: 0;
+  background: var(--black); /* Pitch black #050505 */
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.hero.hero--cards::after {
+  display: none;
+}
+
+.hero--cards .hero-intro {
+  z-index: 6;
+  top: 92px;
+  left: var(--pad);
+  right: auto;
+  gap: 10px;
+}
+
+.hero--cards .hero-location {
+  margin-left: 16px;
+}
+
+/* Main 12-column composition stage */
+.hero-card-composition {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-template-rows: 138px 1fr 112px;
+  padding-left: var(--pad);
+}
+
+/* 1. Wide Metallic Base Card (sits in rows 2-3, from left pad to right viewport edge) */
+.hero-card-base {
+  grid-column: 1 / -1;
+  grid-row: 2 / 4;
+  position: relative;
+  z-index: 1;
+  border-top: 1px solid rgba(255, 255, 255, 0.09);
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  border-top-left-radius: 4px;
+  background:
+    radial-gradient(120% 100% at 85% 0%, rgba(255, 255, 255, 0.035) 0%, transparent 60%),
+    linear-gradient(165deg, #0d0f13 0%, #090a0d 58%, #060709 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    -20px 0 60px rgba(0, 0, 0, 0.75);
+}
+
+/* 2. Tall Brushed-Metallic Pillar Card (Scaled +25% to frame larger AKIF) */
+.hero-card-pillar {
+  grid-column: 4 / 8;
+  grid-row: 1 / 3;
+  position: relative;
+  z-index: 2;
+  height: 82%;
+  align-self: start;
+  width: calc(100% + clamp(90px, 9vw, 160px));
+  margin-left: calc(-0.5 * clamp(90px, 9vw, 160px));
+  max-width: 780px;
+  border-left: 1px solid rgba(255, 255, 255, 0.14);
+  border-right: 1px solid rgba(255, 255, 255, 0.09);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  border-bottom-left-radius: 6px;
+  border-bottom-right-radius: 6px;
+  background:
+    radial-gradient(90% 75% at 16% 8%, rgba(255, 255, 255, 0.09) 0%, rgba(255, 255, 255, 0.02) 45%, transparent 75%),
+    linear-gradient(180deg, #171a21 0%, #111318 62%, #0c0e12 100%);
+  box-shadow:
+    0 34px 90px rgba(0, 0, 0, 0.82),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.08);
+}
+
+/* 3. Outlined Bottom-Left Watermark (DEVEL / OPER) */
+.hero-outlined-mark {
+  grid-column: 1 / 5;
+  grid-row: 2 / 4;
+  z-index: 3;
+  align-self: end;
+  margin-left: calc(var(--pad) * -0.45);
+  margin-bottom: clamp(24px, 4vh, 46px);
+  display: flex;
+  flex-direction: column;
+  font-family: var(--display);
+  font-size: clamp(56px, 7.2vw, 114px);
+  font-weight: 700;
+  line-height: 0.86;
+  letter-spacing: -0.055em;
+  color: transparent;
+  -webkit-text-stroke: 1.25px rgba(243, 243, 240, 0.24);
+  user-select: none;
+  pointer-events: none;
+}
+
+/* 4. Centerpiece: Halftone AKIF (+25% size = 780px max-width, shifted up by 25px) */
+.hero-centerpiece {
+  grid-column: 4 / 8;
+  grid-row: 2 / 3;
+  z-index: 4;
+  align-self: center;
+  justify-self: center;
+  width: calc(100% + clamp(90px, 9vw, 160px));
+  margin-left: calc(-0.5 * clamp(90px, 9vw, 160px));
+  max-width: 780px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  transform: translateY(calc(-4% - 25px));
+}
+
+.hero--cards .hero-index {
+  align-self: flex-start;
+  margin-bottom: 12px;
+  color: var(--blue);
+}
+
+.hero--cards .hero-index span {
+  margin-left: 12px;
+  color: rgba(243, 243, 240, 0.48);
+}
+
+.hero--cards .hero-title.hero-title--halftone {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.hero--cards .halftone-name {
+  width: 100% !important;
+  max-width: 780px !important;
+  margin: 0 auto;
+  filter: drop-shadow(0 18px 36px rgba(0, 0, 0, 0.85));
+}
+
+.hero--cards .hero-title-suffix {
+  align-self: flex-start;
+  margin: 12px 0 0 2px;
+  color: rgba(243, 243, 240, 0.52);
+  font-size: 9px;
+  letter-spacing: 0.16em;
+}
+
+/* 5. Right Editorial Copy Column (Significantly reduced size so it doesn't compete) */
+.hero--cards .hero-editorial-column {
+  grid-column: 8 / 12;
+  grid-row: 2 / 3;
+  z-index: 4;
+  align-self: center;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 0;
+  padding-left: clamp(48px, 5vw, 92px);
+}
+
+.hero--cards .hero-statement {
+  max-width: 260px;
+  margin: 0;
+  color: var(--white);
+  font-size: clamp(15px, 1.35vw, 22px);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  line-height: 1.12;
+}
+
+.hero-editorial-body {
+  max-width: 280px;
+  margin: 0;
+  color: var(--muted);
+  font-size: clamp(11px, 0.8vw, 12.5px);
+  line-height: 1.55;
+}
+
+.hero--cards .hero-actions {
+  gap: 10px 16px;
+  margin-top: 2px;
+}
+
+.hero-editorial-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 0 5px;
+  border-bottom: 1px solid rgba(243, 243, 240, 0.75);
+  color: var(--white);
+  font: 500 9px var(--mono);
+  letter-spacing: 0.13em;
+  transition: color 0.25s, border-color 0.25s, gap 0.25s var(--ease);
+}
+
+.hero--cards .hero-cta-secondary {
+  font-size: 8.5px;
+}
+
+.hero-editorial-cta:hover,
+.hero-editorial-cta:focus-visible {
+  color: var(--blue);
+  border-color: var(--blue);
+  gap: 16px;
+}
+
+/* 6. Bottom-Right Metallic Dock Bar: ENGINEER / BUILDER / RESEARCHER */
+.hero--cards .hero-card-dock {
+  grid-column: 5 / -1;
+  grid-row: 3 / 4;
+  position: relative;
+  inset: auto;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0 clamp(24px, 4vw, 72px);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  background:
+    radial-gradient(80% 120% at 15% 0%, rgba(255, 255, 255, 0.055) 0%, transparent 65%),
+    linear-gradient(180deg, #07080a 0%, #050505 100%);
+}
+
+.hero-dock-link {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: 8px;
+  color: var(--white);
+  font: 500 10px var(--mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  user-select: none;
+}
+
+.hero-dock-link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1.5px;
+  background: rgba(243, 243, 240, 0.72);
+}
+
+/* Entrance animations synced with BootScreen */
+.portfolio-shell.is-hero-waiting .hero-card-base,
+.portfolio-shell.is-hero-waiting .hero-card-pillar,
+.portfolio-shell.is-hero-waiting .hero-centerpiece,
+.portfolio-shell.is-hero-waiting .hero-outlined-mark {
+  opacity: 0;
+  transform: translate3d(0, 28px, 0);
+}
+
+.portfolio-shell.is-hero-entered .hero-card-base,
+.portfolio-shell.is-hero-entered .hero-card-pillar,
+.portfolio-shell.is-hero-entered .hero-centerpiece,
+.portfolio-shell.is-hero-entered .hero-outlined-mark {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  transition:
+    opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.portfolio-shell.is-hero-entered .hero-card-base { transition-delay: 60ms; }
+.portfolio-shell.is-hero-entered .hero-card-pillar { transition-delay: 120ms; }
+.portfolio-shell.is-hero-entered .hero-centerpiece { transition-delay: 180ms; }
+.portfolio-shell.is-hero-entered .hero-outlined-mark { transition-delay: 240ms; }
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .hero.hero--cards {
+    height: auto;
+    min-height: 100svh;
+  }
+
+  .hero-card-composition {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    padding: 130px var(--pad) 0;
+    gap: 28px;
+  }
+
+  .hero-card-base {
+    grid-column: 1 / -1;
+    grid-row: 1 / -1;
+    margin-left: 0;
+  }
+
+  .hero-card-pillar {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    width: 100%;
+    max-width: 100%;
+    margin-left: 0;
+    height: auto;
+    padding: 28px 24px 36px;
+  }
+
+  .hero-centerpiece {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    width: 100%;
+    max-width: 100%;
+    margin-left: 0;
+    padding: 0 24px;
+    transform: none;
+  }
+
+  .hero--cards .hero-editorial-column {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    padding: 0 24px 20px;
+  }
+
+  .hero-outlined-mark {
+    display: none;
+  }
+
+  .hero--cards .hero-card-dock {
+    grid-column: 1 / -1;
+    grid-row: 4;
+    padding: 24px 16px;
+  }
 }
 
 
