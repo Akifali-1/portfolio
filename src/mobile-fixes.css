@@ -1,0 +1,63 @@
+/* Mobile fixes. Imported LAST in App.tsx so it wins over the earlier layered CSS. */
+
+@media (max-width: 900px) {
+  /* 1. Sections were forced to 100svh, which leaves large empty bands when content is shorter. */
+  .manifesto,
+  .work-section,
+  .research-section,
+  .signal-section,
+  .about-section,
+  .graph-section,
+  .contact-section {
+    min-height: 0;
+  }
+
+  .manifesto { padding-top: 56px; padding-bottom: 72px; }
+  .manifesto-copy { margin-top: 48px; }
+  .manifesto-aside { margin-top: 56px; }
+  .work-section.section-paper { padding-bottom: 72px; }
+  .contact-section { padding-bottom: 56px; }
+  .signal-section,
+  .graph-section,
+  .about-section { padding-bottom: 72px; }
+}
+
+@media (max-width: 760px) {
+  /* 3. Hero: collapse control is text-only and only ~10px tall. Give it a 44px tap target. */
+  .hero-collapse-control .hero-collapse-trigger {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px !important;
+    height: 44px;
+    padding-block: 0;
+  }
+
+  /* 1b. Hero was forced to 100svh; the dock sat mid-screen with ~220px of empty space below it. */
+  .hero.hero--cards {
+    height: auto;
+    min-height: 0;
+  }
+  .hero--cards .hero-card-dock {
+    padding-bottom: 28px;
+  }
+
+  /* 2. Hero: the empty decorative pillar renders as a blank box on phones. */
+  .hero-card-pillar { display: none; }
+
+
+  /* 4. Mono labels are 8px on phones, which is too small to read. */
+  .mono-label,
+  .section-label,
+  .hero-index {
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 600px) {
+  /* 5. Telemetry line ran under the collapse control. Drop the clock and keep the status. */
+  .hero-intro .hero-clock,
+  .hero-intro .hero-location {
+    display: none;
+  }
+}
+

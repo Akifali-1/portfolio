@@ -28,6 +28,7 @@ import './ui-overrides.css'
 import './collapse.css'
 import './echo-sections.css'
 import './fullscreen.css'
+import './mobile-fixes.css'
 
 function App() {
   const reducedMotion = useReducedMotion()
