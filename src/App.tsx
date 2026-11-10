@@ -3,6 +3,7 @@ import { BootScreen } from './components/BootScreen'
 import { CommandPalette } from './components/CommandPalette'
 import { CustomCursor } from './components/CustomCursor'
 import { CollapseSurface, type CollapseSurfaceHandle } from './components/CollapseSurface'
+import { SectionSweep } from './components/SectionSweep'
 import { Hero } from './components/Hero'
 import { JourneySection } from './components/JourneySection'
 import { Navigation } from './components/Navigation'
@@ -26,6 +27,7 @@ import './project-preview.css'
 import './ui-overrides.css'
 import './collapse.css'
 import './echo-sections.css'
+import './fullscreen.css'
 
 function App() {
   const reducedMotion = useReducedMotion()
@@ -51,6 +53,8 @@ function App() {
       return false
     }
   })
+  // The boot layer stays mounted until its own circle has receded (booted flips earlier, at the reveal).
+  const [bootMounted, setBootMounted] = useState(() => !booted)
   const [commandOpen, setCommandOpen] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [selectedProject, setSelectedProject] = useState<Project | null>(() => {
@@ -80,6 +84,8 @@ function App() {
     }
     setBooted(true)
   }, [])
+
+  const unmountBoot = useCallback(() => setBootMounted(false), [])
 
   useEffect(() => {
     const revealItems = Array.from(document.querySelectorAll<HTMLElement>('[data-reveal]'))
@@ -167,7 +173,7 @@ function App() {
 
   return (
     <>
-      {!booted && <BootScreen onComplete={finishBoot} reducedMotion={reducedMotion} />}
+      {bootMounted && <BootScreen onReveal={finishBoot} onComplete={unmountBoot} reducedMotion={reducedMotion} />}
       <div
         ref={portfolioShellRef}
         className={`portfolio-shell ${booted ? 'is-hero-entered' : 'is-hero-waiting'}`}
@@ -201,9 +207,9 @@ function App() {
           <JourneySection />
           <WorkSection onSelect={handleSelectProject} reducedMotion={reducedMotion} />
           <ClientSection onSelect={handleSelectProject} />
-          <ResearchSection />
-          <SignalSection />
           <AboutSection />
+          <SignalSection />
+          <ResearchSection />
           <GraphSection onSelect={handleSelectProject} reducedMotion={reducedMotion} />
           <ContactSection />
         </main>
@@ -214,6 +220,7 @@ function App() {
         />
         <SiteFooter />
       </div>
+      <SectionSweep reducedMotion={reducedMotion} />
       <CollapseSurface ref={collapseSurfaceRef} />
       <div ref={collapseBlackoutRef} className="collapse-blackout" aria-hidden="true" />
       <div

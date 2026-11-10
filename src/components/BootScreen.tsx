@@ -1,26 +1,35 @@
-import { useEffect, useRef, useState, type CSSProperties } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { sound } from '../sound'
+import { SWEEP_EASE, circleAt, coverRadius } from '../lib/circle'
 
-const BOOT_INIT_DURATION_MS = 2200
-const CURTAIN_ARM_MS = 160
-const CURTAIN_SLIDE_MS = 900
-const COLUMN_STAGGER_MS = 90
-const COLUMN_COUNT = 5
+const BOOT_INIT_DURATION_MS = 2200 // counter duration (unchanged)
+const ARM_MS = 160
+const COVER_MS = 700
+const REVEAL_MS = 820
 
 type BootScreenProps = {
-  onComplete: () => void
+  onReveal: () => void // hero starts entering as the paper circle recedes
+  onComplete: () => void // unmount the boot layer
   reducedMotion: boolean
 }
 
-export function BootScreen({ onComplete, reducedMotion }: BootScreenProps) {
-  const [phase, setPhase] = useState<'loading' | 'arming' | 'opening'>('loading')
-  const [progress, setProgress] = useState(0)
-  const lastTickRef = useRef<number>(0)
+type Phase = 'loading' | 'arming' | 'covering' | 'revealing'
 
-  // PHASE 1: Smooth 0 -> 100% Loading Bar
+export function BootScreen({ onReveal, onComplete, reducedMotion }: BootScreenProps) {
+  const [phase, setPhase] = useState<Phase>('loading')
+  const [progress, setProgress] = useState(0)
+  const lastTickRef = useRef(0)
+  const paperRef = useRef<HTMLDivElement>(null)
+
+  // Keep the latest callbacks without restarting the animation effects.
+  const callbacks = useRef({ onReveal, onComplete })
+  callbacks.current = { onReveal, onComplete }
+
+  // PHASE 1: counter (unchanged)
   useEffect(() => {
     if (reducedMotion) {
-      onComplete()
+      callbacks.current.onReveal()
+      callbacks.current.onComplete()
       return
     }
 
@@ -48,65 +57,65 @@ export function BootScreen({ onComplete, reducedMotion }: BootScreenProps) {
 
     raf = window.requestAnimationFrame(tick)
     return () => window.cancelAnimationFrame(raf)
-  }, [onComplete, reducedMotion])
+  }, [reducedMotion])
 
-  // PHASE 2: Flash to white curtains, then pull all columns UP from left to right
+  // PHASE 2: short pause, then the paper circle starts at the top centre
   useEffect(() => {
-    if (phase === 'arming') {
-      const t = window.setTimeout(() => {
-        if ('playCurtainReveal' in sound && typeof sound.playCurtainReveal === 'function') {
-          sound.playCurtainReveal()
-        }
-        setPhase('opening')
-      }, CURTAIN_ARM_MS)
-      return () => window.clearTimeout(t)
-    }
+    if (phase !== 'arming') return
+    const t = window.setTimeout(() => setPhase('covering'), ARM_MS)
+    return () => window.clearTimeout(t)
+  }, [phase])
 
-    if (phase === 'opening') {
-      // Trigger onComplete right as the curtains finish pulling up so the Hero slides in
-      const totalWait = CURTAIN_SLIDE_MS + (COLUMN_COUNT - 1) * COLUMN_STAGGER_MS - 120
-      const done = window.setTimeout(onComplete, totalWait)
-      return () => window.clearTimeout(done)
+  // PHASE 3: the circle grows until the whole viewport is paper
+  useEffect(() => {
+    if (phase !== 'covering') return
+    const el = paperRef.current
+    if (!el) return
+    sound.playCurtainReveal()
+    const r = coverRadius()
+    const cover = el.animate([{ clipPath: circleAt(0) }, { clipPath: circleAt(r) }], {
+      duration: COVER_MS,
+      easing: SWEEP_EASE,
+      fill: 'forwards',
+    })
+    cover.onfinish = () => setPhase('revealing')
+  }, [phase])
+
+  // PHASE 4: the same circle recedes to the top and uncovers the hero
+  useEffect(() => {
+    if (phase !== 'revealing') return
+    const el = paperRef.current
+    callbacks.current.onReveal()
+    if (!el) {
+      callbacks.current.onComplete()
+      return
     }
-  }, [onComplete, phase])
+    const r = coverRadius()
+    const reveal = el.animate([{ clipPath: circleAt(r) }, { clipPath: circleAt(0) }], {
+      duration: REVEAL_MS,
+      easing: SWEEP_EASE,
+      fill: 'forwards',
+    })
+    reveal.onfinish = () => callbacks.current.onComplete()
+  }, [phase])
 
   const percent = Math.round(progress * 100)
 
   return (
-    <div
-      className={`boot-curtain-stage is-${phase}`}
-      aria-label="Loading portfolio"
-      style={
-        {
-          '--curtain-slide-ms': `${CURTAIN_SLIDE_MS}ms`,
-          '--curtain-stagger-ms': `${COLUMN_STAGGER_MS}ms`,
-        } as CSSProperties
-      }
-    >
-      {/* 5 Vertical Curtain Columns — All Pull UP Left-to-Right */}
-      <div className="boot-curtain-grid" aria-hidden="true">
-        {Array.from({ length: COLUMN_COUNT }).map((_, index) => (
-          <div
-            key={index}
-            className="boot-curtain-col"
-            style={{ '--col-index': index } as CSSProperties}
-          />
-        ))}
-      </div>
-
-      {/* Centered Minimalist 0-100% Loader */}
+    <div className={`boot-curtain-stage is-${phase}`} aria-label="Loading portfolio">
+      {/* Centered 0-100% loader (unchanged) */}
       <div className={`boot-minimal-loader ${phase !== 'loading' ? 'is-hidden' : ''}`}>
         <div className="boot-minimal-header">
           <span className="boot-minimal-tag">SYS.LOAD</span>
           <span className="boot-minimal-percent">{String(percent).padStart(3, '0')}%</span>
         </div>
         <div className="boot-minimal-track">
-          <span
-            className="boot-minimal-fill"
-            style={{ transform: `scaleX(${progress.toFixed(4)})` }}
-          />
+          <span className="boot-minimal-fill" style={{ transform: `scaleX(${progress.toFixed(4)})` }} />
         </div>
       </div>
+
+      {/* Paper circle: covers from the top, then recedes to reveal the hero */}
+      <div ref={paperRef} className="boot-paper" aria-hidden="true" />
     </div>
   )
 }

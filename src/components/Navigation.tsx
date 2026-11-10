@@ -5,8 +5,8 @@ const navigationItems = [
   { label: 'JOURNEY', href: '#journey' },
   { label: 'WORK', href: '#work' },
   { label: 'CLIENT', href: '#freelance' },
-  { label: 'RESEARCH', href: '#research' },
   { label: 'ABOUT', href: '#about' },
+  { label: 'RESEARCH', href: '#research' },
   { label: 'GRAPH', href: '#graph' },
   { label: 'CONTACT', href: '#contact' },
 ]

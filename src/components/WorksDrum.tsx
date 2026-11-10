@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react'
+﻿import { useCallback, useEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type PointerEvent } from 'react'
 import { ArrowRight } from 'lucide-react'
 import type { Project } from '../data'
 
@@ -7,7 +7,9 @@ import type { Project } from '../data'
  * - cards are project images (project.previewImage)
  * - hovering a name in the index, or a side card, turns the drum to it
  * - clicking a card opens the existing project modal via onSelect
- * - drag, arrow keys and Enter work. The page wheel is never captured.
+ * - scrolling the page turns the drum: the block is pinned while the page scrolls past it,
+ *   and the scroll progress drives the drum. The wheel is not captured.
+ * - drag, arrow keys and Enter work too.
  * - below 760px the drum is replaced by a scroll-snap strip (see CSS)
  */
 
@@ -39,6 +41,8 @@ type WorksDrumProps = {
 
 export function WorksDrum({ items, onSelect, reducedMotion }: WorksDrumProps) {
   const rootRef = useRef<HTMLDivElement>(null)
+  const pinRef = useRef<HTMLDivElement>(null)
+  const stickyRef = useRef<HTMLDivElement>(null)
   const stageRef = useRef<HTMLDivElement>(null)
   const wheelRef = useRef<HTMLDivElement>(null)
   const cardRefs = useRef<Array<HTMLDivElement | null>>([])
@@ -134,39 +138,6 @@ export function WorksDrum({ items, onSelect, reducedMotion }: WorksDrumProps) {
       },
     }
 
-    let settle = 0
-    const onWheel = (event: WheelEvent) => {
-      if (Math.abs(event.deltaX) > Math.abs(event.deltaY)) return
-
-      // Only capture vertical wheel when the drum is well within the viewport
-      const rect = root.getBoundingClientRect()
-      const viewCenter = window.innerHeight / 2
-      const drumCenter = rect.top + rect.height / 2
-      const isCentered = Math.abs(drumCenter - viewCenter) < window.innerHeight * 0.28
-
-      const unit = event.deltaMode === 1 ? 16 : 1
-      const stepDelta = (event.deltaY * unit) / WHEEL_UNITS
-      const goingDown = stepDelta > 0
-      const goingUp = stepDelta < 0
-
-      // Release scroll to the page once the user reaches the first (0) or last (05) card
-      const canSpinDown = goingDown && target < last - 0.02
-      const canSpinUp = goingUp && target > 0.02
-
-      if (!isCentered || (!canSpinDown && !canSpinUp)) {
-        return
-      }
-
-      event.preventDefault()
-      target = clamp(target + stepDelta, 0, last)
-      request()
-      window.clearTimeout(settle)
-      settle = window.setTimeout(() => {
-        target = clamp(Math.round(target), 0, last)
-        request()
-      }, SETTLE)
-    }
-    stage.addEventListener('wheel', onWheel, { passive: false })
 
     measure()
     const ro = new ResizeObserver(measure)
@@ -179,14 +150,41 @@ export function WorksDrum({ items, onSelect, reducedMotion }: WorksDrumProps) {
     const state = ui.current
 
     return () => {
-      stage.removeEventListener('wheel', onWheel)
-      window.clearTimeout(settle)
       cancelAnimationFrame(frame)
       window.clearTimeout(state.hoverTimer)
       ro.disconnect()
       io.disconnect()
     }
   }, [count, last, reducedMotion])
+
+  // Scroll drives the drum: the pinned block's progress maps onto the card index.
+  useEffect(() => {
+    const pin = pinRef.current
+    const sticky = stickyRef.current
+    if (reducedMotion || !pin || !sticky) return
+
+    let frame = 0
+    const update = () => {
+      frame = 0
+      const pinRect = pin.getBoundingClientRect()
+      const span = pinRect.height - sticky.getBoundingClientRect().height
+      if (span <= 0) return
+      const progress = clamp(-pinRect.top / span, 0, 1)
+      api.current.to(progress * last)
+    }
+    const queue = () => {
+      if (!frame) frame = window.requestAnimationFrame(update)
+    }
+
+    update()
+    window.addEventListener('scroll', queue, { passive: true })
+    window.addEventListener('resize', queue)
+    return () => {
+      window.removeEventListener('scroll', queue)
+      window.removeEventListener('resize', queue)
+      window.cancelAnimationFrame(frame)
+    }
+  }, [last, reducedMotion])
 
   const to = useCallback((n: number) => api.current.to(n), [])
 
@@ -266,88 +264,96 @@ export function WorksDrum({ items, onSelect, reducedMotion }: WorksDrumProps) {
 
   return (
     <>
-      <div ref={rootRef} className="works-drum" data-reveal="rise">
-        <div
-          ref={stageRef}
-          className="drum-stage"
-          tabIndex={0}
-          role="listbox"
-          aria-label="Selected work"
-          aria-activedescendant={`drum-card-${active}`}
-          onKeyDown={onKeyDown}
-          onPointerDown={onPointerDown}
-          onPointerMove={onPointerMove}
-          onPointerUp={endDrag}
-          onPointerCancel={endDrag}
-        >
-          <div ref={wheelRef} className="drum-wheel">
-            {items.map((project, i) => (
-              <div
-                key={project.id}
-                id={`drum-card-${i}`}
-                ref={(el) => {
-                  cardRefs.current[i] = el
-                }}
-                role="option"
-                aria-selected={i === active}
-                aria-label={project.title}
-                className="drum-card"
-                onClick={() => clickCard(i)}
-                onPointerEnter={(event) => hoverCard(i, event)}
-                onPointerLeave={() => window.clearTimeout(ui.current.hoverTimer)}
-                data-cursor="OPEN"
-              >
-                <div className="drum-face">
-                  <img src={project.previewImage} alt="" draggable={false} loading="eager" />
-                  <span className="drum-shade" />
-                  <span className="drum-card-meta">
-                    <b>{project.index}</b>
-                    <span>{project.title}</span>
-                    <i>OPEN</i>
-                  </span>
-                </div>
+      <div
+        ref={pinRef}
+        className={`works-pin ${reducedMotion ? 'is-static' : ''}`}
+        style={{ '--works-n': count } as CSSProperties}
+      >
+        <div ref={stickyRef} className="works-pin-sticky">
+          <div ref={rootRef} className="works-drum" data-reveal="rise">
+            <div
+              ref={stageRef}
+              className="drum-stage"
+              tabIndex={0}
+              role="listbox"
+              aria-label="Selected work"
+              aria-activedescendant={`drum-card-${active}`}
+              onKeyDown={onKeyDown}
+              onPointerDown={onPointerDown}
+              onPointerMove={onPointerMove}
+              onPointerUp={endDrag}
+              onPointerCancel={endDrag}
+            >
+              <div ref={wheelRef} className="drum-wheel">
+                {items.map((project, i) => (
+                  <div
+                    key={project.id}
+                    id={`drum-card-${i}`}
+                    ref={(el) => {
+                      cardRefs.current[i] = el
+                    }}
+                    role="option"
+                    aria-selected={i === active}
+                    aria-label={project.title}
+                    className="drum-card"
+                    onClick={() => clickCard(i)}
+                    onPointerEnter={(event) => hoverCard(i, event)}
+                    onPointerLeave={() => window.clearTimeout(ui.current.hoverTimer)}
+                    data-cursor="OPEN"
+                  >
+                    <div className="drum-face">
+                      <img src={project.previewImage} alt="" draggable={false} loading="eager" />
+                      <span className="drum-shade" />
+                      <span className="drum-card-meta">
+                        <b>{project.index}</b>
+                        <span>{project.title}</span>
+                        <i>OPEN</i>
+                      </span>
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
+            </div>
+
+            <div className="drum-title" aria-live="polite">
+              <span className="mono-label">
+                [{current.index}] {current.category}
+              </span>
+              <strong key={current.id}>{current.title}</strong>
+              <p>{current.description}</p>
+              <button className="text-arrow" type="button" onClick={() => onSelect(current)} data-cursor="EXPLORE">
+                OPEN CASE STUDY <ArrowRight size={15} />
+              </button>
+            </div>
+
+            <ol className="drum-index" aria-label="Project index">
+              {items.map((project, i) => (
+                <li key={project.id}>
+                  <button
+                    type="button"
+                    className={i === active ? 'is-active' : ''}
+                    onPointerEnter={(event) => {
+                      if (event.pointerType === 'mouse') to(i)
+                    }}
+                    onFocus={() => to(i)}
+                    onClick={() => (ui.current.pointerType === 'mouse' && i === active ? onSelect(project) : to(i))}
+                    onPointerDown={(event) => {
+                      ui.current.pointerType = event.pointerType
+                    }}
+                  >
+                    <small>{project.index}</small>
+                    {project.title}
+                  </button>
+                </li>
+              ))}
+            </ol>
+
+            <div className="drum-counter mono-label">
+              {String(active + 1).padStart(2, '0')} / {String(count).padStart(2, '0')}
+            </div>
+            <div className="drum-hint mono-label">SCROLL, DRAG OR HOVER A NAME / CLICK A CARD TO OPEN</div>
           </div>
         </div>
-
-        <div className="drum-title" aria-live="polite">
-          <span className="mono-label">
-            [{current.index}] {current.category}
-          </span>
-          <strong key={current.id}>{current.title}</strong>
-          <p>{current.description}</p>
-          <button className="text-arrow" type="button" onClick={() => onSelect(current)} data-cursor="EXPLORE">
-            OPEN CASE STUDY <ArrowRight size={15} />
-          </button>
-        </div>
-
-        <ol className="drum-index" aria-label="Project index">
-          {items.map((project, i) => (
-            <li key={project.id}>
-              <button
-                type="button"
-                className={i === active ? 'is-active' : ''}
-                onPointerEnter={(event) => {
-                  if (event.pointerType === 'mouse') to(i)
-                }}
-                onFocus={() => to(i)}
-                onClick={() => (ui.current.pointerType === 'mouse' && i === active ? onSelect(project) : to(i))}
-                onPointerDown={(event) => {
-                  ui.current.pointerType = event.pointerType
-                }}
-              >
-                <small>{project.index}</small>
-                {project.title}
-              </button>
-            </li>
-          ))}
-        </ol>
-
-        <div className="drum-counter mono-label">
-          {String(active + 1).padStart(2, '0')} / {String(count).padStart(2, '0')}
-        </div>
-        <div className="drum-hint mono-label">SCROLL, HOVER A NAME OR DRAG / CLICK A CARD TO OPEN</div>
       </div>
 
       <div className="works-strip" data-reveal="rise">
@@ -364,4 +370,3 @@ export function WorksDrum({ items, onSelect, reducedMotion }: WorksDrumProps) {
     </>
   )
 }
-

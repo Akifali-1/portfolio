@@ -111,36 +111,47 @@ export function ClientSection({ onSelect }: ProjectSelectionProps) {
           <span className="mono-label">NO PUBLIC SOURCE LINKS</span>
         </div>
       </div>
-      <ClientCarousel onSelect={onSelect} />
+      <div className="client-pin">
+        <div className="client-pin-sticky">
+          <ClientCarousel onSelect={onSelect} />
+        </div>
+      </div>
     </section>
   )
 }
 
-export function ResearchSection() {
+export function AboutSection() {
   return (
-    <section className="research-section section-paper" id="research" aria-labelledby="research-title">
+    <section className="about-section section-paper" id="about" aria-labelledby="about-title">
       <div className="page-grid">
         <SectionLabel index="03" light>
-          RESEARCH / ADAPTIVE STGT
+          ABOUT THE BUILDER
         </SectionLabel>
-        <div className="research-top" data-reveal="rise">
-          <span className="mono-label">PAPER / 001 — IN PROGRESS</span>
-          <h2 id="research-title">
-            Supply chains
+        <div className="about-copy">
+          <span className="mono-label">A SHORT OPERATING MANUAL</span>
+          <h2 id="about-title">
+            I like building
             <br />
-            are not only
+            things I don't
             <br />
-            <em>temporal.</em>
+            <em>fully understand yet.</em>
           </h2>
-          <p className="research-thesis">They are relational.</p>
+          <p>
+            I work across software engineering, AI systems, research, and experimentation. I like taking difficult
+            questions, turning them into systems, and seeing what happens.
+          </p>
         </div>
-        <div className="research-explainer" data-reveal="fade">
-          <span className="detail-label">THE QUESTION</span>
-          <p>When a system forecasts demand, what changes when its relationships become part of the signal?</p>
+        <div className="exploring">
+          <span className="detail-label">CURRENTLY EXPLORING</span>
+          <div className="exploring-list">
+            {exploring.map((item, index) => (
+              <span key={item}>
+                <small>{String(index + 1).padStart(2, '0')}</small>
+                {item}
+              </span>
+            ))}
+          </div>
         </div>
-        <Architecture />
-
-        <ThreatEmulationPanel />
       </div>
     </section>
   )
@@ -238,38 +249,31 @@ export function SignalSection() {
   )
 }
 
-export function AboutSection() {
+export function ResearchSection() {
   return (
-    <section className="about-section section-paper" id="about" aria-labelledby="about-title">
+    <section className="research-section section-paper no-sweep" id="research" aria-labelledby="research-title">
       <div className="page-grid">
         <SectionLabel index="05" light>
-          ABOUT THE BUILDER
+          RESEARCH / ADAPTIVE STGT
         </SectionLabel>
-        <div className="about-copy">
-          <span className="mono-label">A SHORT OPERATING MANUAL</span>
-          <h2 id="about-title">
-            I like building
+        <div className="research-top" data-reveal="rise">
+          <span className="mono-label">PAPER / 001 — IN PROGRESS</span>
+          <h2 id="research-title">
+            Supply chains
             <br />
-            things I don't
+            are not only
             <br />
-            <em>fully understand yet.</em>
+            <em>temporal.</em>
           </h2>
-          <p>
-            I work across software engineering, AI systems, research, and experimentation. I like taking difficult
-            questions, turning them into systems, and seeing what happens.
-          </p>
+          <p className="research-thesis">They are relational.</p>
         </div>
-        <div className="exploring">
-          <span className="detail-label">CURRENTLY EXPLORING</span>
-          <div className="exploring-list">
-            {exploring.map((item, index) => (
-              <span key={item}>
-                <small>{String(index + 1).padStart(2, '0')}</small>
-                {item}
-              </span>
-            ))}
-          </div>
+        <div className="research-explainer" data-reveal="fade">
+          <span className="detail-label">THE QUESTION</span>
+          <p>When a system forecasts demand, what changes when its relationships become part of the signal?</p>
         </div>
+        <Architecture />
+
+        <ThreatEmulationPanel />
       </div>
     </section>
   )

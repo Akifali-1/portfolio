@@ -178,8 +178,7 @@ export function textStipple(
   const mm = probe.measureText(text)
   const ascent = mm.actualBoundingBoxAscent
   const descent = mm.actualBoundingBoxDescent
-  const dust = pitch * 9
-  const pad = Math.ceil(dust + fontSize * 0.03)
+  const pad = Math.ceil(pitch * 2 + fontSize * 0.02)
   const w = Math.ceil(width)
   const h = Math.ceil(ascent + descent + pad * 2)
 
@@ -193,7 +192,7 @@ export function textStipple(
   mctx.fillStyle = '#fff'
   mctx.strokeStyle = '#fff'
   mctx.lineJoin = 'round'
-  mctx.lineWidth = fontSize * 0.03
+  mctx.lineWidth = fontSize * 0.025
   const x0 = (w - mm.width) / 2
   mctx.fillText(text, x0, pad + ascent)
   mctx.strokeText(text, x0, pad + ascent)
@@ -204,32 +203,26 @@ export function textStipple(
     seed = (seed * 16807) % 2147483647
     return (seed - 1) / 2147483646
   }
-  const depthCap = pitch * 5
+  const depthCap = pitch * 4
   const xs: number[] = []
   const ys: number[] = []
   const sz: number[] = []
-  const margin = Math.max(4, pitch * 2.5)
+  const margin = Math.max(2, pitch)
   for (let y = margin; y < h - margin; y += pitch) {
     for (let x = margin; x < w - margin; x += pitch) {
-      const jx = x + (rnd() - 0.5) * pitch * 0.9
-      const jy = y + (rnd() - 0.5) * pitch * 0.9
+      // Subtle jitter to preserve organic halftone dot feel without chaotic grain
+      const jx = x + (rnd() - 0.5) * pitch * 0.35
+      const jy = y + (rnd() - 0.5) * pitch * 0.35
       const gx = Math.min(w - 2, Math.max(1, Math.round(jx)))
       const gy = Math.min(h - 2, Math.max(1, Math.round(jy)))
       const s = sd[gy * w + gx]
-      let keep = 0
-      let size = 0
-      if (s >= 0) {
-        const t = smoothstep(0, depthCap, s)
-        keep = 0.8 + 0.2 * t
-        size = 1 + 0.9 * t
-      } else if (s > -dust) {
-        const f = 1 + s / dust
-        keep = f * f * 0.45
-        size = 0.8 + 0.6 * f
-      } else {
-        continue
-      }
-      if (rnd() > keep) continue
+
+      // Completely remove side grains / dust outside the letter boundaries
+      if (s < 0) continue
+
+      const t = smoothstep(0, depthCap, s)
+      const size = clamp(pitch * (0.68 + 0.25 * t), 1.3, pitch * 0.95)
+
       xs.push(jx)
       ys.push(jy)
       sz.push(size)

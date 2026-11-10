@@ -1,0 +1,161 @@
+/* ==========================================================================
+   Full-screen layer. Import LAST in App.tsx (after echo-sections.css).
+   1. Sweep layer and boot paper circle
+   2. Hero fits exactly one screen (no top gap, CTA never cut)
+   3. Chapter sections fill at least one screen
+   4. One left edge for headings and copy (desktop)
+   ========================================================================== */
+
+/* 1. Direct over-section circular clip-path reveal (no black curtain) */
+.section-sweep {
+  display: none;
+}
+
+main > section.section-paper.is-sweeping {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 45 !important;
+  width: 100vw !important;
+  height: 100svh !important;
+  overflow: hidden !important;
+  will-change: clip-path;
+}
+
+/* Boot: paper circle inside the boot stage. The counter is untouched. */
+.boot-paper {
+  position: fixed;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background: var(--paper);
+  clip-path: circle(0px at 50% 0px);
+  will-change: clip-path;
+}
+.boot-curtain-stage.is-revealing { pointer-events: none; }
+
+/* 2. Hero: one screen tall on desktop */
+:root {
+  --hero-top: clamp(140px, 19svh, 170px);
+  --hero-bottom: clamp(96px, 12svh, 120px);
+}
+
+@media (min-width: 761px) {
+  .hero { height: 100svh; min-height: 620px; }
+  .hero-content {
+    min-height: 0;
+    height: 100%;
+    justify-content: flex-start;
+    padding-top: var(--hero-top);
+    padding-bottom: var(--hero-bottom);
+  }
+  .hero-index { margin-bottom: 14px; }
+  /* Halftone name never grows past what fits under the index and above the CTA.
+     305px = index + gap + subline (about 230px) + spacing. 0.36 = name height / width. */
+  .hero .halftone-name {
+    width: min(calc(100% - 92px), 940px, max(240px, calc((100svh - var(--hero-top) - var(--hero-bottom) - 305px) / 0.36)));
+  }
+}
+
+@media (max-width: 760px) {
+  .hero { height: auto; min-height: 100svh; }
+  .hero-content { min-height: 100svh; }
+}
+
+/* 3. Chapter sections are at least one screen tall */
+.manifesto,
+.work-section,
+.client-section,
+.research-section,
+.signal-section,
+.about-section,
+.graph-section,
+.contact-section {
+  min-height: 100svh;
+}
+
+/* 4. Desktop alignment: headings and copy start on the page margin, like the labels and hero.
+   Asides keep the right-hand column with a fixed indent instead of percentage offsets. */
+@media (min-width: 761px) {
+  .manifesto-copy,
+  .client-heading,
+  .research-top,
+  .section-heading,
+  .signal-title-wrap,
+  .about-copy,
+  .contact-title {
+    grid-column: 1 / span 7;
+  }
+  .manifesto-copy p,
+  .client-heading p,
+  .research-thesis,
+  .section-heading p,
+  .about-copy p {
+    margin-left: 0;
+  }
+  .client-aside,
+  .research-explainer,
+  .exploring {
+    padding-left: 24px;
+  }
+}
+
+/* 5. Work drum follows the page scroll. The pinned block is as tall as the card count needs,
+   so each card gets its own stretch of scroll and no card is passed over. */
+.works-pin {
+  position: relative;
+  height: calc(100svh + (var(--works-n, 5) - 1) * 60svh);
+}
+.works-pin-sticky {
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100svh;
+}
+.works-pin-sticky .works-drum { width: 100%; margin-top: 0; }
+.works-pin.is-static { height: auto; }
+.works-pin.is-static .works-pin-sticky { position: static; height: auto; }
+@media (max-width: 760px) {
+  .works-pin { height: auto; }
+  .works-pin-sticky { position: static; height: auto; }
+}
+
+/* --- Client Carousel Pinned Scroll Extension --- */
+.client-section {
+  position: relative;
+}
+
+.client-pin {
+  position: relative;
+  height: calc(100svh + 120svh);
+}
+
+.client-pin-sticky {
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100svh;
+}
+
+.client-pin-sticky .client-carousel {
+  width: 80%;
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+@media (max-width: 760px) {
+  .client-pin {
+    height: auto;
+  }
+  .client-pin-sticky {
+    position: static;
+    height: auto;
+  }
+  .client-pin-sticky .client-carousel {
+    width: 100%;
+    margin-top: 48px;
+  }
+}
