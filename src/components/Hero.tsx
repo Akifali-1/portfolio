@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, type RefObject } from 'react'
 import { ArrowRight } from 'lucide-react'
 import type { CollapseAnimationState } from './FallingTechLogos'
 import { HalftoneName } from './HalftoneName'
+import { HeroFluidCursor } from './HeroFluidCursor'
 import { siteConfig } from '../data'
 
 type HeroProps = {
@@ -25,6 +26,7 @@ export function Hero({
 
   useEffect(() => {
     let frame = 0
+
     const update = () => {
       frame = 0
       const hero = heroRef.current
@@ -33,9 +35,11 @@ export function Hero({
       const progress = Math.min(Math.max(window.scrollY / (heroHeight * 0.9), 0), 1)
       hero.style.setProperty('--hero-progress', String(progress))
     }
+
     const queueUpdate = () => {
       if (!frame) frame = window.requestAnimationFrame(update)
     }
+
     update()
     window.addEventListener('scroll', queueUpdate, { passive: true })
     window.addEventListener('resize', queueUpdate)
@@ -105,6 +109,9 @@ export function Hero({
         {/* Card 2: Tall Metallic Pillar */}
         <div className="hero-card-pillar" aria-hidden="true" />
 
+        {/* Metallic Liquid-Chrome Fluid Cursor (Hero Section Only, above background cards, below AKIF & text) */}
+        <HeroFluidCursor reducedMotion={reducedMotion} active={booted && collapseState === 'idle'} />
+
         {/* Outlined Bottom-Left Display Watermark: DEVELOPER */}
         <div className="hero-outlined-mark" aria-hidden="true">
           <span>DEVEL</span>
@@ -116,9 +123,11 @@ export function Hero({
           <div className="hero-index mono-label">
             [ 00 / 05 ] <span>THE WORKSHOP</span>
           </div>
+
           <h1 className="hero-title hero-title--halftone" aria-label="Akif">
             <HalftoneName text="AKIF" active={booted} reducedMotion={reducedMotion} />
           </h1>
+
           <span className="hero-title-suffix mono-label">AKIF.SYSTEM // LIVING ARCHIVE</span>
         </div>
 
@@ -131,10 +140,12 @@ export function Hero({
             <br />
             <strong>into reality.</strong>
           </p>
+
           <p className="hero-editorial-body">
             Building intelligent systems, developer tools, and experimental research — turning difficult questions into
             inspectable, working software.
           </p>
+
           <div className="hero-actions">
             <a className="hero-editorial-cta" href="#contact" data-cursor="CONTACT">
               START A CONVERSATION <ArrowRight size={14} />

@@ -128,7 +128,7 @@ main > section.section-paper.is-sweeping {
 
 .client-pin {
   position: relative;
-  height: calc(100svh + 120svh);
+  height: calc(100svh + 90svh);
 }
 
 .client-pin-sticky {

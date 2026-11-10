@@ -82,6 +82,7 @@ async function captureViewport(shell: HTMLElement, center: { x: number; y: numbe
     },
     ignoreElements: (element) =>
       offscreenElements.has(element) ||
+      element.classList.contains('hero-fluid-canvas') ||
       element.classList.contains('hero-collapse-target') ||
       element.classList.contains('hero-collapse-control') ||
       element.classList.contains('cursor-layer') ||

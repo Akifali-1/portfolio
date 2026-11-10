@@ -49,7 +49,7 @@ export function Architecture() {
           stages.forEach((_, idx) => {
             window.setTimeout(() => {
               setRevealedSteps((prev) => (prev.includes(idx) ? prev : [...prev, idx]))
-            }, idx * 220) // 220ms stagger per step: 01 -> 02 -> 03 -> 04
+            }, idx * 420) // 420ms stagger per step: 01 -> 02 -> 03 -> 04
           })
           observer.disconnect()
         }
