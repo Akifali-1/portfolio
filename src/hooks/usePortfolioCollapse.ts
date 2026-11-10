@@ -50,15 +50,15 @@ async function captureViewport(shell: HTMLElement, center: { x: number; y: numbe
   const width = window.innerWidth
   const height = window.innerHeight
   const scrollY = window.scrollY
-
   const offscreenElements = new Set<Element>()
+
   shell.querySelectorAll<HTMLElement>('main > section, .site-footer').forEach((section) => {
     const rect = section.getBoundingClientRect()
     if (rect.bottom < -50 || rect.top > height + 50) offscreenElements.add(section)
   })
 
   const captured = await html2canvas(shell, {
-    backgroundColor: null,
+    backgroundColor: '#050505',
     allowTaint: false,
     imageTimeout: 1500,
     logging: false,
@@ -75,14 +75,15 @@ async function captureViewport(shell: HTMLElement, center: { x: number; y: numbe
     onclone: (clonedDocument) => {
       const style = clonedDocument.createElement('style')
       style.textContent = `
-        .hero { background: transparent !important; }
-        .hero::after { background: transparent !important; }
+        .hero, .hero.hero--cards { background: #050505 !important; }
+        .hero-card-base { background: linear-gradient(165deg, #0d0f13 0%, #090a0d 58%, #060709 100%) !important; background-color: #090a0d !important; }
+        .hero-card-pillar { background: linear-gradient(180deg, #171a21 0%, #111318 62%, #0c0e12 100%) !important; background-color: #111318 !important; }
+        .hero--cards .hero-card-dock { background: linear-gradient(180deg, #07080a 0%, #050505 100%) !important; background-color: #060709 !important; }
       `
       clonedDocument.head.appendChild(style)
     },
     ignoreElements: (element) =>
       offscreenElements.has(element) ||
-      element.classList.contains('hero-fluid-canvas') ||
       element.classList.contains('hero-collapse-target') ||
       element.classList.contains('hero-collapse-control') ||
       element.classList.contains('cursor-layer') ||
@@ -91,14 +92,15 @@ async function captureViewport(shell: HTMLElement, center: { x: number; y: numbe
       element.classList.contains('detail-backdrop'),
   })
 
-  // Normalize a possible full-page capture to the current viewport. Keeping
-  // the temporary surface at viewport size prevents restore from pushing a
-  // tall portfolio bitmap through every deformation frame.
   const snapshot = document.createElement('canvas')
   snapshot.width = width
   snapshot.height = height
   const context = snapshot.getContext('2d')
   if (!context) return captured
+
+  // Fill base with #050505 so no transparent pixels ever show white underneath
+  context.fillStyle = '#050505'
+  context.fillRect(0, 0, width, height)
 
   const scale = captured.width / Math.max(1, width)
   const capturedCssHeight = captured.height / scale
@@ -107,11 +109,12 @@ async function captureViewport(shell: HTMLElement, center: { x: number; y: numbe
 
   const holeRadius = Math.min(76, Math.max(38, Math.min(width, height) * 0.055))
   const holeGradient = context.createRadialGradient(center.x, center.y, holeRadius * 0.22, center.x, center.y, holeRadius)
-  holeGradient.addColorStop(0, 'rgba(0, 0, 0, 1)')
-  holeGradient.addColorStop(0.58, 'rgba(0, 0, 0, .82)')
-  holeGradient.addColorStop(1, 'rgba(0, 0, 0, 0)')
+  holeGradient.addColorStop(0, 'rgba(5, 5, 5, 1)')
+  holeGradient.addColorStop(0.58, 'rgba(5, 5, 5, 0.85)')
+  holeGradient.addColorStop(1, 'rgba(5, 5, 5, 0)')
+
   context.save()
-  context.globalCompositeOperation = 'destination-out'
+  context.globalCompositeOperation = 'source-over'
   context.fillStyle = holeGradient
   context.beginPath()
   context.arc(center.x, center.y, holeRadius, 0, Math.PI * 2)
@@ -146,8 +149,17 @@ export function usePortfolioCollapse({
   }, [state])
 
   const restoreSource = useCallback(() => {
-    if (sourceElementsRef.current.length > 0) {
-      gsap.set(sourceElementsRef.current, { clearProps: 'opacity,pointerEvents' })
+    const els = sourceElementsRef.current
+    if (els.length > 0) {
+      els.forEach((el) => {
+        el.style.transition = 'none'
+      })
+      gsap.set(els, { clearProps: 'opacity,pointerEvents' })
+      window.requestAnimationFrame(() => {
+        els.forEach((el) => {
+          el.style.removeProperty('transition')
+        })
+      })
     }
   }, [])
 

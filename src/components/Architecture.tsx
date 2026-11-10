@@ -60,6 +60,40 @@ export function Architecture() {
     return () => observer.disconnect()
   }, [])
 
+  // Scroll-driven stage progression on mobile/touch viewports
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    let frame = 0
+    let userInteracted = false
+    const el = containerRef.current
+    if (!el) return
+
+    const markTouch = () => {
+      userInteracted = true
+    }
+    el.addEventListener('pointerdown', markTouch, { passive: true })
+
+    const update = () => {
+      frame = 0
+      if (userInteracted || window.innerWidth > 900) return
+      const rect = el.getBoundingClientRect()
+      const vh = window.innerHeight
+      const progress = (vh * 0.78 - rect.top) / (vh * 0.55)
+      const step = Math.min(stages.length - 1, Math.max(0, Math.floor(progress * stages.length)))
+      setActiveStep(step)
+    }
+
+    const onScroll = () => {
+      if (!frame) frame = window.requestAnimationFrame(update)
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => {
+      el.removeEventListener('pointerdown', markTouch)
+      window.removeEventListener('scroll', onScroll)
+      window.cancelAnimationFrame(frame)
+    }
+  }, [])
+
   return (
     <div ref={containerRef} className="architecture-interactive-wrap" data-reveal="rise">
       <div className="architecture" aria-label="Adaptive STGT architecture: temporal, spatial, attention, and forecast">

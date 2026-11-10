@@ -22,7 +22,7 @@
 
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; background: var(--black); }
-body { margin: 0; min-width: 320px; overflow-x: hidden; background: var(--black); color: var(--white); font-family: var(--display); font-weight: 400; -webkit-font-smoothing: antialiased; }
+body { margin: 0; min-width: 320px; overflow-x: clip; background: var(--black); color: var(--white); font-family: var(--display); font-weight: 400; -webkit-font-smoothing: antialiased; }
 body:has(.command-backdrop), body:has(.detail-backdrop) { overflow: hidden; }
 a { color: inherit; text-decoration: none; }
 button, input { font: inherit; }

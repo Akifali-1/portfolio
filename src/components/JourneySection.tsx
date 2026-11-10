@@ -1,12 +1,7 @@
+// File: src/components/JourneySection.tsx
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { journey } from '../data'
 
-/**
- * Full-screen horizontal journey.
- * - Desktop (> 900px): Vertical scroll drives a sticky horizontal track.
- * - Mobile / Tablet (<= 900px) or Reduced Motion: Native horizontal scroll-snap
- *   carousel with synced tabs and progress bar.
- */
 export function JourneySection() {
   const sectionRef = useRef<HTMLElement>(null)
   const viewportRef = useRef<HTMLDivElement>(null)
@@ -18,20 +13,18 @@ export function JourneySection() {
   const count = journey.length
 
   useEffect(() => {
-    const query = window.matchMedia('(max-width: 900px), (prefers-reduced-motion: reduce)')
+    const query = window.matchMedia('(prefers-reduced-motion: reduce)')
     const update = () => setCompact(query.matches)
     update()
     query.addEventListener('change', update)
     return () => query.removeEventListener('change', update)
   }, [])
 
-  // Desktop sticky scroll-driven horizontal track
   useEffect(() => {
     const section = sectionRef.current
     const viewport = viewportRef.current
     const track = trackRef.current
     if (!section || !viewport || !track) return
-
     if (compact) {
       section.style.height = ''
       track.style.transform = ''
@@ -55,17 +48,14 @@ export function JourneySection() {
         current = target
         lastTime = 0
       }
-
       track!.style.transform = `translate3d(${(-current * travel).toFixed(2)}px, 0, 0)`
       track!.style.setProperty('--focus', (current * (count - 1)).toFixed(3))
       if (barRef.current) barRef.current.style.transform = `scaleX(${current.toFixed(4)})`
-
       const next = Math.min(count - 1, Math.round(current * (count - 1)))
       if (next !== activeRef.current) {
         activeRef.current = next
         setActive(next)
       }
-
       if (current !== target) frame = requestAnimationFrame(render)
     }
 
@@ -77,7 +67,8 @@ export function JourneySection() {
     }
 
     function measure() {
-      travel = Math.max(0, track!.offsetWidth - viewport!.clientWidth)
+      const vw = viewport!.clientWidth || window.innerWidth
+      travel = Math.max(0, vw * (count - 1))
       section!.style.height = `${window.innerHeight + travel}px`
       readScroll()
     }
@@ -86,57 +77,25 @@ export function JourneySection() {
     current = target
     render()
 
+    const ro = new ResizeObserver(measure)
+    ro.observe(viewport)
     window.addEventListener('scroll', readScroll, { passive: true })
     window.addEventListener('resize', measure)
     void document.fonts?.ready.then(measure)
     return () => {
       cancelAnimationFrame(frame)
+      ro.disconnect()
       window.removeEventListener('scroll', readScroll)
       window.removeEventListener('resize', measure)
       section.style.height = ''
     }
   }, [compact, count])
 
-  // Mobile / Tablet native horizontal scroll-snap sync
-  useEffect(() => {
-    const viewport = viewportRef.current
-    if (!compact || !viewport) return
-
-    const onScroll = () => {
-      const maxScroll = Math.max(1, viewport.scrollWidth - viewport.clientWidth)
-      const progress = Math.min(1, Math.max(0, viewport.scrollLeft / maxScroll))
-      if (barRef.current) {
-        barRef.current.style.transform = `scaleX(${progress.toFixed(4)})`
-      }
-      const next = Math.min(count - 1, Math.max(0, Math.round(progress * (count - 1))))
-      if (next !== activeRef.current) {
-        activeRef.current = next
-        setActive(next)
-      }
-    }
-
-    onScroll()
-    viewport.addEventListener('scroll', onScroll, { passive: true })
-    window.addEventListener('resize', onScroll)
-    return () => {
-      viewport.removeEventListener('scroll', onScroll)
-      window.removeEventListener('resize', onScroll)
-    }
-  }, [compact, count])
-
   const jump = (index: number) => {
     const section = sectionRef.current
-    const viewport = viewportRef.current
     if (!section) return
-    if (compact && viewport) {
-      const panels = viewport.querySelectorAll<HTMLElement>('.journey-panel')
-      const targetPanel = panels[index]
-      if (targetPanel) {
-        viewport.scrollTo({
-          left: targetPanel.offsetLeft - viewport.offsetLeft,
-          behavior: 'smooth',
-        })
-      }
+    if (compact) {
+      section.querySelectorAll('.journey-panel')[index]?.scrollIntoView({ behavior: 'smooth', block: 'start' })
       return
     }
     const total = section.offsetHeight - window.innerHeight
@@ -165,7 +124,6 @@ export function JourneySection() {
             <span ref={barRef} />
           </div>
         </div>
-
         <div ref={viewportRef} className="journey-viewport">
           <div ref={trackRef} className="journey-track" style={{ '--n': count } as CSSProperties}>
             {journey.map((stop, i) => (
@@ -178,7 +136,6 @@ export function JourneySection() {
                   <span>{stop.ghost[0]}</span>
                   <span>{stop.ghost[1]}</span>
                 </div>
-
                 <div className="journey-content">
                   <div className="journey-meta-row">
                     <b>[{stop.index}]</b>
@@ -186,14 +143,11 @@ export function JourneySection() {
                     <strong>{stop.label}</strong>
                     <span className="journey-pill">{stop.pill}</span>
                   </div>
-
                   <h3 className="journey-headline">
                     <span>{stop.headline[0]}</span>
                     <span>{stop.headline[1]}</span>
                   </h3>
-
                   <p className="journey-body">{stop.body}</p>
-
                   <dl className="journey-details">
                     {stop.details.map((d) => (
                       <div key={d.k}>
@@ -207,7 +161,6 @@ export function JourneySection() {
             ))}
           </div>
         </div>
-
         <div className="journey-tabs">
           {journey.map((stop, i) => (
             <button

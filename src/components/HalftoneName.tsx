@@ -1,3 +1,4 @@
+// File: src/components/HalftoneName.tsx
 import { useEffect, useRef } from 'react'
 import { clamp, setupCanvas, textStipple } from '../lib/halftone'
 
@@ -47,7 +48,9 @@ export function HalftoneName({ text, active, reducedMotion, spacing }: HalftoneN
     let disposed = false
     let introStart = 0
     let last = 0
-    const pointer = { x: -9999, y: -9999, inside: false }
+    let isTouchDevice = window.matchMedia('(pointer: coarse), (max-width: 900px)').matches
+
+    const pointer = { x: -9999, y: -9999, inside: false, releaseTimer: 0 }
 
     const draw = (elapsed: number) => {
       if (!ctx) return
@@ -71,10 +74,19 @@ export function HalftoneName({ text, active, reducedMotion, spacing }: HalftoneN
       const elapsed = (now - introStart) / 1000
       const R2 = RADIUS * RADIUS
       let energy = 0
+
+      // Autonomous traveling wave across the halftone dots on mobile/touch screens
+      const waveActive = isTouchDevice && !reducedMotion && elapsed > maxDelay + 0.2
+      const waveCenterX = waveActive ? ((Math.sin(now * 0.0014) * 0.62 + 0.5) * cssW) : -9999
+      const waveCenterY = waveActive ? ((0.5 + Math.cos(now * 0.0021) * 0.28) * cssH) : -9999
+      const waveR = Math.max(64, cssW * 0.22)
+      const waveR2 = waveR * waveR
+
       for (let i = 0; i < count; i++) {
         if (elapsed < delay[i]) continue
         let ax = (hx[i] - px[i]) * SPRING
         let ay = (hy[i] - py[i]) * SPRING
+
         if (pointer.inside) {
           const dx = px[i] - pointer.x
           const dy = py[i] - pointer.y
@@ -85,15 +97,27 @@ export function HalftoneName({ text, active, reducedMotion, spacing }: HalftoneN
             ax += (dx / d) * f * PUSH - (dy / d) * f * SWIRL
             ay += (dy / d) * f * PUSH + (dx / d) * f * SWIRL
           }
+        } else if (waveActive) {
+          const dx = px[i] - waveCenterX
+          const dy = py[i] - waveCenterY
+          const d2 = dx * dx + dy * dy
+          if (d2 < waveR2) {
+            const d = Math.sqrt(d2) || 1
+            const f = (1 - d / waveR) ** 2
+            ax += (dx / d) * f * 0.85 - (dy / d) * f * 0.42
+            ay += (dy / d) * f * 0.85 + (dx / d) * f * 0.42
+          }
         }
+
         vx[i] = (vx[i] + ax * k) * DAMP
         vy[i] = (vy[i] + ay * k) * DAMP
         px[i] += vx[i] * k
         py[i] += vy[i] * k
         energy += Math.abs(vx[i]) + Math.abs(vy[i]) + Math.abs(hx[i] - px[i]) + Math.abs(hy[i] - py[i])
       }
+
       draw(elapsed)
-      if (pointer.inside || elapsed < maxDelay + 0.1 || energy > count * 0.06) {
+      if (pointer.inside || waveActive || elapsed < maxDelay + 0.1 || energy > count * 0.06) {
         frame = requestAnimationFrame(tick)
       } else {
         last = 0
@@ -113,6 +137,7 @@ export function HalftoneName({ text, active, reducedMotion, spacing }: HalftoneN
       if (disposed) return
       const width = Math.floor(wrap.clientWidth)
       if (width < 40) return
+      isTouchDevice = window.matchMedia('(pointer: coarse), (max-width: 900px)').matches
       const pitch = spacing ?? clamp(width / 285, 2, 2.8)
       const s = textStipple(text, width, FONT, 700, pitch)
       count = s.count
@@ -143,6 +168,7 @@ export function HalftoneName({ text, active, reducedMotion, spacing }: HalftoneN
       ctx = setupCanvas(canvas, cssW, cssH)
       wrap.style.aspectRatio = `${cssW} / ${cssH}`
       draw(settled ? 999 : -1)
+      kick()
     }
 
     const waitForActive = () => {
@@ -156,15 +182,22 @@ export function HalftoneName({ text, active, reducedMotion, spacing }: HalftoneN
       waitFrame = requestAnimationFrame(waitForActive)
     }
 
-    const onMove = (event: PointerEvent) => {
-      if (event.pointerType !== 'mouse') return
+    const updatePointerFromEvent = (event: PointerEvent) => {
       const rect = canvas.getBoundingClientRect()
       const sx = rect.width ? cssW / rect.width : 1
+      const sy = rect.height ? cssH / rect.height : 1
       pointer.x = (event.clientX - rect.left) * sx
-      pointer.y = (event.clientY - rect.top) * sx
+      pointer.y = (event.clientY - rect.top) * sy
       pointer.inside = true
+      if (event.pointerType !== 'mouse') {
+        window.clearTimeout(pointer.releaseTimer)
+        pointer.releaseTimer = window.setTimeout(() => {
+          pointer.inside = false
+        }, 420)
+      }
       kick()
     }
+
     const onLeave = () => {
       pointer.inside = false
       kick()
@@ -179,19 +212,27 @@ export function HalftoneName({ text, active, reducedMotion, spacing }: HalftoneN
       if (visible) kick()
     })
     io.observe(wrap)
+
     if (!reducedMotion) {
-      wrap.addEventListener('pointermove', onMove)
+      wrap.addEventListener('pointerdown', updatePointerFromEvent)
+      wrap.addEventListener('pointermove', updatePointerFromEvent)
+      wrap.addEventListener('pointerup', onLeave)
+      wrap.addEventListener('pointercancel', onLeave)
       wrap.addEventListener('pointerleave', onLeave)
       waitFrame = requestAnimationFrame(waitForActive)
     }
 
     return () => {
       disposed = true
+      window.clearTimeout(pointer.releaseTimer)
       cancelAnimationFrame(frame)
       cancelAnimationFrame(waitFrame)
       ro.disconnect()
       io.disconnect()
-      wrap.removeEventListener('pointermove', onMove)
+      wrap.removeEventListener('pointerdown', updatePointerFromEvent)
+      wrap.removeEventListener('pointermove', updatePointerFromEvent)
+      wrap.removeEventListener('pointerup', onLeave)
+      wrap.removeEventListener('pointercancel', onLeave)
       wrap.removeEventListener('pointerleave', onLeave)
     }
   }, [text, reducedMotion, spacing])

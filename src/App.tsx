@@ -27,8 +27,8 @@ import './project-preview.css'
 import './ui-overrides.css'
 import './collapse.css'
 import './echo-sections.css'
-import './fullscreen.css'
 import './mobile-fixes.css'
+import './fullscreen.css'
 
 function App() {
   const reducedMotion = useReducedMotion()
@@ -238,15 +238,7 @@ function App() {
           disabled={collapseState !== 'collapsed'}
           aria-label="Restore reality"
         >
-          <span className="restore-reality-orbit" aria-hidden="true">
-            <span className="restore-reality-core" />
-            <span className="restore-reality-sweep" />
-          </span>
-          <span className="restore-reality-copy">
-            <span className="restore-reality-label">RESTORE REALITY</span>
-            <span className="restore-reality-status">RETURN TO SURFACE</span>
-          </span>
-          <span className="restore-reality-arrow" aria-hidden="true">↗</span>
+          <span className="restore-reality-label">RESTORE REALITY</span>
         </button>
       </div>
     </>

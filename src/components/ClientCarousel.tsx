@@ -1,5 +1,5 @@
+// File: src/components/ClientCarousel.tsx
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { ArrowRight, ArrowUpRight } from 'lucide-react'
 import FlexCarousel, { type FlexCarouselItem } from './flex-carousel/FlexCarousel'
 import { clientProjects, clientSlides, projects, type Project } from '../data'
 
@@ -18,15 +18,16 @@ function hasWebGL() {
 
 export function ClientCarousel({ onSelect }: ClientCarouselProps) {
   const holderRef = useRef<HTMLDivElement>(null)
-  const mobileStripRef = useRef<HTMLDivElement>(null)
   const [mounted, setMounted] = useState(true)
   const [webgl] = useState(hasWebGL)
-  const [isMobileView, setIsMobileView] = useState(false)
-  const [mobileActive, setMobileActive] = useState(0)
+  const [isMobile, setIsMobile] = useState(() =>
+    typeof window !== 'undefined' ? window.innerWidth <= 760 : false,
+  )
+  const lastScrollStepRef = useRef(0)
 
   useEffect(() => {
-    const mq = window.matchMedia('(max-width: 900px)')
-    const update = () => setIsMobileView(mq.matches)
+    const mq = window.matchMedia('(max-width: 760px)')
+    const update = () => setIsMobile(mq.matches)
     update()
     mq.addEventListener('change', update)
     return () => mq.removeEventListener('change', update)
@@ -70,21 +71,44 @@ export function ClientCarousel({ onSelect }: ClientCarouselProps) {
     return () => io.disconnect()
   }, [])
 
+  // Drive carousel steps as user scrolls through .client-pin (desktop & mobile)
   useEffect(() => {
-    const strip = mobileStripRef.current
-    if (!isMobileView || !strip) return
+    const holder = holderRef.current
+    const pin = holder?.closest<HTMLElement>('.client-pin')
+    if (!holder || !pin) return
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+
+    let frame = 0
+    const totalSlides = normalizedSlides.length
     const onScroll = () => {
-      const maxScroll = Math.max(1, strip.scrollWidth - strip.clientWidth)
-      const progress = Math.min(1, Math.max(0, strip.scrollLeft / maxScroll))
-      const idx = Math.min(
-        clientSlides.length - 1,
-        Math.max(0, Math.round(progress * (clientSlides.length - 1))),
-      )
-      setMobileActive(idx)
+      frame = 0
+      const rect = pin.getBoundingClientRect()
+      const span = rect.height - window.innerHeight
+      if (span <= 0) return
+      const progress = Math.min(1, Math.max(0, -rect.top / span))
+      const targetStep = Math.min(totalSlides - 1, Math.floor(progress * totalSlides))
+      const diff = targetStep - lastScrollStepRef.current
+      if (diff !== 0) {
+        const el = holder.querySelector<HTMLElement>('.flex-carousel')
+        if (el) {
+          const dir = diff > 0 ? 'ArrowRight' : 'ArrowLeft'
+          for (let i = 0; i < Math.abs(diff); i++) {
+            el.dispatchEvent(new KeyboardEvent('keydown', { key: dir, bubbles: true }))
+          }
+        }
+        lastScrollStepRef.current = targetStep
+      }
     }
-    strip.addEventListener('scroll', onScroll, { passive: true })
-    return () => strip.removeEventListener('scroll', onScroll)
-  }, [isMobileView])
+
+    const queue = () => {
+      if (!frame) frame = window.requestAnimationFrame(onScroll)
+    }
+    window.addEventListener('scroll', queue, { passive: true })
+    return () => {
+      window.removeEventListener('scroll', queue)
+      window.cancelAnimationFrame(frame)
+    }
+  }, [normalizedSlides.length])
 
   const open = (index: number) => {
     const slide = normalizedSlides[index % normalizedSlides.length]
@@ -92,22 +116,7 @@ export function ClientCarousel({ onSelect }: ClientCarouselProps) {
     if (project) onSelect(project)
   }
 
-  const openDirect = (projectId: string) => {
-    const project = all.find((p) => p.id === projectId)
-    if (project) onSelect(project)
-  }
-
   const step = (dir: 1 | -1) => {
-    if (isMobileView && mobileStripRef.current) {
-      const strip = mobileStripRef.current
-      const cards = strip.querySelectorAll<HTMLElement>('.client-mobile-card')
-      const nextIdx = (mobileActive + dir + clientSlides.length) % clientSlides.length
-      const target = cards[nextIdx]
-      if (target) {
-        strip.scrollTo({ left: target.offsetLeft - strip.offsetLeft, behavior: 'smooth' })
-      }
-      return
-    }
     const el = holderRef.current?.querySelector<HTMLElement>('.flex-carousel')
     el?.focus({ preventScroll: true })
     el?.dispatchEvent(
@@ -117,52 +126,30 @@ export function ClientCarousel({ onSelect }: ClientCarouselProps) {
 
   return (
     <div ref={holderRef} className="client-carousel">
-      {!isMobileView && webgl ? (
+      {webgl ? (
         mounted && (
           <FlexCarousel
             items={items}
             preset="liquid"
             intro="rise"
-            cardHeight={0.5}
-            gap={18}
+            cardHeight={isMobile ? 0.58 : 0.5}
+            lensWidth={isMobile ? 0.9 : undefined}
+            gap={isMobile ? 12 : 18}
             radius={6}
             fit="landscape"
+            autoplay={isMobile}
+            interval={3.6}
             captureWheel={false}
             onSelect={open}
           />
         )
       ) : (
-        <div ref={mobileStripRef} className="client-carousel-mobile" role="region" aria-label="Client projects carousel">
+        <div className="client-carousel-fallback">
           {clientSlides.map((slide, index) => (
-            <article key={slide.projectId} className="client-mobile-card">
-              <button
-                type="button"
-                className="client-mobile-card-trigger"
-                onClick={() => openDirect(slide.projectId)}
-              >
-                <div className="client-mobile-media">
-                  <img src={slide.src} alt={`${slide.title} website screenshot`} loading="lazy" />
-                  <span className="client-mobile-index mono-label">
-                    [C0{index + 1}]
-                  </span>
-                </div>
-                <div className="client-mobile-body">
-                  <span className="mono-label client-mobile-subtitle">{slide.subtitle}</span>
-                  <strong>{slide.title}</strong>
-                  <p>{slide.description}</p>
-                  <div className="client-mobile-actions">
-                    <span className="text-arrow">
-                      INSPECT WORK <ArrowRight size={13} />
-                    </span>
-                    {slide.link && (
-                      <span className="client-mobile-live mono-label">
-                        LIVE SITE <ArrowUpRight size={12} />
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </button>
-            </article>
+            <button key={slide.src} type="button" onClick={() => open(index)}>
+              <img src={slide.src} alt={`${slide.title} website screenshot`} loading="lazy" />
+              <span className="mono-label">{slide.title}</span>
+            </button>
           ))}
         </div>
       )}
@@ -170,11 +157,6 @@ export function ClientCarousel({ onSelect }: ClientCarouselProps) {
         <button type="button" onClick={() => step(-1)} aria-label="Previous slide">
           PREV
         </button>
-        {isMobileView && (
-          <span className="client-carousel-counter mono-label">
-            0{mobileActive + 1} / 0{clientSlides.length}
-          </span>
-        )}
         <button type="button" onClick={() => step(1)} aria-label="Next slide">
           NEXT
         </button>

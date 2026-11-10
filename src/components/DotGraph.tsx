@@ -66,6 +66,50 @@ export function DotGraph({ onSelect, reducedMotion }: DotGraphProps) {
 
   useEffect(() => () => window.clearTimeout(leaveTimer.current), [])
 
+  // Auto-cycle active project node on mobile/coarse screens while in view until user taps
+  useEffect(() => {
+    if (reducedMotion) return
+    const isCoarse = window.matchMedia('(pointer: coarse), (max-width: 760px)').matches
+    if (!isCoarse) return
+    const box = boxRef.current
+    if (!box) return
+
+    const projectNodes = nodes.filter((n) => !n.core)
+    let idx = 0
+    let timer = 0
+    let userTouched = false
+
+    const stopCycle = () => {
+      userTouched = true
+      if (timer) window.clearInterval(timer)
+      timer = 0
+    }
+
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !userTouched) {
+          setActiveNode(projectNodes[idx]?.id ?? null)
+          timer = window.setInterval(() => {
+            idx = (idx + 1) % projectNodes.length
+            setActiveNode(projectNodes[idx]?.id ?? null)
+          }, 2600)
+        } else {
+          if (timer) window.clearInterval(timer)
+          timer = 0
+        }
+      },
+      { threshold: 0.35 },
+    )
+
+    io.observe(box)
+    box.addEventListener('pointerdown', stopCycle, { passive: true })
+    return () => {
+      io.disconnect()
+      box.removeEventListener('pointerdown', stopCycle)
+      if (timer) window.clearInterval(timer)
+    }
+  }, [nodes, reducedMotion, setActiveNode])
+
   useEffect(() => {
     const box = boxRef.current
     const canvas = canvasRef.current

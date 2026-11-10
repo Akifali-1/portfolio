@@ -653,7 +653,7 @@ export function HeroFluidCursor({ reducedMotion, active }: HeroFluidCursorProps)
       const dpr = Math.min(window.devicePixelRatio || 1, 2)
       const w = Math.max(1, Math.floor(hero.clientWidth * dpr))
       const h = Math.max(1, Math.floor(hero.clientHeight * dpr))
-      if (canvas.width !== w || canvas.height !== h) {
+      if (canvas.width !== w || canvas.height !== h || !velocity) {
         canvas.width = w
         canvas.height = h
         initFramebuffers()
@@ -896,7 +896,8 @@ export function HeroFluidCursor({ reducedMotion, active }: HeroFluidCursorProps)
       io.disconnect()
       window.removeEventListener('pointermove', onPointerMove)
       hero.removeEventListener('pointerleave', onPointerLeave)
-      gl.getExtension('WEBGL_lose_context')?.loseContext()
+      gl.clearColor(0, 0, 0, 0)
+      gl.clear(gl.COLOR_BUFFER_BIT)
     }
   }, [reducedMotion, active])
 
