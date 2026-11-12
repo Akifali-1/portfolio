@@ -264,14 +264,20 @@ main > section.section-paper.is-sweeping {
     transform: translate3d(0, calc(var(--hero-progress) * -18px), 0);
   }
 
+  /* Stacked layout: DEVELOPER stays on one line in its own row between the
+     editorial copy and the dock, so it never overlaps the body text or CTA.
+     Size is capped by screen width so the full word always fits. */
   .hero-outlined-mark {
     display: flex !important;
+    flex-direction: row;
+    white-space: nowrap;
     grid-column: 1 / -1;
-    grid-row: 2 / 4;
-    align-self: end;
-    margin-left: 4px;
-    margin-bottom: 18px;
-    font-size: clamp(64px, 19vw, 110px);
+    grid-row: 3;
+    align-self: center;
+    margin: 0;
+    padding: 0 var(--pad);
+    font-size: min(110px, calc((100vw - 2 * var(--pad)) / 5.8));
+    line-height: 0.86;
     opacity: 0.45;
     transform: translate3d(calc(var(--hero-progress) * -28px), 0, 0);
   }
@@ -573,7 +579,7 @@ body {
   }
 
   .hero-card-composition {
-    grid-template-rows: auto auto auto !important;
+    grid-template-rows: auto auto auto auto !important;
     padding: 104px var(--pad) 24px !important;
     gap: 20px !important;
   }
@@ -600,9 +606,27 @@ body {
     padding: 0 16px 20px !important;
   }
 
+  /* Stacked layout: DEVELOPER stays on one line in its own row between the
+     editorial copy and the dock, so it never overlaps the body text or CTA.
+     Size is capped by screen width so the full word always fits. */
+  .hero-outlined-mark {
+    display: flex !important;
+    flex-direction: row;
+    white-space: nowrap;
+    grid-column: 1 / -1;
+    grid-row: 3;
+    align-self: center;
+    margin: 0;
+    padding: 0 var(--pad);
+    font-size: min(110px, calc((100vw - 2 * var(--pad)) / 5.8));
+    line-height: 0.86;
+    opacity: 0.45;
+    transform: translate3d(calc(var(--hero-progress) * -28px), 0, 0);
+  }
+
   .hero--cards .hero-card-dock {
     grid-column: 1 / -1 !important;
-    grid-row: 3 !important;
+    grid-row: 4 !important;
   }
 
   /* 3D Works Drum on Tablet */
