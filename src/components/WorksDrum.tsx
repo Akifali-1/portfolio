@@ -13,12 +13,9 @@ import { Renderer, Program, Mesh, Plane, Texture, Transform } from 'ogl'
 import type { Project } from '../data'
 
 /**
- * Spark & Riot style Curved Vertical Reel + Cursor-Side Scroll Tilt:
- * 1. Concave vertical curvature: top & bottom edges stay straight while the left
- *    and right vertical edges curve gently inward (concave hourglass/cylinder profile).
- * 2. Cohesive reel tilt on scroll: while scrolling, if cursor is on the LEFT half,
- *    the entire vertical reel banks counter-clockwise (\). If cursor is on the RIGHT
- *    half, the entire vertical reel banks clockwise (/). Settles upright when scroll stops.
+ * Vertical Project Reel:
+ * 1. Flat cards with subtly rounded borders (no inward/outward curvature).
+ * 2. Straight vertical scroll driven by page scroll, drag, hover, or keyboard (no tilt).
  * 3. No dark vignette or black boundary boxes.
  */
 
@@ -49,8 +46,7 @@ const drumVertexShader = `
   uniform float uCardH;
   uniform float uOffset;       // (i - turn): 0 = center, -1 = above, +1 = below
   uniform float uStepPx;       // Vertical distance between card centers in px
-  uniform float uReelTilt;     // Whole-reel Z rotation angle (radians)
-  uniform float uCurveAmount;  // Subtle inward side-edge curvature
+  uniform float uScale;        // Smooth focus enlargement (~12%)
 
   varying vec2 vUv;
   varying vec2 vLocal;
@@ -59,37 +55,11 @@ const drumVertexShader = `
     vUv = uv;
     vLocal = position.xy; // [-0.5, 0.5]
 
-    // Normalized card coordinates in [-1, 1]
-    float nx = position.x * 2.0;
-    float ny = position.y * 2.0;
+    float stripX = position.x * (uCardW * uScale);
+    // uOffset > 0 is below center (negative Y in WebGL), uOffset < 0 is above center (+Y)
+    float stripY = -uOffset * uStepPx + position.y * (uCardH * uScale);
 
-    // 1. Subtle inward concave curve on the LEFT and RIGHT vertical edges
-    //    (at ny = 0 the card is slightly narrower; at ny = +/-1 corners flare out,
-    //     while top & bottom edges remain straight, matching Spark & Riot Image 1)
-    float sidePinch = 1.0 - uCurveAmount * 0.0468 * (1.0 - ny * ny);
-    float localX = position.x * uCardW * sidePinch;
-    float localY = position.y * uCardH;
-
-    // 2. Position card along the vertical reel strip
-    //    uOffset > 0 is below center (negative Y in WebGL), uOffset < 0 is above center (+Y)
-    float stripY = -uOffset * uStepPx + localY;
-    float stripX = localX;
-
-    // 3. Cylindrical Z depth across the vertical viewport so cards curve smoothly in 3D space
-    float normScreenY = clamp(stripY / (uCardH * 1.65), -1.4, 1.4);
-    float worldZ = -uCardH * 0.238 * (normScreenY * normScreenY) * uCurveAmount;
-
-    // Slight pitch follow along the vertical curve
-    float radialPullY = stripY * (1.0 - 0.038 * normScreenY * normScreenY * uCurveAmount);
-
-    // 4. Rotate the ENTIRE vertical reel as one cohesive column around Z
-    //    when scrolling with cursor on left or right (matches Images 2 & 3)
-    float c = cos(uReelTilt);
-    float s = sin(uReelTilt);
-    float worldX = stripX * c - radialPullY * s;
-    float worldY = stripX * s + radialPullY * c;
-
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(worldX, worldY, worldZ, 1.0);
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(stripX, stripY, 0.0, 1.0);
   }
 `
 
@@ -99,6 +69,7 @@ const drumFragmentShader = `
   uniform sampler2D tMap;
   uniform vec2 uSize;
   uniform vec2 uImageSize;
+  uniform float uRadius;
   uniform float uOpacity;
   uniform float uReady;
 
@@ -108,10 +79,11 @@ const drumFragmentShader = `
   void main() {
     if (uOpacity <= 0.002) discard;
 
-    // Crisp anti-aliased edge mask (no black border or dark vignette)
+    // Crisp anti-aliased rounded-rectangle mask (flat borders, slightly rounded corners)
     vec2 halfSize = uSize * 0.5;
-    vec2 px = abs(vLocal * uSize) - halfSize;
-    float edgeDist = max(px.x, px.y);
+    float r = clamp(uRadius, 0.0, min(halfSize.x, halfSize.y));
+    vec2 q = abs(vLocal * uSize) - (halfSize - vec2(r));
+    float edgeDist = length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - r;
     float mask = clamp(0.5 - edgeDist, 0.0, 1.0);
     if (mask <= 0.002) discard;
 
@@ -158,25 +130,10 @@ export function WorksDrum({ items, onSelect, reducedMotion }: WorksDrumProps) {
     pointerType: 'mouse',
     lockUntil: 0,
     hoverTimer: 0,
-    cursorSide: 1, // -1 when cursor is on left half of screen, +1 when on right half
-    cursorXNorm: 0.35, // Continuous [-1, 1] horizontal position
   })
 
   const count = items.length
   const last = Math.max(count - 1, 0)
-
-  // Track global pointer X so even when scrolling via mouse wheel anywhere over the section,
-  // the left/right cursor side is always known accurately.
-  useEffect(() => {
-    const onGlobalMove = (e: globalThis.PointerEvent) => {
-      if (e.pointerType === 'touch') return
-      const nx = (e.clientX / Math.max(1, window.innerWidth)) * 2 - 1
-      ui.current.cursorXNorm = clamp(nx, -1, 1)
-      ui.current.cursorSide = nx < 0 ? -1 : 1
-    }
-    window.addEventListener('pointermove', onGlobalMove, { passive: true })
-    return () => window.removeEventListener('pointermove', onGlobalMove)
-  }, [])
 
   useEffect(() => {
     const stage = stageRef.current
@@ -188,13 +145,11 @@ export function WorksDrum({ items, onSelect, reducedMotion }: WorksDrumProps) {
     let turn = 0
     let target = 0
     let vel = 0
-    let reelTiltRad = 0
-    let reelTiltVel = 0
     let frame = 0
     let lastTime = 0
     let visible = true
     let alive = true
-    let metrics = { w: 800, h: 600, cardW: 480, cardH: 296, stepPx: 367, centerXOffset: 0 }
+    let metrics = { w: 800, h: 600, cardW: 480, cardH: 296, stepPx: 367, radiusPx: 20, centerXOffset: 0 }
 
     let renderer: Renderer | null = null
     let gl: Renderer['gl'] | null = null
@@ -233,8 +188,8 @@ export function WorksDrum({ items, onSelect, reducedMotion }: WorksDrumProps) {
       const sharedGeometry = new Plane(gl, {
         width: 1,
         height: 1,
-        widthSegments: 36,
-        heightSegments: 36,
+        widthSegments: 1,
+        heightSegments: 1,
       })
 
       items.forEach((project) => {
@@ -257,10 +212,10 @@ export function WorksDrum({ items, onSelect, reducedMotion }: WorksDrumProps) {
             uCardH: { value: 296 },
             uOffset: { value: 0 },
             uStepPx: { value: 367 },
-            uReelTilt: { value: 0 },
-            uCurveAmount: { value: reducedMotion ? 0 : 1.0 },
+            uScale: { value: 1 },
             uSize: { value: [480, 296] },
             uImageSize: { value: [1600, 900] },
+            uRadius: { value: 20 },
             uOpacity: { value: 1 },
             uReady: { value: 0 },
           },
@@ -346,9 +301,10 @@ export function WorksDrum({ items, onSelect, reducedMotion }: WorksDrumProps) {
       }
 
       const stepPx = cardH * STEP_GAP
+      const radiusPx = clamp(cardW * 0.042, 14, 24)
       const centerXOffset = !isMobile && w > 1100 ? clamp(w * 0.035, 32, 60) : 0
 
-      metrics = { w, h, cardW, cardH, stepPx, centerXOffset }
+      metrics = { w, h, cardW, cardH, stepPx, radiusPx, centerXOffset }
 
       const fovPx = cardH * (isMobile ? 2.5 : 2.8)
       stage.style.perspective = `${fovPx}px`
@@ -395,45 +351,24 @@ export function WorksDrum({ items, onSelect, reducedMotion }: WorksDrumProps) {
         }
       }
 
-      // 2. Spark & Riot Scroll-Driven Cursor-Side Tilt:
-      //    - Only tilts while scrolling/moving (proportional to scroll speed `Math.abs(vel)`).
-      //    - Direction of tilt depends on whether cursor is on the LEFT or RIGHT side:
-      //      * Cursor on RIGHT (`cursorXNorm > 0`): tilts clockwise (`uReelTilt < 0` in WebGL -> `/` angle like Image 2)
-      //      * Cursor on LEFT (`cursorXNorm < 0`): tilts counter-clockwise (`uReelTilt > 0` in WebGL -> `\` angle like Image 3)
-      //    - When scroll stops (`vel -> 0`), smoothly springs back to 0 (upright like Image 1).
-      const scrollActivity = clamp(Math.abs(vel) / 1.65, 0, 1)
-      const sideBias =
-        Math.abs(ui.current.cursorXNorm) > 0.08
-          ? Math.sign(ui.current.cursorXNorm) * (0.55 + 0.45 * Math.abs(ui.current.cursorXNorm))
-          : ui.current.cursorSide * 0.65
-
-      const maxTiltRad = (14.5 * Math.PI) / 180 // ~14.5 degrees max tilt matching reference
-      const targetTiltRad = reducedMotion ? 0 : -sideBias * scrollActivity * maxTiltRad
-
-      const tiltStiffness = 95
-      const tiltDamping = 2 * Math.sqrt(tiltStiffness) * 0.92
-      reelTiltVel += (tiltStiffness * (targetTiltRad - reelTiltRad) - tiltDamping * reelTiltVel) * dt
-      reelTiltRad += reelTiltVel * dt
-      if (Math.abs(targetTiltRad - reelTiltRad) < 0.0003 && Math.abs(reelTiltVel) < 0.001) {
-        reelTiltRad = targetTiltRad
-        reelTiltVel = 0
-      }
-
-      const { cardW, cardH, stepPx } = metrics
-      const tiltDegDom = (-reelTiltRad * 180) / Math.PI
-      wheel.style.transform = `rotateZ(${tiltDegDom.toFixed(2)}deg)`
+      const { w, cardW, cardH, stepPx, radiusPx } = metrics
+      const focusGain = w <= 760 ? clamp((w * 0.94) / cardW - 1, 0.1, 0.22) : 0.22
+      wheel.style.transform = ''
 
       for (let i = 0; i < count; i++) {
         const d = i - turn
         const absD = Math.abs(d)
         const visibleCard = absD <= CULL
+        const focusT = 1 - clamp(absD / 0.85, 0, 1)
+        const focusEase = focusT * focusT * (3 - 2 * focusT)
+        const cardScale = 1 + focusGain * focusEase
         const opacity = visibleCard ? clamp(1 - Math.max(0, absD - 1.25) * 1.65, 0, 1) : 0
 
-        // Sync invisible interactive DOM hitbox 1:1 with the WebGL card position
+        // Sync invisible interactive DOM hitbox 1:1 with the WebGL card position & scale
         const card = cardRefs.current[i]
         if (card) {
           const domY = d * stepPx
-          card.style.transform = `translate3d(0, ${domY.toFixed(1)}px, 0)`
+          card.style.transform = `translate3d(0, ${domY.toFixed(1)}px, 0) scale(${cardScale.toFixed(3)})`
           card.style.opacity = String(opacity)
           card.style.pointerEvents = visibleCard ? 'auto' : 'none'
           card.style.zIndex = String(Math.round(100 - absD * 10))
@@ -442,13 +377,15 @@ export function WorksDrum({ items, onSelect, reducedMotion }: WorksDrumProps) {
         const slot = slots[i]
         if (slot) {
           slot.mesh.visible = opacity > 0.005
+          slot.mesh.renderOrder = Math.round((10 - absD) * 1000)
           const u = slot.program.uniforms
           u.uCardW.value = cardW
           u.uCardH.value = cardH
           u.uOffset.value = d
           u.uStepPx.value = stepPx
-          u.uReelTilt.value = reelTiltRad
-          u.uSize.value = [cardW, cardH]
+          u.uScale.value = cardScale
+          u.uSize.value = [cardW * cardScale, cardH * cardScale]
+          u.uRadius.value = radiusPx * cardScale
           u.uImageSize.value = slot.imageSize
           u.uOpacity.value = opacity
           u.uReady.value = slot.ready
@@ -470,11 +407,7 @@ export function WorksDrum({ items, onSelect, reducedMotion }: WorksDrumProps) {
         setActive(near)
       }
 
-      const stillMoving =
-        Math.abs(target - turn) > 0.0003 ||
-        Math.abs(vel) > 0.002 ||
-        Math.abs(targetTiltRad - reelTiltRad) > 0.0004 ||
-        Math.abs(reelTiltVel) > 0.001
+      const stillMoving = Math.abs(target - turn) > 0.0003 || Math.abs(vel) > 0.002
 
       if (stillMoving) request()
       else lastTime = 0
@@ -552,17 +485,7 @@ export function WorksDrum({ items, onSelect, reducedMotion }: WorksDrumProps) {
 
   const to = useCallback((n: number) => api.current.to(n), [])
 
-  const updateStageCursor = (event: PointerEvent<HTMLDivElement>) => {
-    const stage = stageRef.current
-    if (!stage) return
-    const rect = stage.getBoundingClientRect()
-    const nx = ((event.clientX - rect.left) / Math.max(1, rect.width)) * 2 - 1
-    ui.current.cursorXNorm = clamp(nx, -1, 1)
-    ui.current.cursorSide = nx < 0 ? -1 : 1
-  }
-
   const onPointerDown = (event: PointerEvent<HTMLDivElement>) => {
-    updateStageCursor(event)
     const s = ui.current
     s.down = true
     s.captured = false
@@ -572,7 +495,6 @@ export function WorksDrum({ items, onSelect, reducedMotion }: WorksDrumProps) {
   }
 
   const onPointerMove = (event: PointerEvent<HTMLDivElement>) => {
-    updateStageCursor(event)
     const s = ui.current
     if (!s.down) return
     const diff = s.lastY - event.clientY
