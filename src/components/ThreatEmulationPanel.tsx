@@ -29,7 +29,7 @@ export function ThreatEmulationPanel() {
       if (timer || !visible || document.visibilityState !== 'visible') return
       timer = window.setInterval(() => {
         setStep((prev) => (prev + 1) % loopPhases.length)
-      }, 2800)
+      }, 1750)
     }
     const stop = () => {
       if (timer) window.clearInterval(timer)

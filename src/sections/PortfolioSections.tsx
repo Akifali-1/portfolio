@@ -134,6 +134,56 @@ export function AboutSection() {
   const [charCount, setCharCount] = useState(0)
   const [finished, setFinished] = useState(false)
   const startedRef = useRef(false)
+  const isDone = charCount >= TOTAL_ABOUT_CHARS
+
+  // Pause/lock scroll while the headline sentence is actively typing
+  useEffect(() => {
+    if (!started || isDone || reducedMotion) return
+
+    const sectionEl = sectionRef.current
+    const targetY = sectionEl ? sectionEl.getBoundingClientRect().top + window.scrollY : window.scrollY
+
+    let lockActive = true
+
+    const cancelScroll = (event: Event) => {
+      event.preventDefault()
+    }
+    const cancelKeys = (event: KeyboardEvent) => {
+      if (['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', 'Home', 'End', ' '].includes(event.key)) {
+        event.preventDefault()
+      }
+    }
+
+    const pinScroll = () => {
+      if (!lockActive) return
+      if (Math.abs(window.scrollY - targetY) > 3) {
+        window.scrollTo({ top: targetY })
+      }
+    }
+
+    window.addEventListener('wheel', cancelScroll, { passive: false })
+    window.addEventListener('touchmove', cancelScroll, { passive: false })
+    window.addEventListener('keydown', cancelKeys)
+    window.addEventListener('scroll', pinScroll, { passive: true })
+
+    // Safety timeout: auto-release scroll after 3.8s in case of tab switch or stall
+    const safetyRelease = window.setTimeout(() => {
+      lockActive = false
+      window.removeEventListener('wheel', cancelScroll)
+      window.removeEventListener('touchmove', cancelScroll)
+      window.removeEventListener('keydown', cancelKeys)
+      window.removeEventListener('scroll', pinScroll)
+    }, 3800)
+
+    return () => {
+      lockActive = false
+      window.clearTimeout(safetyRelease)
+      window.removeEventListener('wheel', cancelScroll)
+      window.removeEventListener('touchmove', cancelScroll)
+      window.removeEventListener('keydown', cancelKeys)
+      window.removeEventListener('scroll', pinScroll)
+    }
+  }, [started, isDone, reducedMotion])
 
   // Trigger typing after sweep completion or when scrolled into view
   useEffect(() => {
@@ -151,9 +201,16 @@ export function AboutSection() {
     const trigger = () => {
       if (startedRef.current) return
       startedRef.current = true
+
+      const sectionEl = sectionRef.current
+      if (sectionEl) {
+        const targetTop = sectionEl.getBoundingClientRect().top + window.scrollY
+        window.scrollTo({ top: targetTop, behavior: 'smooth' })
+      }
+
       window.setTimeout(() => {
         setStarted(true)
-      }, 100)
+      }, 120)
     }
 
     const onSweepComplete = () => trigger()
@@ -238,7 +295,6 @@ export function AboutSection() {
   const typedLine3 = ABOUT_LINE3.slice(0, l3Count)
   const ghostLine3 = ABOUT_LINE3.slice(l3Count)
 
-  const isDone = charCount >= TOTAL_ABOUT_CHARS
   const activeLine = !started
     ? 0
     : isDone

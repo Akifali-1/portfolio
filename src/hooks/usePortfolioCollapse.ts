@@ -46,6 +46,8 @@ function getSurfaceSourceElements(shell: HTMLElement) {
 }
 
 async function captureViewport(shell: HTMLElement, center: { x: number; y: number }) {
+  const isLight = document.documentElement.dataset.theme === 'light'
+  const baseHex = isLight ? '#F7F5F1' : '#101215'
   const { default: html2canvas } = await import('html2canvas')
   const width = window.innerWidth
   const height = window.innerHeight
@@ -58,7 +60,7 @@ async function captureViewport(shell: HTMLElement, center: { x: number; y: numbe
   })
 
   const captured = await html2canvas(shell, {
-    backgroundColor: '#050505',
+    backgroundColor: baseHex,
     allowTaint: false,
     imageTimeout: 1500,
     logging: false,
@@ -75,10 +77,10 @@ async function captureViewport(shell: HTMLElement, center: { x: number; y: numbe
     onclone: (clonedDocument) => {
       const style = clonedDocument.createElement('style')
       style.textContent = `
-        .hero, .hero.hero--cards { background: #050505 !important; }
-        .hero-card-base { background: linear-gradient(165deg, #0d0f13 0%, #090a0d 58%, #060709 100%) !important; background-color: #090a0d !important; }
-        .hero-card-pillar { background: linear-gradient(180deg, #171a21 0%, #111318 62%, #0c0e12 100%) !important; background-color: #111318 !important; }
-        .hero--cards .hero-card-dock { background: linear-gradient(180deg, #07080a 0%, #050505 100%) !important; background-color: #060709 !important; }
+        .hero, .hero.hero--cards { background: ${baseHex} !important; }
+        .hero-card-base { background: linear-gradient(165deg, #17191e 0%, #121418 58%, #0d0f12 100%) !important; background-color: #121418 !important; }
+        .hero-card-pillar { background: linear-gradient(180deg, #1e222a 0%, #161920 62%, #111317 100%) !important; background-color: #161920 !important; }
+        .hero--cards .hero-card-dock { background: linear-gradient(180deg, #13161c 0%, #101215 100%) !important; background-color: #101215 !important; }
       `
       clonedDocument.head.appendChild(style)
     },
@@ -98,8 +100,8 @@ async function captureViewport(shell: HTMLElement, center: { x: number; y: numbe
   const context = snapshot.getContext('2d')
   if (!context) return captured
 
-  // Fill base with #050505 so no transparent pixels ever show white underneath
-  context.fillStyle = '#050505'
+  // Fill base with baseHex so no transparent pixels ever show wrong color underneath
+  context.fillStyle = baseHex
   context.fillRect(0, 0, width, height)
 
   const scale = captured.width / Math.max(1, width)
@@ -109,9 +111,10 @@ async function captureViewport(shell: HTMLElement, center: { x: number; y: numbe
 
   const holeRadius = Math.min(76, Math.max(38, Math.min(width, height) * 0.055))
   const holeGradient = context.createRadialGradient(center.x, center.y, holeRadius * 0.22, center.x, center.y, holeRadius)
-  holeGradient.addColorStop(0, 'rgba(5, 5, 5, 1)')
-  holeGradient.addColorStop(0.58, 'rgba(5, 5, 5, 0.85)')
-  holeGradient.addColorStop(1, 'rgba(5, 5, 5, 0)')
+  const holeColor = isLight ? 'rgba(247, 245, 241, ' : 'rgba(16, 18, 21, '
+  holeGradient.addColorStop(0, `${holeColor}1)`)
+  holeGradient.addColorStop(0.58, `${holeColor}0.85)`)
+  holeGradient.addColorStop(1, `${holeColor}0)`)
 
   context.save()
   context.globalCompositeOperation = 'source-over'

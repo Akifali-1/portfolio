@@ -22,6 +22,7 @@ import {
 import { clientProjects, projects, type Project } from './data'
 import { useReducedMotion } from './hooks'
 import { usePortfolioCollapse } from './hooks/usePortfolioCollapse'
+import { useTheme } from './hooks/useTheme'
 import './styles.css'
 import './project-preview.css'
 import './ui-overrides.css'
@@ -29,15 +30,18 @@ import './collapse.css'
 import './echo-sections.css'
 import './mobile-fixes.css'
 import './fullscreen.css'
+import './theme-redesign.css'
 
 function App() {
   const reducedMotion = useReducedMotion()
+  const { theme, toggleTheme } = useTheme()
   const portfolioShellRef = useRef<HTMLDivElement>(null)
   const collapseTargetRef = useRef<HTMLSpanElement>(null)
   const collapseSurfaceRef = useRef<CollapseSurfaceHandle>(null)
   const collapseBlackoutRef = useRef<HTMLDivElement>(null)
   const voidScreenRef = useRef<HTMLDivElement>(null)
   const restoreFocusRef = useRef<HTMLButtonElement>(null)
+
   const { state: collapseState, startCollapse, restore } = usePortfolioCollapse({
     shellRef: portfolioShellRef,
     collapseTargetRef,
@@ -47,6 +51,7 @@ function App() {
     restoreFocusRef,
     reducedMotion,
   })
+
   const [booted, setBooted] = useState(() => {
     try {
       return window.sessionStorage.getItem('akif-system-initialized') === '1'
@@ -54,7 +59,7 @@ function App() {
       return false
     }
   })
-  // The boot layer stays mounted until its own circle has receded (booted flips earlier, at the reveal).
+
   const [bootMounted, setBootMounted] = useState(() => !booted)
   const [commandOpen, setCommandOpen] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -92,12 +97,10 @@ function App() {
     const revealItems = Array.from(document.querySelectorAll<HTMLElement>('[data-reveal]'))
     const parallaxItems = Array.from(document.querySelectorAll<HTMLElement>('[data-parallax]'))
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-
     if (reduced) {
       revealItems.forEach((item) => item.classList.add('is-revealed'))
       return
     }
-
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -109,7 +112,6 @@ function App() {
       },
       { threshold: 0.12, rootMargin: '0px 0px -8% 0px' },
     )
-
     revealItems.forEach((item) => observer.observe(item))
 
     let frame = 0
@@ -124,15 +126,12 @@ function App() {
       })
       frame = 0
     }
-
     const queueParallax = () => {
       if (!frame) frame = window.requestAnimationFrame(updateParallax)
     }
-
     queueParallax()
     window.addEventListener('scroll', queueParallax, { passive: true })
     window.addEventListener('resize', queueParallax)
-
     return () => {
       observer.disconnect()
       window.cancelAnimationFrame(frame)
@@ -190,6 +189,8 @@ function App() {
           mobileOpen={mobileOpen}
           onToggleMobile={() => setMobileOpen((value) => !value)}
           onCloseMobile={() => setMobileOpen(false)}
+          theme={theme}
+          onToggleTheme={toggleTheme}
         />
         <CommandPalette
           open={commandOpen}
@@ -203,6 +204,7 @@ function App() {
             collapseState={collapseState}
             onCollapse={startCollapse}
             collapseTargetRef={collapseTargetRef}
+            theme={theme}
           />
           <ManifestoSection />
           <JourneySection />

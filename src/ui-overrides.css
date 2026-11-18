@@ -541,7 +541,7 @@ button.architecture-step.is-inspected {
 
 /* --- Threat Emulation Live Loop --- */
 .threat-wordmark span {
-  transition: color 0.35s, text-shadow 0.35s;
+  transition: color 0.22s ease, text-shadow 0.22s ease;
 }
 
 .threat-wordmark span.red-glow {
@@ -555,12 +555,13 @@ button.architecture-step.is-inspected {
 }
 
 .threat-wordmark-muted.is-loop-active {
-  color: var(--white);
+  color: #F0EFEB;
+  text-shadow: 0 0 20px rgba(240, 239, 235, 0.35);
 }
 
 .threat-display-detail span {
   opacity: 0.35;
-  transition: opacity 0.3s;
+  transition: opacity 0.22s ease;
 }
 
 .threat-display-detail span.is-step-lit {

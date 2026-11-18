@@ -163,8 +163,10 @@ export function DotGraph({ onSelect, reducedMotion }: DotGraphProps) {
       const time = reducedMotion ? 0 : now / 1000
       const scale = Math.min(w, h)
 
+      const isLight = document.documentElement.dataset.theme === 'light'
+
       // Soft background rings, drawn as very faint dots instead of lines.
-      ctx.fillStyle = 'rgba(243,243,240,0.07)'
+      ctx.fillStyle = isLight ? 'rgba(11, 23, 42, 0.08)' : 'rgba(243,243,240,0.07)'
       ctx.beginPath()
       for (const ringR of [0.3, 0.52]) {
         const rx = ringR * w * 0.82
@@ -189,7 +191,17 @@ export function DotGraph({ onSelect, reducedMotion }: DotGraphProps) {
         const dim = focus && !lit
         const length = Math.hypot(c[4] - c[0], c[5] - c[1])
         const count = Math.max(8, Math.round(length / 8))
-        ctx!.fillStyle = lit ? 'rgba(243,243,240,0.62)' : dim ? 'rgba(243,243,240,0.1)' : 'rgba(243,243,240,0.26)'
+        ctx!.fillStyle = isLight
+          ? lit
+            ? 'rgba(22, 82, 240, 0.78)'
+            : dim
+              ? 'rgba(11, 23, 42, 0.1)'
+              : 'rgba(11, 23, 42, 0.24)'
+          : lit
+            ? 'rgba(243,243,240,0.62)'
+            : dim
+              ? 'rgba(243,243,240,0.1)'
+              : 'rgba(243,243,240,0.26)'
         ctx!.beginPath()
         for (let i = 1; i < count; i++) {
           const [x, y] = bez(c, i / count)
@@ -198,10 +210,17 @@ export function DotGraph({ onSelect, reducedMotion }: DotGraphProps) {
           ctx!.arc(x, y, r, 0, Math.PI * 2)
         }
         ctx!.fill()
+
         if (!reducedMotion && (lit || !focus)) {
           const t = (time * 0.12 + index * 0.17) % 1
           const [x, y] = bez(c, t)
-          ctx!.fillStyle = lit ? '#f3f3f0' : 'rgba(243,243,240,0.7)'
+          ctx!.fillStyle = isLight
+            ? lit
+              ? '#1652f0'
+              : 'rgba(22, 82, 240, 0.65)'
+            : lit
+              ? '#f3f3f0'
+              : 'rgba(243,243,240,0.7)'
           ctx!.beginPath()
           ctx!.arc(x, y, lit ? 2.4 : 1.8, 0, Math.PI * 2)
           ctx!.fill()
@@ -217,7 +236,17 @@ export function DotGraph({ onSelect, reducedMotion }: DotGraphProps) {
         const pulse = reducedMotion ? 0 : Math.sin(time * 1.6 + x * 0.01) * 0.25
         const radius = base * (isFocus ? 1.22 : 1) + pulse
         const spacing = clamp(scale / 100, 3.2, 5)
-        ctx!.fillStyle = inFocus ? '#f3f3f0' : 'rgba(243,243,240,0.28)'
+        ctx!.fillStyle = isLight
+          ? node.core
+            ? '#0b172a'
+            : inFocus
+              ? isFocus
+                ? '#1652f0'
+                : '#142642'
+              : 'rgba(11, 23, 42, 0.22)'
+          : inFocus
+            ? '#f3f3f0'
+            : 'rgba(243,243,240,0.28)'
         ctx!.beginPath()
         for (const d of disc(Math.round(radius), spacing)) {
           ctx!.moveTo(x + d.x + d.r, y + d.y)

@@ -1,0 +1,1648 @@
+/* ==========================================================================
+   File: src/theme-redesign.css
+   Hero Redesign (Sculpture Left, Content Right, Flowing Blue Wave)
+   + Light Mode (Reference Ivory / Navy / Electric Blue) & Pitch-Black Dark Mode
+   ========================================================================== */
+
+:root {
+  --light-bg: #F7F5F1;
+  --light-text: #101C35;
+  --dark-bg: #101215;
+  --dark-text: #F0EFEB;
+  --accent-ice: #88b1e0;
+  --btn-blue: #3978E8;
+  --btn-blue-hover: #2968D8;
+  --secondary-text: #788397;
+
+  --ivory: #F7F5F1;
+  --ivory-deep: #ECE8E0;
+  --porcelain: #F1EFEA;
+  --porcelain-card: #ffffff;
+  --navy: #101C35;
+  --navy-soft: #233454;
+  --slate-ink: #334466;
+  --slate-muted: #788397;
+  --cobalt: #3978E8;
+  --cobalt-hover: #2968D8;
+  --cobalt-soft: rgba(57, 120, 232, 0.1);
+  --line-navy: rgba(16, 28, 53, 0.12);
+  --line-navy-strong: rgba(16, 28, 53, 0.22);
+}
+
+html[data-theme='dark'] {
+  --black: #070707;
+  --near-black: #070707;
+  --surface: #0c0c0e;
+  --paper: #e9e9e3;
+  --paper-muted: #aaa9a1;
+  --white: #F0EFEB;
+  --muted: #8c8c88;
+  --faint: #5b5b58;
+  --line: rgba(240, 239, 235, 0.10);
+  --line-dark: rgba(240, 239, 235, 0.16);
+  --blue: #3978E8;
+  --violet: #88b1e0;
+  color-scheme: dark;
+}
+
+/* Dark Mode Pitch-Black Base for all dark sections (Hero, Manifesto, Journey, Client, Signal, Graph, Contact, Footer) */
+html[data-theme='dark'],
+html[data-theme='dark'] body,
+html[data-theme='dark'] .section-dark,
+html[data-theme='dark'] .hero.hero--calligraphy,
+html[data-theme='dark'] .manifesto,
+html[data-theme='dark'] .journey-section,
+html[data-theme='dark'] .client-section,
+html[data-theme='dark'] .signal-section,
+html[data-theme='dark'] .graph-section,
+html[data-theme='dark'] .contact-section,
+html[data-theme='dark'] .site-footer {
+  background: #070707 !important;
+}
+
+html[data-theme='dark'] .site-nav,
+html[data-theme='dark'] .site-nav.is-scrolled {
+  background: transparent !important;
+  border-bottom-color: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Reverted paper color sections in dark mode matching original design (Work, About, Research) */
+html[data-theme='dark'] .section-paper,
+html[data-theme='dark'] .work-section.section-paper,
+html[data-theme='dark'] .about-section.section-paper,
+html[data-theme='dark'] .research-section.section-paper {
+  background: var(--paper) !important;
+  color: #050505 !important;
+}
+
+html[data-theme='light'] {
+  --black: #101C35;
+  --white: #101C35;
+  --near-black: #1a2744;
+  --surface: #FFFFFF;
+  --paper: #F2EFE9;
+  --paper-muted: #D9D5CC;
+  --muted: #788397;
+  --faint: #9EA8B6;
+  --line: rgba(16, 28, 53, 0.12);
+  --line-dark: rgba(16, 28, 53, 0.18);
+  --blue: #3978E8;
+  --violet: #88b1e0;
+  color-scheme: light;
+}
+
+/* ==========================================================================
+   1. NAVIGATION BAR (Reference Layout + Theme Toggle)
+   ========================================================================== */
+
+.site-nav {
+  position: absolute !important;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 82px;
+  padding: 0 var(--pad);
+  z-index: 60;
+  background: transparent !important;
+  border-bottom: 1px solid transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.nav-brand-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.site-nav .wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--display);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.wordmark-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--cobalt);
+  box-shadow: 0 0 10px rgba(22, 82, 240, 0.45);
+}
+
+.wordmark-divider {
+  width: 1px;
+  height: 20px;
+  background: var(--line);
+}
+
+.site-nav .desktop-nav {
+  display: flex;
+  align-items: center;
+  gap: clamp(14px, 2vw, 30px);
+}
+
+.site-nav .desktop-nav a {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  transition: color 0.2s var(--ease);
+}
+
+.site-nav .desktop-nav a:hover {
+  color: var(--white);
+}
+
+.nav-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* Social links with [ GITHUB ] [ LINKEDIN ] [ EMAIL ] */
+.nav-social {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.nav-bracket-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  transition: color 0.2s var(--ease);
+}
+
+.nav-bracket-link .nav-bracket {
+  color: #88b1e0;
+  font-weight: 600;
+  transition: color 0.2s var(--ease);
+}
+
+.nav-bracket-link:hover {
+  color: var(--white);
+}
+
+.nav-bracket-link:hover .nav-bracket {
+  color: #D8ECFF;
+}
+
+/* Command Palette Trigger ⌘ COMMAND K */
+.site-nav .command-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: border-color 0.2s var(--ease), color 0.2s var(--ease);
+}
+
+.site-nav .command-trigger-icon {
+  font-size: 11px;
+}
+
+.site-nav .command-trigger-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+}
+
+.site-nav .command-trigger-key {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1px 5px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  font: 500 9px var(--mono);
+  color: var(--white);
+}
+
+.site-nav .command-trigger:hover {
+  border-color: #88b1e0;
+  color: var(--white);
+}
+
+/* Light / Dark Mode Toggle Button */
+.theme-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 0.22s var(--ease), border-color 0.22s var(--ease);
+}
+
+.theme-toggle-btn:hover {
+  color: var(--white);
+  border-color: #88b1e0;
+}
+
+/* Light Mode Navigation */
+html[data-theme='light'] .site-nav,
+html[data-theme='light'] .site-nav.is-scrolled {
+  background: transparent !important;
+  border-bottom-color: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+html[data-theme='light'] .site-nav .wordmark {
+  color: var(--navy);
+}
+
+html[data-theme='light'] .wordmark-divider {
+  background: var(--line-navy-strong);
+}
+
+html[data-theme='light'] .site-nav .desktop-nav a {
+  color: #3A4358;
+  font-weight: 500;
+}
+
+html[data-theme='light'] .site-nav .desktop-nav a:hover {
+  color: var(--navy);
+}
+
+html[data-theme='light'] .nav-bracket-link {
+  color: var(--slate-muted);
+}
+
+html[data-theme='light'] .nav-bracket-link .nav-bracket {
+  color: #3978E8;
+}
+
+html[data-theme='light'] .nav-bracket-link:hover {
+  color: var(--navy);
+}
+
+html[data-theme='light'] .theme-toggle-btn,
+html[data-theme='light'] .site-nav .command-trigger {
+  border-color: var(--line-navy);
+  color: var(--navy-soft);
+  background: rgba(255, 255, 255, 0.55);
+}
+
+html[data-theme='light'] .site-nav .command-trigger-key {
+  border-color: var(--line-navy);
+  color: var(--navy);
+}
+
+html[data-theme='light'] .theme-toggle-btn:hover,
+html[data-theme='light'] .site-nav .command-trigger:hover {
+  border-color: #3978E8;
+  color: #3978E8;
+  background: rgba(57, 120, 232, 0.07);
+}
+
+html[data-theme='light'] .mobile-menu {
+  color: var(--navy);
+}
+
+/* ==========================================================================
+   1B. NAVIGATION BAR REFERENCE FIXES (Single Brackets, Pill Command K, Divider)
+   Place at the end of Section 1 in src/theme-redesign.css
+   ========================================================================== */
+
+.site-nav,
+html[data-theme='dark'] .site-nav,
+html[data-theme='dark'] .site-nav.is-scrolled {
+  border-bottom: 1px solid rgba(237, 231, 217, 0.08) !important;
+}
+
+html[data-theme='light'] .site-nav,
+html[data-theme='light'] .site-nav.is-scrolled {
+  border-bottom: 1px solid rgba(31, 42, 77, 0.09) !important;
+}
+
+/* Remove duplicate [ ] pseudo-elements from src/ui-overrides.css */
+.nav-social a::before,
+.nav-social a::after {
+  content: none !important;
+  display: none !important;
+}
+
+.site-nav .command-trigger {
+  border-radius: 999px !important;
+  padding: 0 14px !important;
+  height: 34px !important;
+}
+
+.site-nav .command-trigger-key {
+  border: none !important;
+  padding: 0 !important;
+  font-size: 10px !important;
+}
+
+.theme-toggle-btn {
+  border-radius: 50% !important;
+  width: 34px !important;
+  height: 34px !important;
+}
+
+/* ==========================================================================
+   2. HERO SECTION REDESIGN — AKIF INTERACTIVE CALLIGRAPHY HERO
+   Dark Palette: #000000 bg, #EDE7D9 ink, #9AA0AE body, #6F9BFF accent,
+                 #3276ED CTA, #E0583E vermilion seal
+   Light Palette: #F4F2EC bg, #1F2A4D ink, #4A5366 body, #2D5BD6 accent,
+                  #C2402A vermilion seal
+   ========================================================================== */
+
+.hero.hero--calligraphy {
+  position: relative;
+  width: 100%;
+  min-height: 100svh;
+  padding: 0;
+  background: #000000 !important;
+  color: #EDE7D9;
+  isolation: isolate;
+}
+
+.hero.hero--calligraphy::after {
+  display: none !important;
+}
+
+html[data-theme='dark'] .hero.hero--calligraphy {
+  background: #000000 !important;
+  color: #EDE7D9;
+}
+
+html[data-theme='light'] .hero.hero--calligraphy {
+  background: #F4F2EC !important;
+  color: #1F2A4D;
+}
+
+/* Hide default cursor ONLY inside interactive desktop hero canvas while writing */
+.hero--calligraphy.is-brush-cursor-active .hero-calligraphy-grid {
+  cursor: none;
+}
+
+body:has(.hero--calligraphy.is-brush-cursor-active:hover) .cursor-layer {
+  opacity: 0 !important;
+}
+
+/* 100svh stage matching viewport height without extra scroll gap */
+.hero-calligraphy-viewport {
+  position: relative;
+  width: 100%;
+  min-height: 100svh;
+  height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* Accessible Skip Intro Pill (auto-hides once intro finishes) */
+.hero-skip-intro-btn {
+  position: absolute;
+  top: 96px;
+  right: var(--pad);
+  z-index: 30;
+  padding: 5px 12px;
+  border: 1px solid rgba(237, 231, 217, 0.16);
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.55);
+  color: #9AA0AE;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.hero-skip-intro-btn:hover,
+.hero-skip-intro-btn:focus-visible {
+  color: #EDE7D9;
+  border-color: #6F9BFF;
+  outline: none;
+}
+
+html[data-theme='light'] .hero-skip-intro-btn {
+  background: rgba(244, 242, 236, 0.85);
+  border-color: rgba(31, 42, 77, 0.18);
+  color: #4A5366;
+}
+
+html[data-theme='light'] .hero-skip-intro-btn:hover,
+html[data-theme='light'] .hero-skip-intro-btn:focus-visible {
+  color: #1F2A4D;
+  border-color: #2D5BD6;
+}
+
+/* Desktop Two-Column Composition matching Reference 2 proportions (53.6% / 46.4%) */
+.hero-calligraphy-grid {
+  position: relative;
+  z-index: 6;
+  width: 100%;
+  max-width: 1680px;
+  margin: 0 auto;
+  padding: 74px var(--pad) 58px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) 1px minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(28px, 3.6vw, 54px);
+}
+
+/* Left Column: AKIF Brush Calligraphy Stage */
+.hero-calligraphy-left {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+}
+
+.akif-canvas-stage {
+  position: relative;
+  width: 100%;
+  max-width: 690px;
+  aspect-ratio: 680 / 430;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+
+.akif-calligraphy-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  display: block;
+}
+
+/* Stage 2 Hint: Single Ivory Brush Stroke + "Move to write" */
+.akif-hint-layer {
+  transition: opacity 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+
+.akif-hint-layer.is-hidden {
+  opacity: 0;
+}
+
+.akif-hint-layer.is-visible {
+  opacity: 1;
+}
+
+.akif-hint-stroke {
+  stroke-dasharray: 280;
+  stroke-dashoffset: 280;
+  animation: akifHintDraw 0.75s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.akif-hint-feather {
+  stroke-dasharray: 280;
+  stroke-dashoffset: 280;
+  animation: akifHintDraw 0.85s 0.08s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.akif-hint-caption {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  opacity: 0;
+  animation: akifHintTextFade 0.55s 0.32s ease-out forwards;
+}
+
+@keyframes akifHintDraw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes akifHintTextFade {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 0.78;
+    transform: translateY(0);
+  }
+}
+
+/* Stage 5: Vermilion AK / IF Seal Stamp Animation */
+.akif-seal-layer { opacity: 0; transform: rotate(10deg); transform-box: fill-box; transform-origin: center; pointer-events: none; }
+.akif-seal-layer.is-stamped { opacity: 1; animation: akifSealStampImpact 0.52s cubic-bezier(0.22, 1.35, 0.36, 1) forwards; }
+@keyframes akifSealStampImpact {
+  0% { opacity: 0; transform: rotate(16deg) scale(1.65); }
+  65% { opacity: 1; transform: rotate(9deg) scale(0.93); }
+  85% { opacity: 1; transform: rotate(10.5deg) scale(1.03); }
+  100% { opacity: 1; transform: rotate(10deg) scale(1); }
+}
+
+/* Custom 28px Floating Brush Cursor */
+.akif-brush-tip-layer.is-suppressed { visibility: hidden; }
+
+.akif-floating-brush-cursor {
+  position: absolute;
+  top: -24px;
+  left: -3px;
+  width: 28px;
+  height: 28px;
+  pointer-events: none;
+  z-index: 25;
+  will-change: transform;
+}
+
+/* Thin Understated Vertical Divider between Columns */
+.hero-calligraphy-divider {
+  width: 1px;
+  height: min(460px, 58vh);
+  background: rgba(237, 231, 217, 0.12);
+  transition: opacity 0.35s ease;
+}
+
+html[data-theme='light'] .hero-calligraphy-divider {
+  background: rgba(31, 42, 77, 0.14);
+}
+
+/* Right Column: Scroll-Driven Introduction */
+.hero-calligraphy-right {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  min-width: 0;
+  padding-left: clamp(6px, 1.2vw, 20px);
+}
+
+.hero-cal-kicker-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 11px;
+  margin-bottom: 22px;
+}
+
+.hero-cal-eyebrow {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #6F9BFF;
+  will-change: opacity, transform;
+}
+
+html[data-theme='light'] .hero-cal-eyebrow {
+  color: #2D5BD6;
+}
+
+.hero-cal-underline {
+  display: block;
+  width: 56px;
+  height: 3px;
+  border-radius: 2px;
+  background: #3276ED;
+  transform-origin: left center;
+  will-change: transform, opacity;
+}
+
+html[data-theme='light'] .hero-cal-underline {
+  background: #2D5BD6;
+}
+
+/* Expressive Two-Line Brush Script Headline matching Reference 2 (Never wraps to 3 lines) */
+.hero-cal-headline {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  font-family: 'Kaushan Script', 'Caveat', 'Playfair Display', Georgia, serif;
+  font-weight: 400;
+  line-height: 1.0;
+  letter-spacing: 0.005em;
+}
+
+.hero-cal-headline-line {
+  display: block;
+  white-space: nowrap;
+  will-change: clip-path, opacity;
+  padding: 0.04em 14px 0.1em 0.04em;
+}
+
+/* Line 1 ("I build systems") & Line 2 ("that make ideas real.") calibrated so both span the exact same width */
+.hero-cal-headline-primary {
+  font-size: clamp(46px, 4.6vw, 88px);
+  color: #EDE7D9;
+}
+
+html[data-theme='light'] .hero-cal-headline-primary {
+  color: #1F2A4D;
+}
+
+.hero-cal-headline-accent {
+  font-size: clamp(38px, 3.85vw, 76px);
+  font-style: normal;
+  color: #6F9BFF;
+  margin-top: 0;
+}
+
+html[data-theme='light'] .hero-cal-headline-accent {
+  color: #2D5BD6;
+}
+
+/* Supporting Description */
+.hero-cal-description {
+  margin: 18px 0 0;
+  max-width: 470px;
+  font-family: var(--display, 'Space Grotesk', sans-serif);
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.52;
+  color: #9AA0AE;
+  will-change: opacity, transform;
+}
+
+html[data-theme='light'] .hero-cal-description {
+  color: #4A5366;
+}
+
+/* Three Feature Pillars: Build / Research / Ship */
+.hero-cal-pillars {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 28px;
+  will-change: opacity, transform;
+}
+
+.hero-cal-pillar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 32px;
+  font-family: var(--display);
+  font-size: 15px;
+  font-weight: 600;
+  color: #EDE7D9;
+}
+
+.hero-cal-pillar:first-child {
+  padding-left: 4px;
+}
+
+.hero-cal-pillar + .hero-cal-pillar {
+  border-left: 1px solid rgba(237, 231, 217, 0.14);
+}
+
+.hero-cal-pillar svg {
+  color: #8E98A8;
+}
+
+html[data-theme='light'] .hero-cal-pillar {
+  color: #1F2A4D;
+}
+
+html[data-theme='light'] .hero-cal-pillar + .hero-cal-pillar {
+  border-left-color: rgba(31, 42, 77, 0.16);
+}
+
+html[data-theme='light'] .hero-cal-pillar svg {
+  color: #2D5BD6;
+}
+
+/* Primary & Secondary CTAs */
+.hero-cal-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 28px;
+  margin-top: 32px;
+}
+
+.hero-cal-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 13px 24px;
+  border-radius: 8px;
+  background: #3276ED;
+  color: #ffffff;
+  font-family: var(--display);
+  font-size: 14.5px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  transition: background 0.2s ease, transform 0.2s ease;
+  will-change: opacity, transform;
+}
+
+.hero-cal-btn-primary:hover {
+  background: #2563EB;
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+html[data-theme='light'] .hero-cal-btn-primary {
+  background: #1D56D8;
+}
+
+html[data-theme='light'] .hero-cal-btn-primary:hover {
+  background: #1746B3;
+}
+
+.hero-cal-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 0;
+  border-bottom: 1.5px solid rgba(237, 231, 217, 0.72);
+  color: #EDE7D9;
+  font-family: var(--display);
+  font-size: 14.5px;
+  font-weight: 600;
+  transition: color 0.2s ease, border-color 0.2s ease;
+  will-change: opacity, transform;
+}
+
+.hero-cal-btn-secondary:hover {
+  color: #6F9BFF;
+  border-bottom-color: #6F9BFF;
+}
+
+html[data-theme='light'] .hero-cal-btn-secondary {
+  color: #1F2A4D;
+  border-bottom-color: #1F2A4D;
+}
+
+html[data-theme='light'] .hero-cal-btn-secondary:hover {
+  color: #2D5BD6;
+  border-bottom-color: #2D5BD6;
+}
+
+/* Flowing Bottom Blue Wave */
+.hero-bottom-wave {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: clamp(110px, 16vh, 175px);
+  z-index: 4;
+  pointer-events: none;
+  overflow: hidden;
+  background: transparent;
+}
+
+.hero-bottom-wave-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.akif-wave-drift {
+  animation: akifWaveSlowDrift 11s ease-in-out infinite alternate;
+}
+
+@keyframes akifWaveSlowDrift {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-14px, 4px, 0);
+  }
+}
+
+/* ==========================================================================
+   3. LIGHT MODE PALETTE ACROSS ALL PORTFOLIO SECTIONS
+   (Warm Ivory #f8f6f1 + Porcelain Mist #edf1f8 + Navy #0b172a + Cobalt #1652f0)
+   ========================================================================== */
+
+html[data-theme='light'],
+html[data-theme='light'] body {
+  background: var(--ivory);
+  color: var(--navy);
+}
+
+html[data-theme='light'] ::selection {
+  background: var(--cobalt);
+  color: #ffffff;
+}
+
+/* Primary Dark Sections -> Warm Alabaster Ivory in Light Mode */
+html[data-theme='light'] .section-dark,
+html[data-theme='light'] .manifesto,
+html[data-theme='light'] .client-section,
+html[data-theme='light'] .signal-section,
+html[data-theme='light'] .graph-section,
+html[data-theme='light'] .contact-section {
+  background: var(--ivory);
+  color: var(--navy);
+}
+
+html[data-theme='light'] .journey-section {
+  background: #f3f0e8;
+  border-top-color: var(--line-navy);
+  color: var(--navy);
+}
+
+html[data-theme='light'] .client-section,
+html[data-theme='light'] .graph-section {
+  border-top-color: var(--line-navy);
+}
+
+/* Inverted .section-paper Sections in Light Mode (Work, About, Research) -> Deep Midnight Navy #101C35 sampled from reference */
+html[data-theme='light'] .section-paper,
+html[data-theme='light'] .work-section.section-paper,
+html[data-theme='light'] .about-section.section-paper,
+html[data-theme='light'] .research-section.section-paper {
+  background: #101C35 !important;
+  color: #F0EFEB !important;
+}
+
+html[data-theme='light'] .section-paper .section-label,
+html[data-theme='light'] .section-paper .section-label.is-light {
+  color: #8A99AD !important;
+}
+
+html[data-theme='light'] .section-paper .section-label .label-index,
+html[data-theme='light'] .section-paper .section-label.is-light .label-index {
+  color: #88b1e0 !important;
+}
+
+html[data-theme='light'] .section-paper .mono-label {
+  color: #88b1e0 !important;
+}
+
+html[data-theme='light'] .boot-paper {
+  background: var(--porcelain);
+}
+
+/* Section Labels & Accents */
+html[data-theme='light'] .section-label {
+  color: var(--slate-muted);
+}
+
+html[data-theme='light'] .section-label .label-index,
+html[data-theme='light'] .section-label.is-light .label-index {
+  color: var(--cobalt);
+}
+
+html[data-theme='light'] .mono-label {
+  color: var(--slate-muted);
+}
+
+/* Headings & Editorial Italics (Standard Light Sections) */
+html[data-theme='light'] .manifesto-copy h2,
+html[data-theme='light'] .client-heading h2,
+html[data-theme='light'] .signal-title-wrap h2,
+html[data-theme='light'] .section-heading h2,
+html[data-theme='light'] .contact-title h2 {
+  color: var(--navy);
+}
+
+html[data-theme='light'] .manifesto-copy h2 em,
+html[data-theme='light'] .client-heading h2 em,
+html[data-theme='light'] .signal-title-wrap h2 em,
+html[data-theme='light'] .section-heading h2 em,
+html[data-theme='light'] .contact-title h2 em {
+  color: var(--cobalt);
+}
+
+html[data-theme='light'] .manifesto-copy p,
+html[data-theme='light'] .client-heading p,
+html[data-theme='light'] .section-heading p {
+  color: var(--slate-ink);
+}
+
+html[data-theme='light'] .manifesto-aside span,
+html[data-theme='light'] .client-aside p strong {
+  color: var(--navy);
+}
+
+html[data-theme='light'] .client-aside {
+  border-left-color: var(--line-navy);
+}
+
+html[data-theme='light'] .text-arrow {
+  color: var(--navy);
+}
+
+html[data-theme='light'] .text-arrow:hover {
+  color: var(--cobalt);
+}
+
+/* Journey Section Light Mode */
+html[data-theme='light'] .journey-topbar,
+html[data-theme='light'] .journey-tabs,
+html[data-theme='light'] .journey-details {
+  border-color: var(--line-navy);
+}
+
+html[data-theme='light'] .journey-topbar-index,
+html[data-theme='light'] .journey-meta-row b {
+  color: var(--cobalt);
+}
+
+html[data-theme='light'] .journey-topbar-title,
+html[data-theme='light'] .journey-meta-row strong,
+html[data-theme='light'] .journey-headline,
+html[data-theme='light'] .journey-details dd {
+  color: var(--navy);
+}
+
+html[data-theme='light'] .journey-topbar-now,
+html[data-theme='light'] .journey-details dt {
+  color: var(--slate-muted);
+}
+
+html[data-theme='light'] .journey-bar {
+  background: var(--line-navy);
+}
+
+html[data-theme='light'] .journey-bar span {
+  background: var(--cobalt);
+}
+
+html[data-theme='light'] .journey-ghost {
+  color: rgba(11, 23, 42, 0.045);
+}
+
+html[data-theme='light'] .journey-pill {
+  border-color: rgba(22, 82, 240, 0.35);
+  background: rgba(22, 82, 240, 0.06);
+  color: var(--cobalt);
+}
+
+html[data-theme='light'] .journey-body {
+  color: var(--slate-ink);
+}
+
+html[data-theme='light'] .journey-tabs button {
+  border-color: var(--line-navy);
+  background: rgba(255, 255, 255, 0.65);
+  color: var(--slate-ink);
+}
+
+html[data-theme='light'] .journey-tabs button:hover {
+  color: var(--navy);
+  border-color: var(--line-navy-strong);
+}
+
+html[data-theme='light'] .journey-tabs button.is-current {
+  background: var(--cobalt);
+  border-color: var(--cobalt);
+  color: #ffffff;
+}
+
+/* Selected Work 3D Drum in Light Mode (Deep Midnight Navy #101C35) */
+html[data-theme='light'] .work-section .works-drum {
+  border-block-color: rgba(240, 239, 235, 0.12) !important;
+  background:
+    radial-gradient(ellipse at 50% 50%, rgba(57, 120, 232, 0.18), transparent 68%),
+    #101C35 !important;
+}
+
+html[data-theme='light'] .work-section .drum-shade {
+  background: #101C35 !important;
+}
+
+html[data-theme='light'] .work-section .drum-title strong,
+html[data-theme='light'] .work-section .drum-title .text-arrow {
+  color: #F0EFEB !important;
+}
+
+html[data-theme='light'] .work-section .drum-title .text-arrow:hover,
+html[data-theme='light'] .work-section .drum-index button.is-active small {
+  color: #88b1e0 !important;
+}
+
+html[data-theme='light'] .work-section .drum-title p {
+  color: #A5B4C8 !important;
+}
+
+html[data-theme='light'] .work-section .drum-title .mono-label,
+html[data-theme='light'] .work-section .drum-counter,
+html[data-theme='light'] .work-section .drum-hint {
+  color: #8A99AD !important;
+}
+
+html[data-theme='light'] .work-section .drum-index button {
+  color: #788397 !important;
+}
+
+html[data-theme='light'] .work-section .drum-index button:hover,
+html[data-theme='light'] .work-section .drum-index button.is-active {
+  color: #F0EFEB !important;
+}
+
+html[data-theme='light'] .work-section .drum-face {
+  border-color: rgba(240, 239, 235, 0.14) !important;
+  box-shadow: 0 28px 60px rgba(0, 0, 0, 0.55) !important;
+}
+
+html[data-theme='light'] .work-section .drum-card:hover .drum-face {
+  border-color: rgba(136, 177, 224, 0.6) !important;
+}
+
+/* Client Carousel Light Mode */
+html[data-theme='light'] .client-carousel,
+html[data-theme='light'] .client-carousel .flex-carousel {
+  color: var(--navy);
+}
+
+html[data-theme='light'] .client-carousel-controls button {
+  border-color: var(--line-navy);
+  background: #ffffff;
+  color: var(--navy-soft);
+}
+
+html[data-theme='light'] .client-carousel-controls button:hover {
+  border-color: var(--cobalt);
+  color: var(--cobalt);
+}
+
+/* About Section Light Mode on Deep Midnight Navy #101C35 */
+html[data-theme='light'] .about-section .about-copy .mono-label {
+  color: #88b1e0 !important;
+}
+
+html[data-theme='light'] .about-section .about-copy h2 {
+  color: #F0EFEB !important;
+}
+
+html[data-theme='light'] .about-section .about-copy h2 em {
+  color: #88b1e0 !important;
+}
+
+html[data-theme='light'] .about-section .about-copy p {
+  color: #A5B4C8 !important;
+}
+
+html[data-theme='light'] .about-section .typing-caret {
+  background: #88b1e0 !important;
+}
+
+html[data-theme='light'] .about-section .exploring {
+  border-left-color: rgba(240, 239, 235, 0.14) !important;
+}
+
+html[data-theme='light'] .about-section .exploring .detail-label {
+  color: #8A99AD !important;
+}
+
+html[data-theme='light'] .about-section .exploring-list span {
+  border-bottom-color: rgba(240, 239, 235, 0.12) !important;
+  color: #F0EFEB !important;
+}
+
+html[data-theme='light'] .about-section .exploring-list small {
+  color: #88b1e0 !important;
+}
+
+/* Live Signal Console Light Mode */
+html[data-theme='light'] .signal-console {
+  border-color: var(--line-navy);
+  background: #ffffff;
+  box-shadow: 0 22px 48px -20px rgba(11, 23, 42, 0.12);
+}
+
+html[data-theme='light'] .console-head,
+html[data-theme='light'] .console-line-btn,
+html[data-theme='light'] .console-inspector {
+  border-color: var(--line-navy);
+}
+
+html[data-theme='light'] .console-head span:first-child,
+html[data-theme='light'] .console-lines strong,
+html[data-theme='light'] .console-inspector p {
+  color: var(--navy);
+}
+
+html[data-theme='light'] .console-lines b,
+html[data-theme='light'] .console-inspector span {
+  color: var(--cobalt);
+}
+
+html[data-theme='light'] .console-lines span,
+html[data-theme='light'] .console-head,
+html[data-theme='light'] .console-foot {
+  color: var(--slate-muted);
+}
+
+html[data-theme='light'] .console-line-btn:hover,
+html[data-theme='light'] .console-line-btn.is-selected {
+  background: rgba(22, 82, 240, 0.08);
+}
+
+html[data-theme='light'] .console-inspector {
+  background: #f4f7fc;
+}
+
+/* Research Section & Architecture in Light Mode on Deep Midnight Navy #101C35 */
+html[data-theme='light'] .research-section .research-top .mono-label {
+  color: #88b1e0 !important;
+}
+
+html[data-theme='light'] .research-section .research-top h2 {
+  color: #F0EFEB !important;
+}
+
+html[data-theme='light'] .research-section .research-top h2 em {
+  color: #88b1e0 !important;
+}
+
+html[data-theme='light'] .research-section .research-thesis {
+  color: #A5B4C8 !important;
+}
+
+html[data-theme='light'] .research-section .research-explainer {
+  border-left-color: rgba(240, 239, 235, 0.14) !important;
+}
+
+html[data-theme='light'] .research-section .research-explainer .detail-label {
+  color: #8A99AD !important;
+}
+
+html[data-theme='light'] .research-section .research-explainer p {
+  color: #C4D1E0 !important;
+}
+
+html[data-theme='light'] .research-section .architecture {
+  background: rgba(255, 255, 255, 0.03) !important;
+  border-color: rgba(240, 239, 235, 0.14) !important;
+}
+
+html[data-theme='light'] .research-section .architecture-track {
+  background: rgba(240, 239, 235, 0.14) !important;
+}
+
+html[data-theme='light'] .research-section .architecture-plus {
+  background: #101C35 !important;
+  color: #88b1e0 !important;
+}
+
+html[data-theme='light'] .research-section .arch-signal {
+  border-color: rgba(240, 239, 235, 0.2) !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+}
+
+html[data-theme='light'] .research-section button.architecture-step:hover .arch-signal,
+html[data-theme='light'] .research-section button.architecture-step.is-inspected .arch-signal {
+  border-color: #88b1e0 !important;
+  box-shadow: 0 10px 24px rgba(57, 120, 232, 0.25) !important;
+}
+
+html[data-theme='light'] .research-section .architecture-step strong {
+  color: #F0EFEB !important;
+}
+
+html[data-theme='light'] .research-section .architecture-step > span {
+  color: #8A99AD !important;
+}
+
+html[data-theme='light'] .research-section .architecture-step small {
+  color: #788397 !important;
+}
+
+html[data-theme='light'] .research-section .signal-bars b,
+html[data-theme='light'] .research-section .signal-graph::before,
+html[data-theme='light'] .research-section .signal-graph::after,
+html[data-theme='light'] .research-section .signal-ring::after {
+  background: #F0EFEB !important;
+}
+
+html[data-theme='light'] .research-section .signal-graph b,
+html[data-theme='light'] .research-section .signal-ring::before {
+  border-color: #F0EFEB !important;
+}
+
+html[data-theme='light'] .research-section .architecture-step.is-final .arch-signal {
+  border-color: #88b1e0 !important;
+  background: linear-gradient(rgba(57, 120, 232, 0.16), rgba(57, 120, 232, 0.16)), rgba(255, 255, 255, 0.04) !important;
+}
+
+html[data-theme='light'] .research-section .signal-fusion b {
+  border-color: #88b1e0 !important;
+}
+
+html[data-theme='light'] .research-section .architecture-readout {
+  background: rgba(11, 23, 42, 0.72) !important;
+  border-color: rgba(240, 239, 235, 0.14) !important;
+  color: #88b1e0 !important;
+}
+
+html[data-theme='light'] .research-section .architecture-readout code {
+  color: #F0EFEB !important;
+}
+
+/* Threat Emulation Panel in Light Mode -> Deep Midnight Navy Feature Card */
+html[data-theme='light'] .threat-panel {
+  background: #101C35 !important;
+  color: #F0EFEB !important;
+  border-top-color: rgba(240, 239, 235, 0.14) !important;
+  border-bottom-color: rgba(240, 239, 235, 0.14) !important;
+}
+
+html[data-theme='light'] .threat-copy h3 {
+  color: #F0EFEB !important;
+}
+
+html[data-theme='light'] .threat-copy p {
+  color: #A5B4C8 !important;
+}
+
+html[data-theme='light'] .threat-copy > .mono-label:first-child {
+  color: #88b1e0 !important;
+}
+
+html[data-theme='light'] .threat-copy > .mono-label:last-child {
+  color: #788397 !important;
+}
+
+html[data-theme='light'] .threat-visual-topline span:first-child {
+  color: #F0EFEB !important;
+}
+
+html[data-theme='light'] .threat-wordmark {
+  color: #F0EFEB !important;
+}
+
+html[data-theme='light'] .threat-wordmark i {
+  color: #88b1e0 !important;
+}
+
+html[data-theme='light'] .threat-wordmark-muted.is-loop-active {
+  color: #F0EFEB !important;
+  text-shadow: 0 0 20px rgba(240, 239, 235, 0.4) !important;
+}
+
+/* Dot Graph Light Mode */
+html[data-theme='light'] .dot-node-label {
+  color: var(--slate-ink);
+}
+
+html[data-theme='light'] .dot-node.is-core .dot-node-label {
+  color: #ffffff;
+}
+
+html[data-theme='light'] .dot-node.is-active .dot-node-label {
+  color: var(--cobalt);
+  font-weight: 600;
+}
+
+html[data-theme='light'] .dot-card {
+  border-color: var(--line-navy-strong);
+  background: rgba(255, 255, 255, 0.96);
+  color: var(--navy);
+  box-shadow: 0 24px 48px -16px rgba(11, 23, 42, 0.18);
+}
+
+html[data-theme='light'] .dot-card p {
+  color: var(--slate-ink);
+}
+
+html[data-theme='light'] .dot-card-actions button,
+html[data-theme='light'] .dot-card-actions a {
+  color: var(--cobalt);
+}
+
+/* Contact & Footer Light Mode */
+html[data-theme='light'] .contact-primary-cta {
+  border-color: var(--cobalt);
+  background: var(--cobalt);
+  color: #ffffff;
+}
+
+html[data-theme='light'] .contact-primary-cta:hover {
+  background: var(--cobalt-hover);
+  border-color: var(--cobalt-hover);
+}
+
+html[data-theme='light'] .contact-links,
+html[data-theme='light'] .contact-links > *,
+html[data-theme='light'] .site-footer {
+  border-color: var(--line-navy);
+}
+
+html[data-theme='light'] .contact-links > * {
+  color: var(--navy-soft);
+}
+
+html[data-theme='light'] .contact-links a:hover,
+html[data-theme='light'] .site-footer .wordmark,
+html[data-theme='light'] .site-footer a:last-child:hover {
+  color: var(--cobalt);
+}
+
+html[data-theme='light'] .site-footer {
+  background: var(--ivory-deep);
+  color: var(--slate-muted);
+}
+
+/* Command Palette & Project Modal Light Mode */
+html[data-theme='light'] .command-backdrop,
+html[data-theme='light'] .detail-backdrop {
+  background: rgba(11, 23, 42, 0.42);
+}
+
+html[data-theme='light'] .command-panel,
+html[data-theme='light'] .detail-panel {
+  border-color: var(--line-navy-strong);
+  background: #ffffff;
+  color: var(--navy);
+  box-shadow: 0 32px 90px rgba(11, 23, 42, 0.22);
+}
+
+html[data-theme='light'] .command-topline,
+html[data-theme='light'] .command-input-wrap,
+html[data-theme='light'] .command-footer,
+html[data-theme='light'] .detail-eyebrow,
+html[data-theme='light'] .detail-grid,
+html[data-theme='light'] .detail-how,
+html[data-theme='light'] .detail-bottom,
+html[data-theme='light'] .detail-method span,
+html[data-theme='light'] .detail-cycle-bar {
+  border-color: var(--line-navy);
+}
+
+html[data-theme='light'] .command-input-wrap input,
+html[data-theme='light'] .detail-heading h2,
+html[data-theme='light'] .detail-question,
+html[data-theme='light'] .detail-signal span {
+  color: var(--navy);
+}
+
+html[data-theme='light'] .command-result {
+  color: var(--navy-soft);
+}
+
+html[data-theme='light'] .command-result.is-active {
+  background: rgba(22, 82, 240, 0.1);
+  color: var(--cobalt);
+}
+
+html[data-theme='light'] .detail-heading p,
+html[data-theme='light'] .detail-answer,
+html[data-theme='light'] .detail-actually,
+html[data-theme='light'] .detail-method span {
+  color: var(--slate-ink);
+}
+
+html[data-theme='light'] .detail-eyebrow,
+html[data-theme='light'] .detail-signal i,
+html[data-theme='light'] .detail-method small {
+  color: var(--cobalt);
+}
+
+html[data-theme='light'] .tech-list span,
+html[data-theme='light'] .detail-cycle-btn,
+html[data-theme='light'] .detail-close,
+html[data-theme='light'] .icon-button {
+  border-color: var(--line-navy);
+  color: var(--navy);
+}
+
+html[data-theme='light'] .detail-cycle-btn:hover,
+html[data-theme='light'] .detail-close:hover,
+html[data-theme='light'] .icon-button:hover {
+  border-color: var(--cobalt);
+  background: var(--cobalt);
+  color: #ffffff;
+}
+
+/* Mobile Navigation Drawer Light Mode */
+html[data-theme='light'] .mobile-navigation-panel {
+  border-color: var(--line-navy-strong);
+  background: rgba(250, 249, 246, 0.98);
+  color: var(--navy);
+}
+
+html[data-theme='light'] .mobile-navigation-links,
+html[data-theme='light'] .mobile-navigation-links a {
+  border-color: var(--line-navy);
+  color: var(--navy);
+}
+
+html[data-theme='light'] .mobile-navigation-links a span {
+  color: var(--cobalt);
+}
+
+.mobile-nav-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.mobile-theme-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+  font: 500 9px var(--mono);
+  letter-spacing: 0.1em;
+  cursor: pointer;
+}
+
+html[data-theme='light'] .mobile-theme-pill {
+  border-color: var(--line-navy);
+  color: var(--navy);
+}
+
+/* Custom Cursor Light Mode Fix (No washed-out difference blend on ivory) */
+html[data-theme='light'] .cursor-dot {
+  mix-blend-mode: normal !important;
+  background: var(--navy);
+}
+
+html[data-theme='light'] .cursor-ring:not(.has-label) {
+  mix-blend-mode: normal !important;
+  border-color: rgba(22, 82, 240, 0.55);
+}
+
+html[data-theme='light'] .cursor-ring.has-label {
+  border-color: var(--cobalt);
+  background: var(--cobalt);
+  color: #ffffff;
+}
+
+/* ==========================================================================
+   4. RESPONSIVE HERO & NAVIGATION ADJUSTMENTS
+   ========================================================================== */
+
+@media (max-width: 960px) {
+  .nav-social {
+    display: none !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .nav-talk-cta span {
+    display: none;
+  }
+
+  .nav-talk-cta {
+    padding: 0 10px;
+    height: 32px;
+  }
+
+  .theme-toggle-btn span {
+    display: none;
+  }
+
+  .theme-toggle-btn {
+    padding: 0 9px;
+    height: 32px;
+  }
+
+  .site-nav .command-trigger {
+    height: 32px;
+  }
+
+  /* Mobile stacked card light-mode surface */
+  html[data-theme='light'] .work-section .drum-title {
+    background: rgba(255, 255, 255, 0.92) !important;
+    border-color: var(--line-navy) !important;
+  }
+
+  html[data-theme='light'] .journey-section.is-stacked .journey-panel {
+    background: #ffffff;
+    border-color: var(--line-navy);
+  }
+}
+
+/* Mobile Layout & Automatic Timeline Adjustments (Target: 390 x 844) */
+@media (max-width: 900px) {
+  .hero.hero--calligraphy {
+    min-height: 100svh;
+    height: auto;
+  }
+
+  .hero-calligraphy-viewport {
+    position: relative;
+    height: auto;
+    min-height: 100svh;
+    justify-content: flex-start;
+  }
+
+  .hero-skip-intro-btn {
+    top: 76px;
+  }
+
+  .hero-calligraphy-grid {
+    grid-template-columns: 1fr;
+    padding: 96px 24px 88px;
+    gap: 18px;
+  }
+
+  .hero-calligraphy-divider {
+    display: none;
+  }
+
+  .akif-canvas-stage {
+    max-width: 340px;
+    height: 165px;
+    aspect-ratio: auto;
+  }
+
+  .hero-calligraphy-right {
+    padding-left: 0;
+    width: 100%;
+  }
+
+  .hero-cal-kicker-group {
+    margin-bottom: 14px;
+    gap: 8px;
+  }
+
+  .hero-cal-eyebrow {
+    font-size: 10.5px;
+    letter-spacing: 0.16em;
+  }
+
+  .hero-cal-headline-primary {
+    font-size: clamp(36px, 9.8vw, 46px);
+  }
+
+  .hero-cal-headline-accent {
+    font-size: clamp(31px, 8.4vw, 40px);
+  }
+
+  .hero-cal-desc-br {
+    display: none;
+  }
+
+  .hero-cal-description {
+    margin-top: 16px;
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
+  .hero-cal-pillars {
+    display: none;
+  }
+
+  .hero-cal-actions {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+    margin-top: 24px;
+  }
+
+  .hero-cal-btn-primary {
+    width: 100%;
+    padding: 14px 20px;
+  }
+
+  .hero-cal-btn-secondary {
+    align-self: center;
+  }
+
+  .hero-bottom-wave {
+    height: 96px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .akif-wave-drift,
+  .akif-hint-stroke,
+  .akif-hint-feather,
+  .akif-seal-layer.is-stamped {
+    animation: none !important;
+  }
+}
+
+/* Tighten manifesto section top padding to remove empty space below hero */
+.manifesto {
+  padding-top: 48px !important;
+}
