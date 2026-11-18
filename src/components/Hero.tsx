@@ -1,3 +1,4 @@
+// File: src/components/Hero.tsx
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent, type RefObject } from 'react'
 import { ArrowRight, Code2, Layers, Share2 } from 'lucide-react'
 import { gsap } from 'gsap'
@@ -431,6 +432,9 @@ export function Hero({
   const p8SecondaryCta = itemProgress(0.86, 1.0)
 
   const showSkipButton = !reducedMotion && (writeProgress < 0.99 || introProgress < 0.95)
+  const isDark = theme === 'dark'
+  const line1Color = isDark ? '#EDE7D9' : '#1F2A4D'
+  const line2Color = isDark ? '#5890FF' : '#1F56D8'
 
   return (
     <section
@@ -512,20 +516,73 @@ export function Hero({
               />
             </div>
 
-            {/* 3. "I build systems" & 4. "that make ideas real." (Strict 2-line brush script) */}
+            {/* 3. "I build systems" & 4. "that make ideas real."
+                Hand-brushed calligraphic italic headline matching reference */}
             <h1 className="hero-cal-headline">
-              <span
-                className="hero-cal-headline-line hero-cal-headline-primary"
-                style={inkReveal(p3HeadlineLine1)}
+              <span className="sr-only">I build systems that make ideas real.</span>
+
+              <svg
+                className="hero-cal-headline-svg"
+                viewBox="0 0 540 154"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
               >
-                I build systems
-              </span>
-              <em
-                className="hero-cal-headline-line hero-cal-headline-accent"
-                style={inkReveal(p4HeadlineLine2)}
-              >
-                that make ideas real.
-              </em>
+                <defs>
+                  <filter id="heroHeadlineBrushTexture" x="-5%" y="-10%" width="110%" height="120%">
+                    <feTurbulence
+                      type="fractalNoise"
+                      baseFrequency="0.055 0.16"
+                      numOctaves="3"
+                      seed="12"
+                      result="grain"
+                    />
+                    <feDisplacementMap
+                      in="SourceGraphic"
+                      in2="grain"
+                      scale="1.85"
+                      xChannelSelector="R"
+                      yChannelSelector="G"
+                    />
+                  </filter>
+                </defs>
+
+                {/* LINE 1: "I build systems" */}
+                <g
+                  className="hero-cal-headline-svg-line1"
+                  style={inkReveal(p3HeadlineLine1)}
+                  filter="url(#heroHeadlineBrushTexture)"
+                >
+                  <text
+                    x="2"
+                    y="67"
+                    fill={line1Color}
+                    fontFamily="'Kaushan Script', 'Caveat', Georgia, serif"
+                    fontSize="64"
+                    letterSpacing="0.5"
+                  >
+                    I build systems
+                  </text>
+                </g>
+
+                {/* LINE 2: "that make ideas real." */}
+                <g
+                  className="hero-cal-headline-svg-line2"
+                  style={inkReveal(p4HeadlineLine2)}
+                  filter="url(#heroHeadlineBrushTexture)"
+                >
+                  <text
+                    x="2"
+                    y="134"
+                    fill={line2Color}
+                    fontFamily="'Kaushan Script', 'Caveat', Georgia, serif"
+                    fontSize="57"
+                    letterSpacing="0.4"
+                  >
+                    that make ideas real.
+                  </text>
+                </g>
+              </svg>
             </h1>
 
             {/* 5. Supporting Description */}
@@ -550,15 +607,15 @@ export function Hero({
               }}
             >
               <div className="hero-cal-pillar">
-                <Code2 size={22} strokeWidth={1.6} aria-hidden="true" />
+                <Code2 size={22} strokeWidth={1.7} aria-hidden="true" />
                 <span>Build</span>
               </div>
               <div className="hero-cal-pillar">
-                <Layers size={22} strokeWidth={1.6} aria-hidden="true" />
+                <Layers size={22} strokeWidth={1.7} aria-hidden="true" />
                 <span>Research</span>
               </div>
               <div className="hero-cal-pillar">
-                <Share2 size={22} strokeWidth={1.6} aria-hidden="true" />
+                <Share2 size={22} strokeWidth={1.7} aria-hidden="true" />
                 <span>Ship</span>
               </div>
             </div>
@@ -576,7 +633,7 @@ export function Hero({
                 }}
               >
                 <span>Explore my work</span>
-                <ArrowRight size={15} strokeWidth={2.1} aria-hidden="true" />
+                <ArrowRight size={16} strokeWidth={2.2} aria-hidden="true" />
               </a>
 
               <a

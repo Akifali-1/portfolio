@@ -1,3 +1,4 @@
+// File: src/components/Navigation.tsx
 import { Menu, Moon, Sun, X } from 'lucide-react'
 import { siteConfig } from '../data'
 import type { PortfolioTheme } from '../hooks/useTheme'
@@ -48,9 +49,8 @@ export function Navigation({
           ))}
         </nav>
 
-        {/* Right Nav Actions: [ GITHUB ] [ LINKEDIN ] [ EMAIL ] + ⌘ COMMAND K + Light/Dark Toggle */}
+        {/* Right Nav Actions: [ GITHUB ] [ LINKEDIN ] [ EMAIL ] + ⌘ Command K + Light/Dark Toggle */}
         <div className="nav-actions">
-          {/* Social links with [ ... ] design */}
           <div className="nav-social" aria-label="Social links">
             <a
               href={siteConfig.github}
@@ -94,11 +94,11 @@ export function Navigation({
             aria-label="Open command palette"
           >
             <span className="command-trigger-icon">⌘</span>
-            <span className="command-trigger-label">COMMAND</span>
+            <span className="command-trigger-label">Command</span>
             <span className="command-trigger-key">K</span>
           </button>
 
-          {/* Light / Dark Mode Toggle */}
+          {/* Light / Dark Mode Toggle (Moon in Dark Mode, Sun in Light Mode matching references) */}
           <button
             className="theme-toggle-btn"
             type="button"
@@ -107,7 +107,7 @@ export function Navigation({
             title={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
             data-cursor={theme === 'light' ? 'DARK' : 'LIGHT'}
           >
-            {theme === 'light' ? <Moon size={14} strokeWidth={1.8} /> : <Sun size={14} strokeWidth={1.8} />}
+            {theme === 'dark' ? <Moon size={15} strokeWidth={1.8} /> : <Sun size={15} strokeWidth={1.8} />}
           </button>
 
           {/* Mobile hamburger menu */}

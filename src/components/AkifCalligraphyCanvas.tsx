@@ -1,3 +1,4 @@
+// File: src/components/AkifCalligraphyCanvas.tsx
 import { useEffect, useRef } from 'react'
 import type { PortfolioTheme } from '../hooks/useTheme'
 
@@ -11,178 +12,221 @@ type StrokeSpec = {
   maskWidth: number
   /** Relative share of the total 0..1 writing progress */
   weight: number
-  /** Primary filled calligraphy silhouette with variable thickness & tapered ends */
+  /** Primary chiseled calligraphy silhouette with angular brush-press entries & tapered exits */
   body: string
-  /** Fine outer bristle hairs & dry-brush streaks */
+  /** Inner tonal brush streaks (gives Light Mode its two-tone indigo ink depth & Dark Mode richness) */
+  innerTonePaths?: string[]
+  /** Outer dry-brush bristle hairs & feathered exit streaks */
   bristles?: string[]
-  /** Internal flying-white (feibai) dry-brush split lines carved out of the stroke */
+  /** Internal flying-white (feibai) dry-brush split cutouts */
   drySplits?: string[]
 }
 
 /**
- * High-precision SVG brush paths matching Reference 2 (viewBox 0 0 680 430).
+ * Chiseled sumi-e brush paths matching Reference 3 & Reference 4 (viewBox 0 0 680 430).
  */
 const CALLIGRAPHY_STROKES: StrokeSpec[] = [
-  // 1. Letter 'A' — Left diagonal sweep with dry-brush feathered base
+  // 1. Letter 'A' — Left diagonal sweep with notched brush-press apex & frayed dry-brush foot
   {
     id: 'a-left',
     weight: 0.12,
-    maskWidth: 64,
-    spine: 'M 192 84 C 154 156 104 258 38 382',
-    body: 'M 196 72 C 182 72 168 92 150 126 C 118 188 78 274 28 382 C 32 388 42 378 58 352 C 102 276 152 182 198 102 C 206 86 204 72 196 72 Z',
+    maskWidth: 68,
+    spine: 'M 192 80 C 150 154 98 258 32 392',
+    body: 'M 182 68 L 194 64 L 204 74 L 200 94 C 158 176 106 274 56 362 L 42 384 L 35 376 L 31 394 L 24 398 L 28 374 L 21 382 L 34 348 C 82 254 134 156 176 82 Z',
+    innerTonePaths: [
+      'M 188 78 C 146 158 96 258 36 376',
+      'M 196 86 C 154 166 104 262 48 364',
+    ],
     bristles: [
-      'M 188 78 C 148 160 96 266 26 392',
-      'M 196 88 C 156 168 106 270 36 396',
-      'M 78 302 C 58 338 40 370 22 398',
-      'M 92 296 C 72 332 54 364 40 388',
+      'M 184 74 C 142 158 88 268 20 398',
+      'M 194 84 C 152 166 100 272 30 402',
+      'M 76 306 C 54 344 36 376 18 404',
+      'M 90 298 C 68 336 50 368 34 394',
     ],
     drySplits: [
-      'M 186 86 C 150 162 102 262 34 384',
-      'M 192 96 C 156 172 110 266 46 374',
+      'M 186 82 C 146 162 94 266 26 392',
+      'M 194 94 C 154 172 104 268 42 380',
+      'M 68 318 C 48 352 34 378 22 398',
     ],
   },
-  // 2. Letter 'A' — Heavy vertical-curved right spine
+  // 2. Letter 'A' — Heavy chiseled right vertical-curved spine with sharp basal taper
   {
     id: 'a-right',
     weight: 0.12,
-    maskWidth: 64,
-    spine: 'M 184 74 C 176 154 174 248 190 344',
-    body: 'M 174 66 C 164 78 162 122 160 182 C 158 242 164 298 184 352 C 192 362 200 348 199 320 C 196 258 196 176 208 92 C 210 72 186 58 174 66 Z',
+    maskWidth: 66,
+    spine: 'M 186 72 C 178 156 176 252 192 354',
+    body: 'M 172 64 L 188 58 L 208 72 L 210 92 C 198 176 196 258 202 326 L 198 358 L 191 348 L 188 364 L 180 348 C 160 294 156 232 158 172 C 160 118 162 78 172 64 Z',
+    innerTonePaths: [
+      'M 182 74 C 174 160 176 254 190 348',
+      'M 194 80 C 186 164 186 252 196 338',
+    ],
     bristles: [
-      'M 178 72 C 172 162 172 258 188 356',
-      'M 194 78 C 188 166 188 256 196 346',
-      'M 178 312 C 182 334 188 352 194 364',
+      'M 178 70 C 170 162 170 260 188 360',
+      'M 196 76 C 188 166 188 258 196 350',
     ],
     drySplits: [
-      'M 182 82 C 176 168 178 258 190 344',
+      'M 184 80 C 176 168 178 258 190 348',
+      'M 192 108 C 186 184 186 264 195 342',
     ],
   },
-  // 3. Letter 'A' — Sweeping horizontal crossbar extending left of A
+  // 3. Letter 'A' — Bold projecting horizontal crossbar with notched left brush attack
   {
     id: 'a-bar',
     weight: 0.09,
-    maskWidth: 56,
-    spine: 'M 42 276 C 106 254 174 236 238 228',
-    body: 'M 32 276 C 34 292 56 298 92 286 C 138 268 186 248 242 230 C 248 227 244 220 228 222 C 172 226 106 242 44 264 C 34 268 30 271 32 276 Z',
+    maskWidth: 58,
+    spine: 'M 34 280 C 104 256 176 236 244 226',
+    body: 'M 22 276 L 38 262 C 104 240 174 224 234 220 L 250 226 L 238 234 C 182 248 134 268 86 288 C 54 300 32 296 26 284 L 18 282 Z',
+    innerTonePaths: [
+      'M 32 278 C 102 256 174 236 238 228',
+    ],
     bristles: [
-      'M 26 280 C 96 258 174 238 246 226',
-      'M 38 290 C 106 268 178 244 236 232',
+      'M 20 282 C 94 258 176 236 250 224',
+      'M 32 292 C 104 268 180 242 242 230',
     ],
     drySplits: [
-      'M 42 280 C 108 258 176 238 234 228',
+      'M 36 282 C 106 258 178 238 240 226',
     ],
   },
-  // 4. Letter 'K' — Bold tilted backbone
+  // 4. Letter 'K' — Heavy slanted backbone with double-notched top brush press
   {
     id: 'k-spine',
     weight: 0.11,
-    maskWidth: 62,
-    spine: 'M 258 112 C 244 188 226 268 222 342',
-    body: 'M 244 102 C 232 114 226 164 216 226 C 206 280 206 324 218 350 C 226 354 232 338 236 298 C 246 236 264 166 278 120 C 282 104 258 92 244 102 Z',
+    maskWidth: 64,
+    spine: 'M 258 110 C 244 188 226 270 222 348',
+    body: 'M 240 100 L 254 92 L 264 102 L 274 98 L 280 116 C 264 166 246 236 236 300 L 230 342 L 224 358 L 218 346 L 214 354 C 204 324 204 278 214 224 C 224 162 230 114 240 100 Z',
+    innerTonePaths: [
+      'M 256 108 C 240 188 224 268 220 342',
+    ],
     bristles: [
-      'M 252 108 C 238 188 222 270 218 352',
-      'M 266 116 C 248 192 232 270 228 340',
+      'M 252 106 C 238 188 222 272 218 354',
+      'M 268 114 C 250 192 232 272 228 344',
     ],
     drySplits: [
-      'M 258 118 C 242 192 226 268 222 338',
+      'M 258 116 C 242 192 226 270 222 342',
+      'M 266 124 C 250 196 234 268 228 334',
     ],
   },
-  // 5. Letter 'K' — Upper right flared brush wing with dry bristle tip
+  // 5. Letter 'K' — Flared upper-right wing with multi-forked dry-brush bristle tips
   {
     id: 'k-arm',
     weight: 0.1,
-    maskWidth: 62,
-    spine: 'M 338 116 C 312 156 274 198 230 234',
-    body: 'M 330 98 C 324 112 302 142 270 174 C 246 198 224 218 218 232 C 222 244 246 234 278 208 C 314 178 346 146 354 124 C 358 108 338 94 330 98 Z',
+    maskWidth: 64,
+    spine: 'M 342 112 C 314 154 274 198 228 234',
+    body: 'M 332 92 L 340 104 L 348 96 L 354 112 L 360 108 L 356 128 C 344 150 312 180 276 210 C 244 236 222 244 218 232 C 224 218 246 196 270 172 C 304 140 324 108 332 92 Z',
+    innerTonePaths: [
+      'M 344 108 C 318 148 280 188 232 228',
+    ],
     bristles: [
-      'M 336 94 C 322 128 286 172 232 226',
-      'M 346 106 C 324 146 286 188 236 232',
-      'M 352 118 C 328 156 288 196 242 236',
+      'M 336 90 C 320 126 284 172 230 226',
+      'M 348 102 C 324 144 286 188 236 232',
+      'M 358 114 C 330 154 288 196 242 236',
     ],
     drySplits: [
-      'M 342 108 C 316 148 280 188 234 228',
+      'M 344 104 C 318 146 280 188 234 228',
+      'M 352 116 C 324 154 286 194 240 232',
     ],
   },
-  // 6. Letter 'K' — Lower right sweeping leg with heavy taper
+  // 6. Letter 'K' — Sweeping lower-right leg with ragged dry-brush exit tail
   {
     id: 'k-leg',
     weight: 0.11,
-    maskWidth: 62,
-    spine: 'M 224 222 C 266 256 308 298 348 338',
-    body: 'M 214 220 C 210 234 228 256 260 286 C 292 316 322 338 350 348 C 356 348 348 330 330 306 C 298 268 262 234 228 214 C 220 210 216 214 214 220 Z',
+    maskWidth: 64,
+    spine: 'M 224 220 C 266 256 310 300 352 342',
+    body: 'M 214 218 C 216 212 222 210 230 214 C 266 234 302 268 334 306 L 356 336 L 348 338 L 358 352 L 342 346 C 314 334 284 312 254 282 C 224 252 210 232 214 218 Z',
+    innerTonePaths: [
+      'M 226 224 C 268 260 312 302 348 340',
+    ],
     bristles: [
-      'M 224 226 C 266 262 310 306 352 348',
-      'M 232 218 C 274 254 318 296 356 338',
+      'M 224 226 C 268 264 314 308 356 352',
+      'M 232 218 C 276 256 320 298 360 342',
     ],
     drySplits: [
-      'M 230 226 C 272 262 314 302 348 340',
+      'M 230 224 C 274 262 316 304 352 344',
+      'M 262 256 C 296 288 326 318 350 346',
     ],
   },
-  // 7. Letter 'I' — Crisp diagonal slash stroke
+  // 7. Letter 'I' — Diagonal slash stroke with wide chiseled top head & split dry-brush tail
   {
     id: 'i-slash',
     weight: 0.09,
-    maskWidth: 58,
-    spine: 'M 392 122 C 374 186 354 256 342 324',
-    body: 'M 380 108 C 368 118 356 166 344 226 C 334 274 330 314 338 332 C 344 336 354 314 366 270 C 382 214 398 160 408 128 C 412 114 390 102 380 108 Z',
+    maskWidth: 60,
+    spine: 'M 392 120 C 374 186 354 256 340 328',
+    body: 'M 376 106 L 390 100 L 402 110 L 412 124 C 402 158 384 214 366 272 L 350 320 L 342 338 L 338 326 L 332 336 C 328 314 332 272 344 224 C 356 164 366 116 376 106 Z',
+    innerTonePaths: [
+      'M 390 116 C 372 184 352 256 340 322',
+    ],
     bristles: [
-      'M 388 114 C 370 184 350 258 340 330',
-      'M 398 122 C 380 190 360 260 348 322',
+      'M 388 112 C 370 184 350 260 338 334',
+      'M 400 120 C 380 190 360 262 346 326',
     ],
     drySplits: [
-      'M 392 118 C 374 186 354 256 344 322',
+      'M 392 116 C 374 186 354 258 342 326',
     ],
   },
-  // 8. Letter 'F' — Tall dramatic slanted spine descending below baseline
+  // 8. Letter 'F' — Tall dramatic slanted spine descending into a long razor-split tail
   {
     id: 'f-spine',
     weight: 0.11,
-    maskWidth: 64,
-    spine: 'M 444 102 C 416 194 380 296 340 384',
-    body: 'M 432 94 C 420 110 402 174 382 246 C 362 310 344 362 330 394 C 336 398 352 376 372 334 C 402 270 432 188 458 114 C 462 98 442 88 432 94 Z',
+    maskWidth: 66,
+    spine: 'M 444 100 C 416 194 378 298 336 392',
+    body: 'M 426 94 L 444 86 L 462 104 L 460 120 C 434 192 404 274 372 338 L 348 384 L 336 402 L 334 390 L 324 404 L 332 378 C 346 348 362 300 382 242 C 402 170 416 110 426 94 Z',
+    innerTonePaths: [
+      'M 442 104 C 412 196 376 298 338 384',
+      'M 450 114 C 420 202 386 298 348 372',
+    ],
     bristles: [
-      'M 440 102 C 410 196 374 302 332 396',
-      'M 450 110 C 420 202 384 302 344 386',
-      'M 366 326 C 352 356 338 382 326 402',
+      'M 440 100 C 410 196 372 304 328 402',
+      'M 452 108 C 422 202 384 304 342 392',
+      'M 366 326 C 350 358 336 386 322 408',
     ],
     drySplits: [
-      'M 442 108 C 414 198 378 298 338 386',
-      'M 450 118 C 422 204 388 298 350 374',
+      'M 442 106 C 414 198 376 300 334 394',
+      'M 450 116 C 422 204 386 300 346 380',
     ],
   },
-  // 9. Letter 'F' — Top sweeping dry-brush cap bar with feathered right tips
+  // 9. Letter 'F' — Top sweeping dry-brush cap bar with long parallel feibai bristle streaks
   {
     id: 'f-top',
     weight: 0.08,
-    maskWidth: 58,
-    spine: 'M 420 100 C 474 76 538 66 602 70',
-    body: 'M 410 98 C 408 112 428 122 462 110 C 506 94 556 82 606 76 C 614 74 608 66 588 62 C 536 54 472 66 420 88 C 412 91 410 94 410 98 Z',
+    maskWidth: 60,
+    spine: 'M 418 100 C 474 74 540 64 612 68',
+    body: 'M 408 98 C 406 90 414 84 426 80 C 476 62 540 52 594 58 L 622 64 L 606 67 L 626 72 L 602 74 L 616 79 C 562 82 508 94 462 110 C 428 122 410 112 408 98 Z',
+    innerTonePaths: [
+      'M 426 94 C 484 72 548 64 606 68',
+    ],
     bristles: [
-      'M 424 92 C 482 70 548 60 614 66',
-      'M 430 104 C 488 82 552 72 608 76',
-      'M 538 62 C 568 58 596 60 620 65',
-      'M 548 72 C 576 70 600 72 618 76',
+      'M 424 90 C 484 68 552 58 624 64',
+      'M 430 102 C 490 80 556 70 618 75',
+      'M 532 60 C 566 56 598 58 628 63',
+      'M 542 70 C 574 68 602 70 624 74',
+      'M 552 78 C 578 77 602 78 618 81',
     ],
     drySplits: [
-      'M 436 96 C 492 74 554 66 610 70',
-      'M 488 86 C 536 74 578 70 612 74',
+      'M 434 94 C 492 72 556 64 618 68',
+      'M 484 84 C 536 72 582 68 620 72',
+      'M 526 76 C 562 72 594 74 618 77',
     ],
   },
-  // 10. Letter 'F' — Middle horizontal sweep terminating in dry-brush stipple & brush tip
+  // 10. Letter 'F' — Middle horizontal sweep dissolving into dry-brush stipple foam at the brush tip
   {
     id: 'f-mid',
     weight: 0.07,
-    maskWidth: 58,
-    spine: 'M 392 230 C 444 204 498 204 550 232',
-    body: 'M 382 230 C 380 244 398 250 428 238 C 462 222 496 218 530 236 C 542 241 552 240 556 234 C 554 226 536 214 510 202 C 472 186 426 198 390 220 C 384 223 382 226 382 230 Z',
+    maskWidth: 60,
+    spine: 'M 388 232 C 442 202 496 202 552 234',
+    body: 'M 376 232 L 388 218 C 426 196 472 184 510 200 C 534 210 550 222 556 232 C 550 240 538 242 524 236 C 492 218 458 222 424 238 C 396 250 378 246 376 232 Z',
+    innerTonePaths: [
+      'M 394 228 C 444 202 496 204 546 232',
+    ],
     bristles: [
-      'M 396 226 C 446 200 496 202 550 230',
-      'M 406 236 C 454 214 502 214 554 236',
-      'M 488 212 C 514 218 538 228 556 234',
+      'M 392 226 C 444 198 496 200 552 230',
+      'M 402 236 C 452 212 502 212 554 236',
+      'M 482 210 C 510 216 536 226 556 234',
+      'M 492 218 C 518 224 540 232 556 238',
     ],
     drySplits: [
-      'M 412 228 C 458 206 504 208 550 232',
-      'M 476 214 C 506 218 532 228 552 236',
+      'M 408 228 C 456 204 504 206 552 232',
+      'M 468 212 C 500 216 530 226 552 236',
+      'M 488 220 C 514 226 536 234 554 239',
     ],
   },
 ]
@@ -199,13 +243,36 @@ type AkifCalligraphyCanvasProps = {
   pointerPos: { x: number; y: number }
 }
 
-const SPATTER = (() => {
-  let s = 7
+/** Deterministic dry-brush foam stipple cluster between F's middle bar and the brush bristles */
+const DRY_BRUSH_FOAM = (() => {
+  let seed = 19
+  const rand = () => (seed = (seed * 16807) % 2147483647) / 2147483647
+  return Array.from({ length: 42 }, (_, idx) => {
+    const t = idx / 41
+    const baseX = 488 + t * 66 + (rand() - 0.5) * 8
+    const baseY = 208 + t * 26 + (rand() - 0.5) * 14
+    return {
+      x: baseX,
+      y: baseY,
+      r: 0.7 + rand() * 2.1,
+      o: 0.35 + rand() * 0.6,
+    }
+  })
+})()
+
+/** Deterministic fine watercolor spatter droplets around the outer ink wash cloud */
+const WASH_SPATTER = (() => {
+  let s = 11
   const r = () => (s = (s * 16807) % 2147483647) / 2147483647
-  return Array.from({ length: 46 }, () => {
+  return Array.from({ length: 36 }, () => {
     const a = r() * Math.PI * 2
-    const d = 150 + r() * 150
-    return { x: 270 + Math.cos(a) * d * 1.35, y: 215 + Math.sin(a) * d * 0.8, r: 0.9 + r() * 3.2, o: 0.18 + r() * 0.4 }
+    const d = 145 + r() * 140
+    return {
+      x: 265 + Math.cos(a) * d * 1.32,
+      y: 212 + Math.sin(a) * d * 0.78,
+      r: 1.1 + r() * 3.4,
+      o: 0.16 + r() * 0.32,
+    }
   })
 })()
 
@@ -229,9 +296,10 @@ export function AkifCalligraphyCanvas({
   const trailPointsRef = useRef<Array<{ x: number; y: number }>>([])
 
   const isDark = theme === 'dark'
-  const inkColor = isDark ? '#EDE7D9' : '#1F2A4D'
-  const bgCutoutColor = isDark ? '#0B0E13' : '#DCE3F0'
-  const sealColor = isDark ? '#E0583E' : '#C2402A'
+  const inkColor = isDark ? '#EDE7D9' : '#182342'
+  const innerToneColor = isDark ? '#DFD7C4' : '#4A6396'
+  const bgCutoutColor = isDark ? '#12161E' : '#DCE4F2'
+  const sealColor = isDark ? '#E0583E' : '#C8432C'
   const sealTextColor = isDark ? '#F5EFE2' : '#FAF6EE'
 
   // Measure exact SVG path lengths on mount
@@ -297,13 +365,14 @@ export function AkifCalligraphyCanvas({
 
     if (activeSpine) {
       try {
+        // When complete, rest the brush tip at (554, 234) angled steeply (~28 deg local = ~60 deg shaft angle matching Reference 3 & 4)
         if (clampedProgress >= 0.995) {
           tipGroup.style.opacity = '1'
-          tipGroup.setAttribute('transform', 'translate(554, 232) rotate(28)')
+          tipGroup.setAttribute('transform', 'translate(554, 234) rotate(0)')
         } else {
           const dist = Math.max(0, Math.min(activeLen, activeLocalProgress * activeLen))
           const pt = activeSpine.getPointAtLength(dist)
-          const tilt = 25 + Math.min(12, velocity * 9)
+          const tilt = Math.min(12, velocity * 8)
           tipGroup.style.opacity = '1'
           tipGroup.setAttribute(
             'transform',
@@ -326,7 +395,7 @@ export function AkifCalligraphyCanvas({
     }
   }, [progress, velocity])
 
-  const dryBrushOpacity = Math.min(1, 0.78 + velocity * 0.22)
+  const dryBrushOpacity = Math.min(1, 0.8 + velocity * 0.2)
 
   return (
     <div className="akif-canvas-stage">
@@ -340,79 +409,81 @@ export function AkifCalligraphyCanvas({
         aria-label="AKIF interactive brush calligraphy artwork"
       >
         <defs>
+          {/* Distressed carved stamp filter for the vermilion AK / IF seal */}
           <filter id="akifSealRough" x="-10%" y="-10%" width="120%" height="120%">
-            <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="3" result="n" />
-            <feDisplacementMap in="SourceGraphic" in2="n" scale="1.4" xChannelSelector="R" yChannelSelector="G" result="d" />
-            <feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -8 6" result="holes" />
+            <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="3" result="n" />
+            <feDisplacementMap in="SourceGraphic" in2="n" scale="1.5" xChannelSelector="R" yChannelSelector="G" result="d" />
+            <feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -7 5.6" result="holes" />
             <feComposite in="d" in2="holes" operator="in" />
           </filter>
-          {/* Subtle organic dry-brush edge filter (scale=1.9 so strokes stay crisp, never jagged) */}
-          <filter id="akifCrispBrushEdge" x="-5%" y="-5%" width="110%" height="110%">
+
+          {/* Crisp directional sumi-e dry-brush bristle edge filter */}
+          <filter id="akifCrispBrushEdge" x="-6%" y="-6%" width="112%" height="112%">
             <feTurbulence
               type="fractalNoise"
-              baseFrequency="0.05 0.2"
+              baseFrequency="0.045 0.18"
               numOctaves="3"
-              seed="7"
+              seed="9"
               result="bristleNoise"
             />
             <feDisplacementMap
               in="SourceGraphic"
               in2="bristleNoise"
-              scale="3"
+              scale="3.6"
               xChannelSelector="R"
               yChannelSelector="G"
             />
           </filter>
 
-          {/* Prominent Smoky Whitish-Charcoal Watercolor / Ink-Wash Cloud Filter matching Reference 2 */}
+          {/* Structured Watercolor / Sumi-e Cloud Filter with distinct organic paper-bleed lobes */}
           <filter id="akifSmokyWashCloud" x="-35%" y="-35%" width="170%" height="170%">
             <feTurbulence
               type="fractalNoise"
-              baseFrequency="0.03 0.04"
+              baseFrequency="0.028 0.036"
               numOctaves="4"
-              seed="14"
+              seed="17"
               result="cloudNoise"
             />
             <feDisplacementMap
               in="SourceGraphic"
               in2="cloudNoise"
-              scale="78"
+              scale="82"
               xChannelSelector="R"
               yChannelSelector="G"
               result="warpedCloud"
             />
-            <feGaussianBlur in="warpedCloud" stdDeviation="3.5" result="softCloud" />
+            <feGaussianBlur in="warpedCloud" stdDeviation="2.2" result="softCloud" />
           </filter>
 
-          {/* Secondary fine watercolor edge texture for outer ink-wash billows */}
+          {/* Secondary crisp watercolor bloom filter for inner smoky mottling */}
           <filter id="akifWashFineEdge" x="-25%" y="-25%" width="150%" height="150%">
             <feTurbulence
               type="fractalNoise"
-              baseFrequency="0.032"
+              baseFrequency="0.042"
               numOctaves="3"
-              seed="23"
+              seed="29"
               result="fineNoise"
             />
-            <feDisplacementMap in="SourceGraphic" in2="fineNoise" scale="36" result="warped" />
-            <feGaussianBlur in="warped" stdDeviation="3.5" />
+            <feDisplacementMap in="SourceGraphic" in2="fineNoise" scale="44" result="warped" />
+            <feGaussianBlur in="warped" stdDeviation="1.8" />
           </filter>
 
-          {/* Radial gradients for smoky whitish-gray ink wash in Dark Mode & ice-blue wash in Light Mode */}
+          {/* Radial gradients for smoky whitish-gray ink wash in Dark Mode & ice-blue watercolor in Light Mode */}
           <radialGradient id="akifWashCoreGrad" cx="50%" cy="50%" r="50%">
             <stop
               offset="0%"
-              stopColor={isDark ? '#8F9BB0' : '#A8BCE0'}
-              stopOpacity={isDark ? '0.42' : '0.52'}
+              stopColor={isDark ? '#9BA7BC' : '#96B0DC'}
+              stopOpacity={isDark ? '0.46' : '0.58'}
             />
             <stop
-              offset="52%"
-              stopColor={isDark ? '#4E586B' : '#C2D1EA'}
-              stopOpacity={isDark ? '0.28' : '0.38'}
+              offset="54%"
+              stopColor={isDark ? '#545F73' : '#B8CAE6'}
+              stopOpacity={isDark ? '0.32' : '0.42'}
             />
             <stop
-              offset="82%"
-              stopColor={isDark ? '#272D38' : '#DAE3F2'}
-              stopOpacity={isDark ? '0.14' : '0.18'}
+              offset="85%"
+              stopColor={isDark ? '#2A303C' : '#D5E0F2'}
+              stopOpacity={isDark ? '0.16' : '0.22'}
             />
             <stop offset="100%" stopColor={isDark ? '#000000' : '#F4F2EC'} stopOpacity="0" />
           </radialGradient>
@@ -420,13 +491,13 @@ export function AkifCalligraphyCanvas({
           <radialGradient id="akifWashHighlightGrad" cx="48%" cy="44%" r="48%">
             <stop
               offset="0%"
-              stopColor={isDark ? '#C2CCDC' : '#96B0DC'}
-              stopOpacity={isDark ? '0.28' : '0.42'}
+              stopColor={isDark ? '#CDD6E6' : '#88A6D8'}
+              stopOpacity={isDark ? '0.32' : '0.48'}
             />
             <stop
-              offset="60%"
-              stopColor={isDark ? '#667185' : '#BCCCE6'}
-              stopOpacity={isDark ? '0.16' : '0.24'}
+              offset="62%"
+              stopColor={isDark ? '#6D798E' : '#B4C6E4'}
+              stopOpacity={isDark ? '0.18' : '0.28'}
             />
             <stop offset="100%" stopColor={isDark ? '#000000' : '#F4F2EC'} stopOpacity="0" />
           </radialGradient>
@@ -474,8 +545,8 @@ export function AkifCalligraphyCanvas({
         </defs>
 
         {/* =================================================================
-            LAYER 1: PROMINENT SMOKY WHITISH-CHARCOAL INK WASH BEHIND AKIF
-            Matches the organic smoky clouds around A, K, I, F in Reference 2
+            LAYER 1: STRUCTURED SUMI-E / WATERCOLOR INK-WASH CLOUD BEHIND AKIF
+            Matches the distinct billowing lobes in Reference 3 & Reference 4
             ================================================================= */}
         <g
           className="akif-ink-wash-layer"
@@ -484,71 +555,88 @@ export function AkifCalligraphyCanvas({
             transition: 'opacity 0.4s ease-out',
           }}
         >
-          {/* Broad smoky outer ink-wash cloud */}
+          {/* Multi-lobed watercolor cloud base */}
           <g filter="url(#akifSmokyWashCloud)">
-            <ellipse cx="260" cy="212" rx="235" ry="155" fill="url(#akifWashCoreGrad)" />
-            <ellipse cx="195" cy="185" rx="165" ry="130" fill="url(#akifWashHighlightGrad)" />
-            <ellipse cx="355" cy="220" rx="170" ry="128" fill="url(#akifWashCoreGrad)" />
-            {/* Upper smoky plumes above A, K, I */}
+            <ellipse cx="262" cy="210" rx="242" ry="158" fill="url(#akifWashCoreGrad)" />
+            <ellipse cx="192" cy="182" rx="170" ry="134" fill="url(#akifWashHighlightGrad)" />
+            <ellipse cx="358" cy="218" rx="175" ry="130" fill="url(#akifWashCoreGrad)" />
+            {/* Distinct upper-left & top billowing plumes above A, K, I */}
             <circle
-              cx="235"
-              cy="92"
-              r="72"
-              fill={isDark ? '#586275' : '#BDCCE4'}
-              fillOpacity={isDark ? '0.26' : '0.35'}
-            />
-            <circle
-              cx="330"
-              cy="96"
-              r="64"
-              fill={isDark ? '#4E5768' : '#C6D4EA'}
-              fillOpacity={isDark ? '0.24' : '0.32'}
-            />
-            <circle
-              cx="118"
-              cy="152"
+              cx="232"
+              cy="88"
               r="76"
-              fill={isDark ? '#5C667A' : '#B8C8E2'}
-              fillOpacity={isDark ? '0.25' : '0.34'}
+              fill={isDark ? '#626D82' : '#B2C4E2'}
+              fillOpacity={isDark ? '0.3' : '0.42'}
             />
-            {/* Lower smoky billows beneath A & K */}
+            <circle
+              cx="332"
+              cy="94"
+              r="68"
+              fill={isDark ? '#566073' : '#BCCCE6'}
+              fillOpacity={isDark ? '0.28' : '0.38'}
+            />
+            <circle
+              cx="114"
+              cy="148"
+              r="82"
+              fill={isDark ? '#667186' : '#AEC2E0'}
+              fillOpacity={isDark ? '0.28' : '0.4'}
+            />
+            <circle
+              cx="64"
+              cy="208"
+              r="58"
+              fill={isDark ? '#586376' : '#B8CAE6'}
+              fillOpacity={isDark ? '0.26' : '0.36'}
+            />
+            {/* Lower smoky billows beneath A, K, I */}
             <ellipse
               cx="248"
-              cy="332"
-              rx="135"
-              ry="68"
-              fill={isDark ? '#4A5363' : '#C2D0E8'}
-              fillOpacity={isDark ? '0.24' : '0.32'}
+              cy="336"
+              rx="142"
+              ry="72"
+              fill={isDark ? '#525C6E' : '#B8CAE6'}
+              fillOpacity={isDark ? '0.28' : '0.38'}
             />
           </g>
 
-          {/* Textured watercolor billows & organic splatter clouds */}
+          {/* Crisp inner watercolor blooms & mottled smoky highlights */}
           <g filter="url(#akifWashFineEdge)">
-            <ellipse
-              cx="245"
-              cy="198"
-              rx="145"
-              ry="96"
-              fill="url(#akifWashHighlightGrad)"
+            <ellipse cx="242" cy="196" rx="152" ry="102" fill="url(#akifWashHighlightGrad)" />
+            <circle
+              cx="222"
+              cy="132"
+              r="54"
+              fill={isDark ? '#8E9BB0' : '#9EB6DF'}
+              fillOpacity={isDark ? '0.22' : '0.32'}
             />
             <circle
-              cx="74"
-              cy="228"
-              r="42"
-              fill={isDark ? '#525C6E' : '#C4D2E8'}
-              fillOpacity={isDark ? '0.22' : '0.3'}
+              cx="296"
+              cy="258"
+              r="52"
+              fill={isDark ? '#8A96AC' : '#A4BCE2'}
+              fillOpacity={isDark ? '0.22' : '0.32'}
             />
             <circle
               cx="458"
-              cy="238"
-              r="48"
-              fill={isDark ? '#4D5668' : '#C4D2E8'}
-              fillOpacity={isDark ? '0.2' : '0.28'}
+              cy="236"
+              r="50"
+              fill={isDark ? '#545E70' : '#BCCCE6'}
+              fillOpacity={isDark ? '0.22' : '0.3'}
             />
           </g>
-          <g>
-            {SPATTER.map((d, i) => (
-              <circle key={i} cx={d.x} cy={d.y} r={d.r} fill={isDark ? '#6B7588' : '#9FB3D8'} fillOpacity={d.o} />
+
+          {/* Subtle organic ink-wash edge droplets */}
+          <g filter="url(#akifWashFineEdge)">
+            {WASH_SPATTER.map((d, i) => (
+              <circle
+                key={i}
+                cx={d.x}
+                cy={d.y}
+                r={d.r}
+                fill={isDark ? '#6D788C' : '#9EB4DC'}
+                fillOpacity={d.o}
+              />
             ))}
           </g>
         </g>
@@ -598,107 +686,129 @@ export function AkifCalligraphyCanvas({
         <g className="akif-lettering-layer" filter="url(#akifCrispBrushEdge)">
           {CALLIGRAPHY_STROKES.map((stroke) => (
             <g key={stroke.id} mask={`url(#akif-stroke-mask-${stroke.id})`}>
-              {/* Primary variable-thickness calligraphy body */}
-              <path d={stroke.body} fill={inkColor} stroke={inkColor} strokeWidth="1.4" strokeLinejoin="round" />
+              {/* Primary variable-thickness chiseled calligraphy silhouette */}
+              <path
+                d={stroke.body}
+                fill={inkColor}
+                stroke={inkColor}
+                strokeWidth="1.2"
+                strokeLinejoin="round"
+              />
 
-              {/* Outer tapered bristle hairs */}
+              {/* Inner tonal wash streaks (provides realistic two-tone indigo brush depth in Light Mode) */}
+              {stroke.innerTonePaths?.map((tPath, tIdx) => (
+                <path
+                  key={`${stroke.id}-tone-${tIdx}`}
+                  d={tPath}
+                  fill="none"
+                  stroke={innerToneColor}
+                  strokeWidth={tIdx % 2 === 0 ? '8.5' : '5.5'}
+                  strokeLinecap="round"
+                  strokeDasharray="42 18 26 14 54 20"
+                  strokeOpacity={isDark ? '0.28' : '0.68'}
+                />
+              ))}
+
+              {/* Outer tapered dry-brush bristle hairs */}
               {stroke.bristles?.map((bPath, bIdx) => (
                 <path
                   key={`${stroke.id}-bristle-${bIdx}`}
                   d={bPath}
                   fill="none"
                   stroke={inkColor}
-                  strokeWidth={bIdx % 2 === 0 ? '2.6' : '1.3'}
+                  strokeWidth={bIdx % 2 === 0 ? '2.8' : '1.5'}
                   strokeLinecap="round"
-                  strokeOpacity={dryBrushOpacity * 0.55}
+                  strokeDasharray={bIdx % 2 === 0 ? '28 5 16 4 36 6' : '18 6 24 4'}
+                  strokeOpacity={dryBrushOpacity * 0.78}
                 />
               ))}
 
-              {/* Internal flying-white (feibai) dry-brush split streaks */}
-              {stroke.drySplits?.slice(0, 1).map((sPath, sIdx) => (
+              {/* Internal flying-white (feibai) dry-brush split cutouts */}
+              {stroke.drySplits?.map((sPath, sIdx) => (
                 <path
                   key={`${stroke.id}-split-${sIdx}`}
                   d={sPath}
                   fill="none"
                   stroke={bgCutoutColor}
-                  strokeWidth="1.8"
+                  strokeWidth={sIdx === 0 ? '2.1' : '1.4'}
                   strokeLinecap="round"
-                  strokeDasharray="34 90 14 60 52 120"
-                  strokeOpacity={Number(isDark ? '0.82' : '0.72') * 0.6}
+                  strokeDasharray="28 46 18 38 36 64"
+                  strokeOpacity={isDark ? '0.78' : '0.68'}
                 />
               ))}
             </g>
           ))}
 
-          {/* Dry-brush stipple ink spray at the right end of F's middle stroke (revealed at >92%) */}
+          {/* Dry-brush stipple foam at the right end of F's middle stroke leading into the brush tip */}
           <g
             style={{
-              opacity: progress > 0.92 ? Math.min(1, (progress - 0.92) / 0.08) : 0,
+              opacity: progress > 0.9 ? Math.min(1, (progress - 0.9) / 0.1) : 0,
             }}
           >
-            <circle cx="526" cy="231" r="2.3" fill={inkColor} fillOpacity="0.88" />
-            <circle cx="533" cy="235" r="1.9" fill={inkColor} fillOpacity="0.78" />
-            <circle cx="539" cy="229" r="1.6" fill={inkColor} fillOpacity="0.82" />
-            <circle cx="544" cy="234" r="2.2" fill={inkColor} fillOpacity="0.9" />
-            <circle cx="549" cy="231" r="1.7" fill={inkColor} fillOpacity="0.75" />
-            <circle cx="553" cy="236" r="1.4" fill={inkColor} fillOpacity="0.7" />
+            {DRY_BRUSH_FOAM.map((dot, idx) => (
+              <circle
+                key={`foam-${idx}`}
+                cx={dot.x}
+                cy={dot.y}
+                r={dot.r}
+                fill={inkColor}
+                fillOpacity={dot.o}
+              />
+            ))}
           </g>
         </g>
 
         {/* =================================================================
             LAYER 3: VERMILION AK / IF SEAL (Separate Asset Layer)
+            Matches the bold carved serif glyphs & stamp border in Reference 3 & 4
             ================================================================= */}
-        <g transform="translate(476, 314)"><g className={`akif-seal-layer ${sealStamped ? 'is-stamped' : ''}`} filter="url(#akifSealRough)">
-          {/* Vermilion stamp block */}
-          <rect
-            x="-37"
-            y="-37"
-            width="74"
-            height="74"
-            rx="6"
-            fill={sealColor}
-          />
-          {/* Subtle single carved stamp border matching Reference 2 */}
-          <rect
-            x="-33.5"
-            y="-33.5"
-            width="67"
-            height="67"
-            rx="4"
-            fill="none"
-            stroke={sealTextColor}
-            strokeWidth="1.35"
-            strokeOpacity="0.78"
-          />
-          {/* Carved 'AK' top row and 'IF' bottom row */}
-          <text
-            x="0"
-            y="-5"
-            textAnchor="middle"
-            fill={sealTextColor}
-            fontFamily="'Playfair Display', Georgia, serif"
-            fontWeight="700"
-            fontSize="24"
-            letterSpacing="2.5"
-          >
-            AK
-          </text>
-          <text
-            x="0"
-            y="23"
-            textAnchor="middle"
-            fill={sealTextColor}
-            fontFamily="'Playfair Display', Georgia, serif"
-            fontWeight="700"
-            fontSize="24"
-            letterSpacing="3.5"
-          >
-            IF
-          </text>
-        </g></g>
+        <g transform="translate(476, 314)">
+          <g className={`akif-seal-layer ${sealStamped ? 'is-stamped' : ''}`} filter="url(#akifSealRough)">
+            {/* Outer vermilion stamp block */}
+            <rect x="-39" y="-39" width="78" height="78" rx="7" fill={sealColor} />
+            {/* Carved inner stamp frame */}
+            <rect
+              x="-34.5"
+              y="-34.5"
+              width="69"
+              height="69"
+              rx="4.5"
+              fill="none"
+              stroke={sealTextColor}
+              strokeWidth="1.75"
+              strokeOpacity="0.88"
+            />
+            {/* Bold carved serif 'AK' top row and 'IF' bottom row filling the seal square */}
+            <text
+              x="0"
+              y="-4"
+              textAnchor="middle"
+              fill={sealTextColor}
+              fontFamily="Georgia, 'Times New Roman', serif"
+              fontWeight="700"
+              fontSize="27"
+              letterSpacing="2.5"
+            >
+              AK
+            </text>
+            <text
+              x="0"
+              y="26"
+              textAnchor="middle"
+              fill={sealTextColor}
+              fontFamily="Georgia, 'Times New Roman', serif"
+              fontWeight="700"
+              fontSize="27"
+              letterSpacing="3.8"
+            >
+              IF
+            </text>
+          </g>
+        </g>
 
         {/* =================================================================
-            LAYER 4: BRUSH TIP, COPPER FERRULE & BAMBOO SHAFT (Separate Asset)
+            LAYER 4: STEEP-ANGLED (~60°) 3D BRUSH TIP, WOOD/COPPER FERRULE & SHAFT
+            Matches the exact angle, scale, and shading in Reference 3 & Reference 4
             ================================================================= */}
         <path
           ref={trailPathRef}
@@ -716,35 +826,65 @@ export function AkifCalligraphyCanvas({
           className={`akif-brush-tip-layer ${pointerInside ? 'is-suppressed' : ''}`}
           style={{ opacity: 0 }}
         >
-          {/* Tapered calligraphy brush bristle head (ivory in dark mode, deep indigo in light mode) */}
+          {/* Soft drop shadow under brush tip */}
+          <ellipse
+            cx="10"
+            cy="-12"
+            rx="16"
+            ry="6"
+            transform="rotate(-58 10 -12)"
+            fill="#000000"
+            fillOpacity={isDark ? '0.45' : '0.18'}
+          />
+
+          {/* Full-bodied calligraphy bristle cone (ivory in dark mode, warm ivory/indigo tip in light mode) */}
           <path
-            d="M -2 2 C 3 0 9 -5 13 -14 C 14 -18 12 -22 8 -23 C 4 -23 0 -18 -3 -10 C -5 -5 -4 0 -2 2 Z"
+            d="M -4 3 C 2 3 10 -1 16 -12 C 19 -17 18 -24 13 -27 C 8 -29 2 -23 -2 -14 C -5 -7 -6 1 -4 3 Z"
+            fill={isDark ? '#F3EDE0' : '#DFC8A8'}
+          />
+          {/* Ink-loaded bristle tip blending into the stroke */}
+          <path
+            d="M -4 3 C 0 3 6 0 11 -7 C 7 -9 2 -8 -2 -3 C -4 0 -5 2 -4 3 Z"
             fill={inkColor}
           />
-          {/* Warm copper/golden-brown ferrule collar matching Reference 2 */}
+
+          {/* 3D Shaded Warm Wood / Copper Ferrule Collar */}
           <path
-            d="M 6 -21 L 13 -17 L 19 -28 L 12 -32 Z"
-            fill="#C87D4B"
+            d="M 8 -24 L 18 -18 L 26 -33 L 16 -39 Z"
+            fill="#B87346"
           />
-          {/* Subtle metallic highlight on copper ferrule */}
+          {/* Left specular highlight along ferrule */}
           <path
-            d="M 8 -22 L 10 -21 L 16 -30 L 14 -31 Z"
-            fill="#E6A473"
+            d="M 9 -25 L 13 -23 L 21 -36 L 17 -38 Z"
+            fill="#E5A575"
+            fillOpacity="0.85"
+          />
+          {/* Dark ring seam between ferrule and shaft */}
+          <path
+            d="M 16 -39 L 26 -33 L 28 -36 L 18 -42 Z"
+            fill="#3A2214"
+          />
+
+          {/* Steep-angled (~60°) Tapered Glossy Bamboo Brush Shaft */}
+          <path
+            d="M 18 -41 L 26 -36 L 64 -112 L 60 -114 Z"
+            fill={isDark ? '#2B2D33' : '#141821'}
+          />
+          {/* Specular rim highlight along the bamboo shaft */}
+          <path
+            d="M 19 -41 L 22 -39 L 62 -113 L 60 -114 Z"
+            fill={isDark ? '#9EA4B0' : '#687285'}
             fillOpacity="0.75"
           />
-          {/* Tapered dark bamboo brush shaft extending upper-right */}
+
+          {/* Secondary hanging loop cord near top of brush handle matching Reference 3 & 4 */}
           <path
-            d="M 13 -31 L 18 -28 L 48 -88 L 45 -90 Z"
-            fill={isDark ? '#7E7D7A' : '#1E2433'}
-          />
-          {/* Fine hanging loop string near top of brush handle matching Reference 2 */}
-          <path
-            d="M 46 -87 C 52 -78 48 -66 40 -58"
+            d="M 52 -88 C 56 -76 48 -62 39 -52"
             fill="none"
-            stroke={isDark ? '#8E8D8A' : '#3A4358'}
-            strokeWidth="1.1"
+            stroke={isDark ? '#8C929E' : '#3A4358'}
+            strokeWidth="1.35"
             strokeLinecap="round"
-            strokeOpacity="0.75"
+            strokeOpacity="0.82"
           />
         </g>
       </svg>
