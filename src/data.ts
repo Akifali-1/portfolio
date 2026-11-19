@@ -1,4 +1,4 @@
-export type ArtifactKind = 'trace' | 'stgt' | 'medgraph' | 'fraud' | 'threat' | 'iot' | 'construction' | 'clinic' | 'spantrace' | 'cafe' | 'waffles'
+type ArtifactKind = 'trace' | 'stgt' | 'medgraph' | 'fraud' | 'threat' | 'iot' | 'construction' | 'clinic' | 'spantrace' | 'cafe' | 'waffles'
 
 export type Project = {
   id: string
@@ -231,7 +231,7 @@ export const exploring = [
 
 /* ---------- Redesign additions ---------- */
 
-export type JourneyStop = {
+type JourneyStop = {
   id: string
   index: string
   label: string
@@ -302,7 +302,7 @@ export const journey: JourneyStop[] = [
   },
 ]
 
-export type ClientSlide = {
+type ClientSlide = {
   projectId: string
   src: string
   title: string
