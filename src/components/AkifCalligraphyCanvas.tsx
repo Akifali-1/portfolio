@@ -1,6 +1,7 @@
 // File: src/components/AkifCalligraphyCanvas.tsx
 import { useEffect, useRef } from 'react'
 import type { PortfolioTheme } from '../hooks/useTheme'
+import { AkifColorReveal } from './AkifColorReveal'
 
 export type WritingStage = 'load' | 'hint' | 'writing' | 'stamped'
 
@@ -729,6 +730,8 @@ export function AkifCalligraphyCanvas({
           />
         </g>
       </svg>
+
+      <AkifColorReveal strokes={CALLIGRAPHY_STROKES} enabled={progress >= 0.995} theme={theme} />
 
       {/* Floating Custom 28px Brush Cursor when hovering interactive desktop canvas */}
       {!isMobile && pointerInside && (

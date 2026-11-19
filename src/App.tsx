@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { BootScreen } from './components/BootScreen'
 import { CommandPalette } from './components/CommandPalette'
 import { CustomCursor } from './components/CustomCursor'
+import { StickyRing } from './components/StickyRing'
 import { CollapseSurface, type CollapseSurfaceHandle } from './components/CollapseSurface'
 import { SectionSweep } from './components/SectionSweep'
 import { Hero } from './components/Hero'
@@ -180,6 +181,7 @@ function App() {
         aria-hidden={collapseState !== 'idle'}
       >
         <CustomCursor />
+        <StickyRing theme={theme} />
         <Navigation
           onCommand={() => {
             setCommandOpen(true)
