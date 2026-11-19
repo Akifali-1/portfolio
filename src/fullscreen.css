@@ -31,7 +31,6 @@ main > section.section-paper.is-sweeping {
   clip-path: circle(0px at 50% 0px);
   will-change: clip-path;
 }
-.boot-curtain-stage.is-revealing { pointer-events: none; }
 
 /* 2. Hero: one screen tall on desktop */
 :root {
@@ -41,24 +40,12 @@ main > section.section-paper.is-sweeping {
 
 @media (min-width: 761px) {
   .hero { height: 100svh; min-height: 620px; }
-  .hero-content {
-    min-height: 0;
-    height: 100%;
-    justify-content: flex-start;
-    padding-top: var(--hero-top);
-    padding-bottom: var(--hero-bottom);
-  }
-  .hero-index { margin-bottom: 14px; }
   /* Halftone name never grows past what fits under the index and above the CTA.
      305px = index + gap + subline (about 230px) + spacing. 0.36 = name height / width. */
-  .hero .halftone-name {
-    width: min(calc(100% - 92px), 940px, max(240px, calc((100svh - var(--hero-top) - var(--hero-bottom) - 305px) / 0.36)));
-  }
 }
 
 @media (max-width: 760px) {
   .hero { height: auto; min-height: 100svh; }
-  .hero-content { min-height: 100svh; }
 }
 
 /* 3. Chapter sections are at least one screen tall */
@@ -242,13 +229,6 @@ main > section.section-paper.is-sweeping {
     min-height: 640px;
   }
 
-  .hero-card-composition {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-    grid-template-rows: 112px 1fr auto 74px;
-    padding: 0 0 0 var(--pad);
-    gap: 0;
-  }
-
   .hero-card-base {
     grid-column: 1 / -1;
     grid-row: 2 / 5;
@@ -267,39 +247,6 @@ main > section.section-paper.is-sweeping {
   /* Stacked layout: DEVELOPER stays on one line in its own row between the
      editorial copy and the dock, so it never overlaps the body text or CTA.
      Size is capped by screen width so the full word always fits. */
-  .hero-outlined-mark {
-    display: flex !important;
-    flex-direction: row;
-    white-space: nowrap;
-    grid-column: 1 / -1;
-    grid-row: 3;
-    align-self: center;
-    margin: 0;
-    padding: 0 var(--pad);
-    font-size: min(110px, calc((100vw - 2 * var(--pad)) / 5.8));
-    line-height: 0.86;
-    opacity: 0.45;
-    transform: translate3d(calc(var(--hero-progress) * -28px), 0, 0);
-  }
-
-  .hero-centerpiece {
-    grid-column: 1 / 6;
-    grid-row: 2 / 3;
-    top: 0;
-    left: 0;
-    width: calc(100% - var(--pad));
-    margin-left: 0;
-    padding: 16px 16px 0;
-    transform: translate3d(0, calc(var(--hero-progress) * -28px), 0);
-  }
-
-  .hero--cards .hero-editorial-column {
-    grid-column: 1 / 6;
-    grid-row: 3 / 4;
-    top: 0;
-    padding: 12px 20px 28px;
-    transform: translate3d(0, calc(var(--hero-progress) * -12px), 0);
-  }
 
   .hero--cards .hero-card-dock {
     grid-column: 1 / -1;
@@ -520,7 +467,6 @@ body {
    ========================================================================== */
 
 /* 1. Same-level alignment for SYSTEM ONLINE (.hero-intro) and [ INITIATE COLLAPSE ] (.hero-collapse-control) */
-.hero--cards .hero-intro,
 .hero-collapse-control {
   position: absolute !important;
   top: 88px !important;
@@ -533,13 +479,6 @@ body {
   align-items: center !important;
   line-height: 1 !important;
   z-index: 10 !important;
-}
-
-.hero--cards .hero-intro {
-  left: var(--pad) !important;
-  right: auto !important;
-  gap: 8px !important;
-  max-width: none !important;
 }
 
 .hero-collapse-control {
@@ -569,19 +508,8 @@ body {
 }
 
 @media (max-width: 1024px) {
-  .hero--cards .hero-intro,
   .hero-collapse-control {
     top: 74px !important;
-  }
-
-  .hero--cards .hero-intro .hero-location {
-    display: none !important;
-  }
-
-  .hero-card-composition {
-    grid-template-rows: auto auto auto auto !important;
-    padding: 104px var(--pad) 24px !important;
-    gap: 20px !important;
   }
 
   .hero-card-pillar {
@@ -591,38 +519,9 @@ body {
     padding: 0 !important;
   }
 
-  .hero-centerpiece {
-    grid-column: 1 / -1 !important;
-    grid-row: 1 !important;
-    align-self: start !important;
-    padding: 16px 16px 8px !important;
-    margin-top: 0 !important;
-    top: 0 !important;
-  }
-
-  .hero--cards .hero-editorial-column {
-    grid-column: 1 / -1 !important;
-    grid-row: 2 !important;
-    padding: 0 16px 20px !important;
-  }
-
   /* Stacked layout: DEVELOPER stays on one line in its own row between the
      editorial copy and the dock, so it never overlaps the body text or CTA.
      Size is capped by screen width so the full word always fits. */
-  .hero-outlined-mark {
-    display: flex !important;
-    flex-direction: row;
-    white-space: nowrap;
-    grid-column: 1 / -1;
-    grid-row: 3;
-    align-self: center;
-    margin: 0;
-    padding: 0 var(--pad);
-    font-size: min(110px, calc((100vw - 2 * var(--pad)) / 5.8));
-    line-height: 0.86;
-    opacity: 0.45;
-    transform: translate3d(calc(var(--hero-progress) * -28px), 0, 0);
-  }
 
   .hero--cards .hero-card-dock {
     grid-column: 1 / -1 !important;
@@ -657,15 +556,9 @@ body {
     height: clamp(500px, 82svh, 700px) !important;
     margin-top: 0 !important;
   }
-
-  .works-strip-wrap,
-  .works-strip {
-    display: none !important;
-  }
 }
 
 @media (max-width: 600px) {
-  .hero--cards .hero-intro,
   .hero-collapse-control {
     top: 68px !important;
     height: 18px !important;
@@ -679,19 +572,6 @@ body {
     height: 18px !important;
     min-height: 18px !important;
     padding: 0 !important;
-  }
-
-  .hero--cards .hero-intro .hero-clock,
-  .hero--cards .hero-intro .hero-location {
-    display: none !important;
-  }
-
-  .hero-card-composition {
-    padding: 98px 0 24px !important;
-  }
-
-  .hero-centerpiece {
-    padding: 16px var(--pad) 8px !important;
   }
 
   .hero-card-base {
@@ -728,11 +608,6 @@ body {
     width: 100% !important;
     height: clamp(480px, 80svh, 660px) !important;
     margin-top: 0 !important;
-  }
-
-  .works-strip-wrap,
-  .works-strip {
-    display: none !important;
   }
 
   .drum-stage {
