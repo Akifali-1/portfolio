@@ -26,8 +26,8 @@ const NO_INTERACTION_FALLBACK_MS = 4200
 export function Hero({
   booted = true,
   reducedMotion,
-  collapseState: _collapseState,
-  onCollapse: _onCollapse,
+  collapseState,
+  onCollapse,
   collapseTargetRef,
   theme,
 }: HeroProps) {
@@ -445,8 +445,27 @@ export function Hero({
       id="top"
       aria-label="Introduction"
     >
-      {/* Preserved collapse target ref for App.tsx compatibility */}
-      <span ref={collapseTargetRef} className="hero-collapse-target" aria-hidden="true" />
+      {/* [ INITIATE COLLAPSE ] sits directly under the Command K / theme controls.
+          collapseTargetRef stays inside it so the collapse animation starts from this button. */}
+      <div className={`hero-collapse-control ${collapseState !== 'idle' ? 'is-collapse-active' : ''}`}>
+        <span ref={collapseTargetRef} className="hero-collapse-target" aria-hidden="true" />
+        <button
+          type="button"
+          className={`hero-collapse-trigger ${collapseState === 'collapsed' ? 'is-collapsed-trigger' : ''}`}
+          onClick={onCollapse}
+          disabled={collapseState !== 'idle'}
+          aria-label="Initiate collapse"
+          data-cursor="COLLAPSE"
+        >
+          <span className="collapse-trigger-copy">
+            <span className="collapse-trigger-label">
+              <span className="collapse-bracket">[</span>
+              <span>INITIATE COLLAPSE</span>
+              <span className="collapse-bracket">]</span>
+            </span>
+          </span>
+        </button>
+      </div>
 
       {/* Sticky Viewport Stage */}
       <div className="hero-calligraphy-viewport">

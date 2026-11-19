@@ -7,6 +7,9 @@ const STORAGE_KEY = 'akif-portfolio-theme'
 function getInitialTheme(): PortfolioTheme {
   if (typeof window === 'undefined') return 'dark'
   try {
+    const params = new URLSearchParams(window.location.search)
+    const paramTheme = params.get('theme')
+    if (paramTheme === 'light' || paramTheme === 'dark') return paramTheme
     const saved = window.localStorage.getItem(STORAGE_KEY)
     if (saved === 'light' || saved === 'dark') return saved
   } catch {

@@ -4,6 +4,10 @@ import type { PortfolioTheme } from '../hooks/useTheme'
 
 export type WritingStage = 'load' | 'hint' | 'writing' | 'stamped'
 
+type Streak = { d: string; w: number; o: number; kind: 'tone' | 'gap' }
+type Hair = { d: string; w: number; o: number }
+type Speck = { x: number; y: number; r: number; o: number }
+
 type StrokeSpec = {
   id: string
   /** Spine path used by the progressive reveal mask and the brush-tip follower */
@@ -12,221 +16,88 @@ type StrokeSpec = {
   maskWidth: number
   /** Relative share of the total 0..1 writing progress */
   weight: number
-  /** Primary chiseled calligraphy silhouette with angular brush-press entries & tapered exits */
+  /** Variable-width brush silhouette with pointed, tapered ends */
   body: string
-  /** Inner tonal brush streaks (gives Light Mode its two-tone indigo ink depth & Dark Mode richness) */
-  innerTonePaths?: string[]
-  /** Outer dry-brush bristle hairs & feathered exit streaks */
-  bristles?: string[]
-  /** Internal flying-white (feibai) dry-brush split cutouts */
-  drySplits?: string[]
+  /** Fine bristle streaks that follow the stroke direction */
+  streaks: Streak[]
+  /** Dry-brush hairs that leave the stroke end */
+  hairs: Hair[]
+  /** Tiny chalk specks near the stroke end */
+  specks: Speck[]
 }
 
 /**
- * Chiseled sumi-e brush paths matching Reference 3 & Reference 4 (viewBox 0 0 680 430).
+ * Authentic AKIF Sumi-e Calligraphy Artwork matching Image 2 Reference.
+ * Direct vector extraction from reference with authentic dry-brush feibai bristle teeth,
+ * chiseled brush-press apex and crossbar on A, flared eagle-wing upper arm on K,
+ * expansive sweeping lower blade on K reaching under I, bold slanted dagger on I,
+ * sweeping top cap on F, and organic wave flick into the brush tip at (554, 234).
  */
 const CALLIGRAPHY_STROKES: StrokeSpec[] = [
-  // 1. Letter 'A' — Left diagonal sweep with notched brush-press apex & frayed dry-brush foot
+  // 1. Letter 'A' — Bold chiseled apex, heavy diagonal legs, sweeping crossbar, frayed dry-brush feet
   {
-    id: 'a-left',
-    weight: 0.12,
-    maskWidth: 68,
-    spine: 'M 192 80 C 150 154 98 258 32 392',
-    body: 'M 182 68 L 194 64 L 204 74 L 200 94 C 158 176 106 274 56 362 L 42 384 L 35 376 L 31 394 L 24 398 L 28 374 L 21 382 L 34 348 C 82 254 134 156 176 82 Z',
-    innerTonePaths: [
-      'M 188 78 C 146 158 96 258 36 376',
-      'M 196 86 C 154 166 104 262 48 364',
+    id: 'a-letter',
+    weight: 0.28,
+    maskWidth: 340,
+    spine: 'M 196 74 C 156 156 106 258 32 386',
+    body: 'M 214.3 81.2 L 207.1 81.2 L 200.0 78.3 L 191.4 79.7 L 187.1 82.6 L 181.4 98.2 L 175.7 108.2 L 170.0 115.3 L 168.6 119.6 L 165.7 122.5 L 162.9 122.5 L 154.3 132.4 L 152.9 135.3 L 152.9 138.1 L 141.4 156.6 L 142.9 159.5 L 141.4 162.3 L 137.1 166.6 L 132.9 175.1 L 134.3 179.4 L 128.6 185.1 L 125.7 192.2 L 122.9 195.1 L 121.4 195.1 L 118.6 205.0 L 110.0 219.3 L 105.7 223.5 L 95.7 226.4 L 90.0 229.2 L 88.6 226.4 L 74.3 233.5 L 70.0 232.1 L 58.6 242.1 L 55.7 252.0 L 48.6 253.4 L 44.3 256.3 L 57.1 253.4 L 57.1 259.1 L 54.3 263.4 L 60.0 260.6 L 62.9 263.4 L 62.9 264.8 L 67.1 266.3 L 72.9 270.5 L 85.7 266.3 L 85.7 269.1 L 82.9 274.8 L 78.6 277.6 L 75.7 281.9 L 75.7 289.0 L 70.0 293.3 L 68.6 296.2 L 68.6 300.4 L 65.7 304.7 L 64.3 311.8 L 61.4 311.8 L 60.0 314.7 L 61.4 317.5 L 57.1 320.4 L 47.1 338.9 L 47.1 341.7 L 48.6 344.6 L 40.0 360.2 L 41.4 357.4 L 45.7 354.5 L 50.0 344.6 L 52.9 341.7 L 55.7 341.7 L 58.6 338.9 L 60.0 338.9 L 64.3 333.2 L 68.6 334.6 L 67.1 330.3 L 72.9 323.2 L 72.9 321.8 L 77.1 321.8 L 78.6 318.9 L 81.4 317.5 L 85.7 311.8 L 91.4 300.4 L 95.7 296.2 L 97.1 291.9 L 102.9 284.8 L 101.4 280.5 L 105.7 280.5 L 102.9 279.1 L 104.3 274.8 L 108.6 274.8 L 105.7 272.0 L 110.0 267.7 L 111.4 263.4 L 115.7 263.4 L 115.7 256.3 L 117.1 253.4 L 121.4 253.4 L 125.7 249.2 L 134.3 246.3 L 137.1 242.1 L 161.4 230.7 L 167.1 232.1 L 172.9 229.2 L 174.3 225.0 L 177.1 225.0 L 181.4 222.1 L 184.3 225.0 L 187.1 240.6 L 187.1 250.6 L 191.4 270.5 L 195.7 277.6 L 195.7 281.9 L 197.1 286.2 L 201.4 290.5 L 201.4 297.6 L 205.7 303.3 L 211.4 307.5 L 211.4 313.2 L 212.9 316.1 L 221.4 318.9 L 222.9 323.2 L 222.9 276.2 L 220.0 272.0 L 220.0 269.1 L 221.4 267.7 L 221.4 262.0 L 217.1 266.3 L 215.7 244.9 L 220.0 242.1 L 220.0 239.2 L 215.7 237.8 L 218.6 213.6 L 221.4 210.7 L 225.7 210.7 L 228.6 209.3 L 234.3 203.6 L 237.1 203.6 L 237.1 190.8 L 234.3 186.5 L 237.1 186.5 L 231.4 186.5 L 228.6 189.4 L 218.6 187.9 L 220.0 172.3 L 215.7 170.9 Z M 185.7 152.4 L 185.7 160.9 L 182.9 168.0 L 184.3 170.9 L 181.4 199.3 L 171.4 202.2 L 168.6 200.8 L 158.6 203.6 L 155.7 206.5 L 148.6 205.0 L 155.7 196.5 L 158.6 190.8 L 160.0 185.1 L 164.3 179.4 L 164.3 176.6 L 168.6 170.9 L 168.6 168.0 L 172.9 160.9 L 180.0 152.4 Z',
+    streaks: [],
+    hairs: [
+      { d: 'M 68 338 C 50 366 32 392 16 410', w: 1.6, o: 0.75 },
+      { d: 'M 52 366 C 38 388 24 406 12 414', w: 1.2, o: 0.65 },
     ],
-    bristles: [
-      'M 184 74 C 142 158 88 268 20 398',
-      'M 194 84 C 152 166 100 272 30 402',
-      'M 76 306 C 54 344 36 376 18 404',
-      'M 90 298 C 68 336 50 368 34 394',
-    ],
-    drySplits: [
-      'M 186 82 C 146 162 94 266 26 392',
-      'M 194 94 C 154 172 104 268 42 380',
-      'M 68 318 C 48 352 34 378 22 398',
+    specks: [
+      { x: 18, y: 412, r: 1.2, o: 0.5 },
     ],
   },
-  // 2. Letter 'A' — Heavy chiseled right vertical-curved spine with sharp basal taper
+
+  // 2. Letter 'K' — Slanted backbone, flared eagle-wing upper arm, sweeping curved blade under I
   {
-    id: 'a-right',
-    weight: 0.12,
-    maskWidth: 66,
-    spine: 'M 186 72 C 178 156 176 252 192 354',
-    body: 'M 172 64 L 188 58 L 208 72 L 210 92 C 198 176 196 258 202 326 L 198 358 L 191 348 L 188 364 L 180 348 C 160 294 156 232 158 172 C 160 118 162 78 172 64 Z',
-    innerTonePaths: [
-      'M 182 74 C 174 160 176 254 190 348',
-      'M 194 80 C 186 164 186 252 196 338',
+    id: 'k-letter',
+    weight: 0.28,
+    maskWidth: 340,
+    spine: 'M 260 100 C 246 186 230 230 388 350',
+    body: 'M 224.3 279.1 L 224.3 321.8 L 231.4 328.9 L 232.9 331.8 L 232.9 336.0 L 235.7 338.9 L 235.7 336.0 L 231.4 330.3 L 230.0 320.4 L 234.3 320.4 L 231.4 314.7 L 227.1 299.0 L 227.1 291.9 L 224.3 284.8 Z M 287.1 109.6 L 284.3 111.1 L 282.9 113.9 L 277.1 115.3 L 275.7 119.6 L 277.1 122.5 L 272.9 129.6 L 272.9 135.3 L 270.0 139.5 L 270.0 142.4 L 272.9 143.8 L 268.6 146.7 L 265.7 152.4 L 265.7 156.6 L 261.4 165.2 L 257.1 179.4 L 260.0 182.3 L 255.7 190.8 L 251.4 190.8 L 250.0 189.4 L 238.6 190.8 L 238.6 193.6 L 245.7 193.6 L 247.1 190.8 L 255.7 192.2 L 254.3 197.9 L 250.0 202.2 L 244.3 202.2 L 238.6 199.3 L 238.6 203.6 L 241.4 203.6 L 244.3 205.0 L 245.7 202.2 L 250.0 205.0 L 248.6 212.2 L 245.7 219.3 L 247.1 229.2 L 244.3 237.8 L 241.4 239.2 L 242.9 243.5 L 240.0 247.7 L 237.1 264.8 L 238.6 269.1 L 237.1 274.8 L 240.0 276.2 L 240.0 279.1 L 237.1 281.9 L 240.0 281.9 L 244.3 287.6 L 241.4 291.9 L 245.7 293.3 L 242.9 299.0 L 245.7 300.4 L 245.7 303.3 L 245.7 299.0 L 254.3 287.6 L 257.1 280.5 L 260.0 264.8 L 265.7 250.6 L 262.9 249.2 L 265.7 236.4 L 268.6 233.5 L 272.9 233.5 L 277.1 237.8 L 280.0 237.8 L 287.1 246.3 L 291.4 247.7 L 291.4 250.6 L 300.0 254.9 L 310.0 263.4 L 314.3 263.4 L 318.6 267.7 L 324.3 269.1 L 328.6 273.4 L 331.4 273.4 L 334.3 276.2 L 337.1 274.8 L 345.7 279.1 L 355.7 286.2 L 357.1 283.3 L 361.4 281.9 L 367.1 286.2 L 374.3 287.6 L 377.1 290.5 L 385.7 291.9 L 388.6 294.7 L 391.4 294.7 L 398.6 299.0 L 401.4 307.5 L 401.4 310.4 L 397.1 313.2 L 394.3 318.9 L 395.7 323.2 L 390.0 327.5 L 388.6 330.3 L 390.0 333.2 L 385.7 338.9 L 385.7 343.1 L 377.1 357.4 L 384.3 346.0 L 390.0 340.3 L 392.9 333.2 L 397.1 330.3 L 400.0 323.2 L 405.7 320.4 L 408.6 316.1 L 408.6 293.3 L 405.7 297.6 L 400.0 297.6 L 397.1 296.2 L 395.7 290.5 L 391.4 290.5 L 385.7 286.2 L 384.3 286.2 L 387.1 283.3 L 384.3 280.5 L 381.4 283.3 L 377.1 279.1 L 377.1 276.2 L 374.3 273.4 L 375.7 260.6 L 378.6 260.6 L 378.6 257.7 L 371.4 257.7 L 371.4 260.6 L 374.3 263.4 L 371.4 272.0 L 360.0 262.0 L 357.1 262.0 L 351.4 254.9 L 341.4 246.3 L 334.3 244.9 L 335.7 242.1 L 325.7 232.1 L 317.1 225.0 L 314.3 225.0 L 304.3 213.6 L 300.0 212.2 L 292.9 206.5 L 292.9 200.8 L 304.3 196.5 L 311.4 195.1 L 308.6 197.9 L 312.9 193.6 L 321.4 190.8 L 330.0 182.3 L 337.1 178.0 L 342.9 172.3 L 342.9 169.4 L 345.7 166.6 L 348.6 166.6 L 351.4 163.7 L 351.4 119.6 L 347.1 123.9 L 347.1 126.7 L 337.1 135.3 L 337.1 139.5 L 334.3 139.5 L 328.6 143.8 L 321.4 153.8 L 308.6 166.6 L 308.6 170.9 L 297.1 180.8 L 298.6 183.7 L 294.3 186.5 L 291.4 190.8 L 285.7 192.2 L 282.9 196.5 L 280.0 192.2 L 282.9 190.8 L 285.7 185.1 L 285.7 182.3 L 290.0 175.1 L 294.3 172.3 L 297.1 165.2 L 297.1 160.9 L 298.6 156.6 L 301.4 153.8 L 302.9 145.2 L 308.6 129.6 L 305.7 125.3 L 298.6 121.0 L 295.7 118.2 L 295.7 115.3 L 290.0 115.3 L 287.1 113.9 Z M 301.4 192.2 L 297.1 196.5 L 290.0 200.8 L 285.7 197.9 L 288.6 195.1 L 292.9 193.6 L 297.1 189.4 Z M 217.1 82.6 L 217.1 170.9 L 220.0 169.4 L 217.1 168.0 L 217.1 163.7 L 218.6 162.3 L 220.0 155.2 L 222.9 153.8 L 220.0 152.4 L 220.0 149.5 L 221.4 148.1 L 222.9 142.4 L 225.7 142.4 L 225.7 138.1 L 228.6 131.0 L 228.6 121.0 L 230.0 116.8 L 232.9 115.3 L 231.4 112.5 L 234.3 108.2 L 234.3 103.9 L 231.4 94.0 L 224.3 88.3 L 220.0 88.3 L 220.0 85.4 Z',
+    streaks: [],
+    hairs: [
+      { d: 'M 358 106 C 372 90 388 76 398 66', w: 1.4, o: 0.7 },
+      { d: 'M 368 332 C 388 346 408 358 424 366', w: 1.6, o: 0.75 },
     ],
-    bristles: [
-      'M 178 70 C 170 162 170 260 188 360',
-      'M 196 76 C 188 166 188 258 196 350',
-    ],
-    drySplits: [
-      'M 184 80 C 176 168 178 258 190 348',
-      'M 192 108 C 186 184 186 264 195 342',
+    specks: [
+      { x: 426, y: 368, r: 1.2, o: 0.5 },
     ],
   },
-  // 3. Letter 'A' — Bold projecting horizontal crossbar with notched left brush attack
+
+  // 3. Letter 'I' — Bold slanted dagger with chiseled angled top cut and tapered blade
   {
-    id: 'a-bar',
-    weight: 0.09,
-    maskWidth: 58,
-    spine: 'M 34 280 C 104 256 176 236 244 226',
-    body: 'M 22 276 L 38 262 C 104 240 174 224 234 220 L 250 226 L 238 234 C 182 248 134 268 86 288 C 54 300 32 296 26 284 L 18 282 Z',
-    innerTonePaths: [
-      'M 32 278 C 102 256 174 236 238 228',
+    id: 'i-letter',
+    weight: 0.16,
+    maskWidth: 220,
+    spine: 'M 392 110 C 374 186 354 256 360 330',
+    body: 'M 404.3 115.3 L 401.4 118.2 L 397.1 128.1 L 397.1 133.8 L 387.1 158.0 L 384.3 178.0 L 381.4 179.4 L 382.9 183.7 L 380.0 192.2 L 377.1 192.2 L 381.4 195.1 L 378.6 197.9 L 377.1 197.9 L 374.3 206.5 L 375.7 210.7 L 372.9 220.7 L 370.0 225.0 L 368.6 233.5 L 370.0 242.1 L 368.6 244.9 L 371.4 256.3 L 380.0 256.3 L 390.0 239.2 L 394.3 226.4 L 392.9 219.3 L 398.6 203.6 L 402.9 200.8 L 401.4 196.5 L 405.7 190.8 L 408.6 180.8 L 408.6 119.6 Z M 357.1 112.5 L 352.9 112.5 L 352.9 163.7 L 355.7 160.9 L 357.1 156.6 L 360.0 153.8 L 362.9 153.8 L 365.7 150.9 L 368.6 145.2 L 371.4 143.8 L 374.3 139.5 L 374.3 131.0 L 370.0 123.9 L 367.1 122.5 L 367.1 119.6 L 364.3 119.6 L 358.6 115.3 Z',
+    streaks: [],
+    hairs: [
+      { d: 'M 356 310 C 354 326 352 342 350 354', w: 1.3, o: 0.65 },
     ],
-    bristles: [
-      'M 20 282 C 94 258 176 236 250 224',
-      'M 32 292 C 104 268 180 242 242 230',
-    ],
-    drySplits: [
-      'M 36 282 C 106 258 178 238 240 226',
+    specks: [
+      { x: 350, y: 358, r: 1.0, o: 0.4 },
     ],
   },
-  // 4. Letter 'K' — Heavy slanted backbone with double-notched top brush press
+
+  // 4. Letter 'F' — Sweeping dry-brush horizontal cap, tall slanted spine, wave flick to brush tip
   {
-    id: 'k-spine',
-    weight: 0.11,
-    maskWidth: 64,
-    spine: 'M 258 110 C 244 188 226 270 222 348',
-    body: 'M 240 100 L 254 92 L 264 102 L 274 98 L 280 116 C 264 166 246 236 236 300 L 230 342 L 224 358 L 218 346 L 214 354 C 204 324 204 278 214 224 C 224 162 230 114 240 100 Z',
-    innerTonePaths: [
-      'M 256 108 C 240 188 224 268 220 342',
+    id: 'f-letter',
+    weight: 0.28,
+    maskWidth: 380,
+    spine: 'M 416 85 C 474 76 500 180 554 234',
+    body: 'M 592.9 220.7 L 591.4 202.2 L 590.0 202.2 L 587.1 199.3 L 587.1 205.0 L 581.4 205.0 L 584.3 206.5 L 584.3 210.7 L 578.6 210.7 L 574.3 209.3 L 568.6 202.2 L 561.4 206.5 L 564.3 212.2 L 561.4 212.2 L 555.7 209.3 L 562.9 213.6 L 570.0 213.6 L 568.6 217.8 L 572.9 220.7 L 575.7 219.3 L 580.0 222.1 L 587.1 222.1 L 588.6 220.7 Z M 570.0 213.6 L 572.9 210.7 L 575.7 215.0 L 572.9 215.0 Z M 415.7 118.2 L 412.9 118.2 L 410.0 119.6 L 411.4 179.4 L 412.9 172.3 L 417.1 169.4 L 418.6 166.6 L 418.6 163.7 L 421.4 159.5 L 421.4 155.2 L 422.9 150.9 L 427.1 145.2 L 427.1 142.4 L 430.0 141.0 L 430.0 135.3 L 424.3 125.3 L 420.0 125.3 L 417.1 122.5 Z M 608.6 91.1 L 600.0 88.3 L 600.0 85.4 L 585.7 82.6 L 580.0 84.0 L 578.6 81.2 L 575.7 81.2 L 574.3 84.0 L 567.1 84.0 L 565.7 81.2 L 560.0 81.2 L 551.4 84.0 L 541.4 84.0 L 531.4 86.9 L 518.6 85.4 L 517.1 86.9 L 510.0 86.9 L 492.9 92.5 L 485.7 92.5 L 474.3 101.1 L 470.0 102.5 L 462.9 101.1 L 452.9 106.8 L 450.0 105.4 L 442.9 112.5 L 440.0 122.5 L 435.7 122.5 L 441.4 123.9 L 445.7 132.4 L 445.7 138.1 L 448.6 139.5 L 451.4 138.1 L 452.9 141.0 L 464.3 136.7 L 464.3 143.8 L 460.0 148.1 L 457.1 153.8 L 455.7 160.9 L 454.3 162.3 L 454.3 172.3 L 450.0 182.3 L 447.1 185.1 L 444.3 185.1 L 441.4 183.7 L 437.1 186.5 L 431.4 186.5 L 424.3 195.1 L 422.9 202.2 L 418.6 202.2 L 410.0 206.5 L 415.7 203.6 L 425.7 205.0 L 427.1 209.3 L 425.7 215.0 L 431.4 219.3 L 437.1 219.3 L 437.1 223.5 L 435.7 227.8 L 432.9 226.4 L 424.3 244.9 L 420.0 257.7 L 421.4 262.0 L 420.0 263.4 L 420.0 267.7 L 414.3 277.6 L 414.3 281.9 L 410.0 289.0 L 410.0 313.2 L 412.9 311.8 L 415.7 313.2 L 418.6 310.4 L 418.6 307.5 L 421.4 306.1 L 424.3 301.9 L 425.7 296.2 L 432.9 289.0 L 435.7 284.8 L 438.6 276.2 L 441.4 273.4 L 445.7 263.4 L 445.7 257.7 L 448.6 256.3 L 451.4 252.0 L 451.4 249.2 L 452.9 246.3 L 451.4 242.1 L 452.9 237.8 L 458.6 226.4 L 462.9 226.4 L 462.9 223.5 L 465.7 220.7 L 467.1 212.2 L 470.0 206.5 L 472.9 203.6 L 478.6 202.2 L 487.1 197.9 L 488.6 200.8 L 491.4 196.5 L 495.7 195.1 L 508.6 196.5 L 510.0 193.6 L 515.7 192.2 L 528.6 192.2 L 534.3 189.4 L 535.7 192.2 L 541.4 192.2 L 541.4 195.1 L 538.6 197.9 L 534.3 197.9 L 541.4 199.3 L 545.7 202.2 L 545.7 197.9 L 560.0 200.8 L 557.1 200.8 L 552.9 192.2 L 555.7 189.4 L 561.4 189.4 L 561.4 192.2 L 560.0 187.9 L 554.3 185.1 L 555.7 180.8 L 562.9 183.7 L 567.1 182.3 L 564.3 179.4 L 561.4 179.4 L 552.9 175.1 L 551.4 170.9 L 544.3 169.4 L 542.9 172.3 L 540.0 172.3 L 537.1 170.9 L 535.7 168.0 L 532.9 166.6 L 531.4 169.4 L 520.0 169.4 L 517.1 166.6 L 512.9 166.6 L 494.3 169.4 L 481.4 173.7 L 477.1 172.3 L 480.0 168.0 L 480.0 165.2 L 484.3 155.2 L 488.6 152.4 L 488.6 146.7 L 491.4 146.7 L 491.4 143.8 L 497.1 131.0 L 497.1 125.3 L 498.6 122.5 L 502.9 119.6 L 524.3 112.5 L 530.0 112.5 L 531.4 113.9 L 535.7 113.9 L 537.1 109.6 L 541.4 109.6 L 542.9 111.1 L 558.6 109.6 L 570.0 105.4 L 578.6 105.4 L 587.1 101.1 L 594.3 101.1 L 595.7 99.7 L 600.0 99.7 L 595.7 98.2 L 594.3 94.0 L 597.1 89.7 L 602.9 91.1 L 604.3 89.7 Z M 414.3 294.7 L 418.6 296.2 L 414.3 304.7 L 411.4 301.9 L 411.4 299.0 L 414.3 296.2 Z M 585.7 86.9 L 587.1 84.0 L 595.7 88.3 Z',
+    streaks: [],
+    hairs: [
+      { d: 'M 588 78 C 606 80 622 84 636 88', w: 1.4, o: 0.7 },
+      { d: 'M 408 320 C 404 336 400 348 396 358', w: 1.4, o: 0.65 },
     ],
-    bristles: [
-      'M 252 106 C 238 188 222 272 218 354',
-      'M 268 114 C 250 192 232 272 228 344',
-    ],
-    drySplits: [
-      'M 258 116 C 242 192 226 270 222 342',
-      'M 266 124 C 250 196 234 268 228 334',
-    ],
-  },
-  // 5. Letter 'K' — Flared upper-right wing with multi-forked dry-brush bristle tips
-  {
-    id: 'k-arm',
-    weight: 0.1,
-    maskWidth: 64,
-    spine: 'M 342 112 C 314 154 274 198 228 234',
-    body: 'M 332 92 L 340 104 L 348 96 L 354 112 L 360 108 L 356 128 C 344 150 312 180 276 210 C 244 236 222 244 218 232 C 224 218 246 196 270 172 C 304 140 324 108 332 92 Z',
-    innerTonePaths: [
-      'M 344 108 C 318 148 280 188 232 228',
-    ],
-    bristles: [
-      'M 336 90 C 320 126 284 172 230 226',
-      'M 348 102 C 324 144 286 188 236 232',
-      'M 358 114 C 330 154 288 196 242 236',
-    ],
-    drySplits: [
-      'M 344 104 C 318 146 280 188 234 228',
-      'M 352 116 C 324 154 286 194 240 232',
-    ],
-  },
-  // 6. Letter 'K' — Sweeping lower-right leg with ragged dry-brush exit tail
-  {
-    id: 'k-leg',
-    weight: 0.11,
-    maskWidth: 64,
-    spine: 'M 224 220 C 266 256 310 300 352 342',
-    body: 'M 214 218 C 216 212 222 210 230 214 C 266 234 302 268 334 306 L 356 336 L 348 338 L 358 352 L 342 346 C 314 334 284 312 254 282 C 224 252 210 232 214 218 Z',
-    innerTonePaths: [
-      'M 226 224 C 268 260 312 302 348 340',
-    ],
-    bristles: [
-      'M 224 226 C 268 264 314 308 356 352',
-      'M 232 218 C 276 256 320 298 360 342',
-    ],
-    drySplits: [
-      'M 230 224 C 274 262 316 304 352 344',
-      'M 262 256 C 296 288 326 318 350 346',
-    ],
-  },
-  // 7. Letter 'I' — Diagonal slash stroke with wide chiseled top head & split dry-brush tail
-  {
-    id: 'i-slash',
-    weight: 0.09,
-    maskWidth: 60,
-    spine: 'M 392 120 C 374 186 354 256 340 328',
-    body: 'M 376 106 L 390 100 L 402 110 L 412 124 C 402 158 384 214 366 272 L 350 320 L 342 338 L 338 326 L 332 336 C 328 314 332 272 344 224 C 356 164 366 116 376 106 Z',
-    innerTonePaths: [
-      'M 390 116 C 372 184 352 256 340 322',
-    ],
-    bristles: [
-      'M 388 112 C 370 184 350 260 338 334',
-      'M 400 120 C 380 190 360 262 346 326',
-    ],
-    drySplits: [
-      'M 392 116 C 374 186 354 258 342 326',
-    ],
-  },
-  // 8. Letter 'F' — Tall dramatic slanted spine descending into a long razor-split tail
-  {
-    id: 'f-spine',
-    weight: 0.11,
-    maskWidth: 66,
-    spine: 'M 444 100 C 416 194 378 298 336 392',
-    body: 'M 426 94 L 444 86 L 462 104 L 460 120 C 434 192 404 274 372 338 L 348 384 L 336 402 L 334 390 L 324 404 L 332 378 C 346 348 362 300 382 242 C 402 170 416 110 426 94 Z',
-    innerTonePaths: [
-      'M 442 104 C 412 196 376 298 338 384',
-      'M 450 114 C 420 202 386 298 348 372',
-    ],
-    bristles: [
-      'M 440 100 C 410 196 372 304 328 402',
-      'M 452 108 C 422 202 384 304 342 392',
-      'M 366 326 C 350 358 336 386 322 408',
-    ],
-    drySplits: [
-      'M 442 106 C 414 198 376 300 334 394',
-      'M 450 116 C 422 204 386 300 346 380',
-    ],
-  },
-  // 9. Letter 'F' — Top sweeping dry-brush cap bar with long parallel feibai bristle streaks
-  {
-    id: 'f-top',
-    weight: 0.08,
-    maskWidth: 60,
-    spine: 'M 418 100 C 474 74 540 64 612 68',
-    body: 'M 408 98 C 406 90 414 84 426 80 C 476 62 540 52 594 58 L 622 64 L 606 67 L 626 72 L 602 74 L 616 79 C 562 82 508 94 462 110 C 428 122 410 112 408 98 Z',
-    innerTonePaths: [
-      'M 426 94 C 484 72 548 64 606 68',
-    ],
-    bristles: [
-      'M 424 90 C 484 68 552 58 624 64',
-      'M 430 102 C 490 80 556 70 618 75',
-      'M 532 60 C 566 56 598 58 628 63',
-      'M 542 70 C 574 68 602 70 624 74',
-      'M 552 78 C 578 77 602 78 618 81',
-    ],
-    drySplits: [
-      'M 434 94 C 492 72 556 64 618 68',
-      'M 484 84 C 536 72 582 68 620 72',
-      'M 526 76 C 562 72 594 74 618 77',
-    ],
-  },
-  // 10. Letter 'F' — Middle horizontal sweep dissolving into dry-brush stipple foam at the brush tip
-  {
-    id: 'f-mid',
-    weight: 0.07,
-    maskWidth: 60,
-    spine: 'M 388 232 C 442 202 496 202 552 234',
-    body: 'M 376 232 L 388 218 C 426 196 472 184 510 200 C 534 210 550 222 556 232 C 550 240 538 242 524 236 C 492 218 458 222 424 238 C 396 250 378 246 376 232 Z',
-    innerTonePaths: [
-      'M 394 228 C 444 202 496 204 546 232',
-    ],
-    bristles: [
-      'M 392 226 C 444 198 496 200 552 230',
-      'M 402 236 C 452 212 502 212 554 236',
-      'M 482 210 C 510 216 536 226 556 234',
-      'M 492 218 C 518 224 540 232 556 238',
-    ],
-    drySplits: [
-      'M 408 228 C 456 204 504 206 552 232',
-      'M 468 212 C 500 216 530 226 552 236',
-      'M 488 220 C 514 226 536 234 554 239',
+    specks: [
+      { x: 638, y: 90, r: 1.2, o: 0.5 },
     ],
   },
 ]
@@ -296,7 +167,7 @@ export function AkifCalligraphyCanvas({
   const trailPointsRef = useRef<Array<{ x: number; y: number }>>([])
 
   const isDark = theme === 'dark'
-  const inkColor = isDark ? '#EDE7D9' : '#182342'
+  const inkColor = isDark ? '#EDE7D9' : '#203359'
   const innerToneColor = isDark ? '#DFD7C4' : '#4A6396'
   const bgCutoutColor = isDark ? '#12161E' : '#DCE4F2'
   const sealColor = isDark ? '#E0583E' : '#C8432C'
@@ -418,18 +289,18 @@ export function AkifCalligraphyCanvas({
           </filter>
 
           {/* Crisp directional sumi-e dry-brush bristle edge filter */}
-          <filter id="akifCrispBrushEdge" x="-6%" y="-6%" width="112%" height="112%">
+          <filter id="akifCrispBrushEdge" x="-5%" y="-5%" width="110%" height="110%">
             <feTurbulence
               type="fractalNoise"
-              baseFrequency="0.045 0.18"
+              baseFrequency="0.04 0.16"
               numOctaves="3"
-              seed="9"
+              seed="11"
               result="bristleNoise"
             />
             <feDisplacementMap
               in="SourceGraphic"
               in2="bristleNoise"
-              scale="3.6"
+              scale="2.0"
               xChannelSelector="R"
               yChannelSelector="G"
             />
@@ -684,56 +555,46 @@ export function AkifCalligraphyCanvas({
             LAYER 2: AKIF CALLIGRAPHY LETTERING WITH DRY-BRUSH FEIBAI STREAKS
             ================================================================= */}
         <g className="akif-lettering-layer" filter="url(#akifCrispBrushEdge)">
-          {CALLIGRAPHY_STROKES.map((stroke) => (
+                    {CALLIGRAPHY_STROKES.map((stroke) => (
             <g key={stroke.id} mask={`url(#akif-stroke-mask-${stroke.id})`}>
-              {/* Primary variable-thickness chiseled calligraphy silhouette */}
-              <path
-                d={stroke.body}
-                fill={inkColor}
-                stroke={inkColor}
-                strokeWidth="1.2"
-                strokeLinejoin="round"
-              />
+              {/* Variable-width brush silhouette */}
+              <path d={stroke.body} fill={inkColor} fillRule="evenodd" />
 
-              {/* Inner tonal wash streaks (provides realistic two-tone indigo brush depth in Light Mode) */}
-              {stroke.innerTonePaths?.map((tPath, tIdx) => (
+              {/* Fine bristle streaks that follow the stroke direction */}
+              {stroke.streaks.map((s, sIdx) => (
                 <path
-                  key={`${stroke.id}-tone-${tIdx}`}
-                  d={tPath}
+                  key={`${stroke.id}-streak-${sIdx}`}
+                  d={s.d}
                   fill="none"
-                  stroke={innerToneColor}
-                  strokeWidth={tIdx % 2 === 0 ? '8.5' : '5.5'}
+                  stroke={s.kind === 'tone' ? innerToneColor : bgCutoutColor}
+                  strokeWidth={s.w}
                   strokeLinecap="round"
-                  strokeDasharray="42 18 26 14 54 20"
-                  strokeOpacity={isDark ? '0.28' : '0.68'}
+                  strokeOpacity={s.kind === 'tone' ? s.o * (isDark ? 0.34 : 0.72) : s.o * (isDark ? 0.9 : 0.5)}
                 />
               ))}
 
-              {/* Outer tapered dry-brush bristle hairs */}
-              {stroke.bristles?.map((bPath, bIdx) => (
+              {/* Dry-brush hairs leaving the stroke end */}
+              {stroke.hairs.map((h, hIdx) => (
                 <path
-                  key={`${stroke.id}-bristle-${bIdx}`}
-                  d={bPath}
+                  key={`${stroke.id}-hair-${hIdx}`}
+                  d={h.d}
                   fill="none"
                   stroke={inkColor}
-                  strokeWidth={bIdx % 2 === 0 ? '2.8' : '1.5'}
+                  strokeWidth={h.w}
                   strokeLinecap="round"
-                  strokeDasharray={bIdx % 2 === 0 ? '28 5 16 4 36 6' : '18 6 24 4'}
-                  strokeOpacity={dryBrushOpacity * 0.78}
+                  strokeOpacity={h.o * dryBrushOpacity}
                 />
               ))}
 
-              {/* Internal flying-white (feibai) dry-brush split cutouts */}
-              {stroke.drySplits?.map((sPath, sIdx) => (
-                <path
-                  key={`${stroke.id}-split-${sIdx}`}
-                  d={sPath}
-                  fill="none"
-                  stroke={bgCutoutColor}
-                  strokeWidth={sIdx === 0 ? '2.1' : '1.4'}
-                  strokeLinecap="round"
-                  strokeDasharray="28 46 18 38 36 64"
-                  strokeOpacity={isDark ? '0.78' : '0.68'}
+              {/* Chalk specks beyond the stroke end */}
+              {stroke.specks.map((sp, spIdx) => (
+                <circle
+                  key={`${stroke.id}-speck-${spIdx}`}
+                  cx={sp.x}
+                  cy={sp.y}
+                  r={sp.r}
+                  fill={inkColor}
+                  fillOpacity={sp.o}
                 />
               ))}
             </g>
@@ -762,7 +623,7 @@ export function AkifCalligraphyCanvas({
             LAYER 3: VERMILION AK / IF SEAL (Separate Asset Layer)
             Matches the bold carved serif glyphs & stamp border in Reference 3 & 4
             ================================================================= */}
-        <g transform="translate(476, 314)">
+        <g transform="translate(534, 295)">
           <g className={`akif-seal-layer ${sealStamped ? 'is-stamped' : ''}`} filter="url(#akifSealRough)">
             {/* Outer vermilion stamp block */}
             <rect x="-39" y="-39" width="78" height="78" rx="7" fill={sealColor} />

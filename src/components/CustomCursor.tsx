@@ -3,6 +3,10 @@ import { useEffect, useRef, useState } from 'react'
 
 type HeroCursorZone = 'default' | 'hidden' | 'hero-cta'
 
+const CTA_SELECTOR = '.hero-cal-btn-primary, .hero-cal-btn-secondary'
+/** Distance (px) around a CTA button where the small ink dot starts to appear */
+const CTA_NEAR_PX = 28
+
 export function CustomCursor() {
   const dotRef = useRef<HTMLDivElement>(null)
   const ringRef = useRef<HTMLDivElement>(null)
@@ -15,6 +19,7 @@ export function CustomCursor() {
     const ring = ringRef.current
     if (!dot || !ring || window.matchMedia('(pointer: coarse)').matches) return
 
+    const root = document.documentElement
     let targetX = -100
     let targetY = -100
     let currentX = targetX
@@ -25,59 +30,76 @@ export function CustomCursor() {
       if (!frame) frame = window.requestAnimationFrame(animate)
     }
 
-    const move = (event: PointerEvent) => {
-      targetX = event.clientX
-      targetY = event.clientY
+    const apply = (zone: HeroCursorZone, nextLabel: string, show: boolean) => {
+      setHeroZone(zone)
+      setLabel(nextLabel)
+      setVisible(show)
+      // Lets CSS hide the system cursor only while the CTA dot/ring is the active cursor
+      root.classList.toggle('is-hero-cta-cursor', zone === 'hero-cta')
+    }
 
-      const targetEl = event.target instanceof Element ? event.target : null
-      const inHero = targetEl?.closest<HTMLElement>('.hero--calligraphy')
+    const isNearCta = (hero: HTMLElement) =>
+      Array.from(hero.querySelectorAll<HTMLElement>(CTA_SELECTOR)).some((btn) => {
+        if (btn.style.pointerEvents === 'none') return false // CTA not revealed yet
+        const r = btn.getBoundingClientRect()
+        return (
+          targetX >= r.left - CTA_NEAR_PX &&
+          targetX <= r.right + CTA_NEAR_PX &&
+          targetY >= r.top - CTA_NEAR_PX &&
+          targetY <= r.bottom + CTA_NEAR_PX
+        )
+      })
 
-      if (inHero) {
-        // 1. Keep brush cursor on the left side exclusive; never show custom cursor while brush is active or in left canvas
-        const inLeftCanvas = targetEl?.closest<HTMLElement>('.hero-calligraphy-left')
-        const brushActive = inHero.classList.contains('is-brush-cursor-active')
-        const inSkipBtn = targetEl?.closest<HTMLElement>('.hero-skip-intro-btn')
+    const resolve = (targetEl: Element | null) => {
+      const hero = targetEl?.closest<HTMLElement>('.hero--calligraphy') ?? null
 
-        // 2. Over the two CTA buttons (Explore my work, About me) or their action row:
-        //    shrink to a small solid ink dot, and expand into a thin labeled ring on button hover
-        const ctaButton = targetEl?.closest<HTMLElement>('.hero-cal-btn-primary, .hero-cal-btn-secondary')
-        const inCtaZone = targetEl?.closest<HTMLElement>('.hero-cal-actions')
-
-        if (inLeftCanvas || brushActive) {
-          setHeroZone('hidden')
-          setLabel('')
-          setVisible(false)
-          schedule()
-          return
-        }
-
-        if (ctaButton || inCtaZone || inSkipBtn) {
-          setHeroZone('hero-cta')
-          setLabel(ctaButton?.dataset.cursor ?? '')
-          setVisible(true)
-          schedule()
-          return
-        }
-
-        // 3. Over body text, eyebrow, pillars, and headline on the right side:
-        //    hide custom cursor and show normal system cursor
-        setHeroZone('hidden')
-        setLabel('')
-        setVisible(false)
-        schedule()
+      // Outside the hero: standard portfolio cursor
+      if (!hero) {
+        const element = targetEl?.closest<HTMLElement>('a, button, [data-cursor]')
+        apply('default', element?.dataset.cursor ?? '', true)
         return
       }
 
-      // Outside hero section: standard portfolio cursor behavior
-      setHeroZone('default')
-      setVisible(true)
-      const element = targetEl?.closest<HTMLElement>('a, button, [data-cursor]')
-      setLabel(element?.dataset.cursor ?? '')
+      // Brush is the only cursor on the left canvas and while it is active
+      const inLeftCanvas = targetEl?.closest('.hero-calligraphy-left')
+      const brushActive = hero.classList.contains('is-brush-cursor-active')
+      if (inLeftCanvas || brushActive) {
+        apply('hidden', '', false)
+        return
+      }
 
+      // CTA buttons: ring + label on the button, small ink dot just around it
+      const ctaButton = targetEl?.closest<HTMLElement>(CTA_SELECTOR)
+      if (ctaButton) {
+        apply('hero-cta', ctaButton.dataset.cursor ?? '', true)
+        return
+      }
+      if (isNearCta(hero)) {
+        apply('hero-cta', '', true)
+        return
+      }
+
+      // Headline, body text, pillars and everything else: system cursor
+      apply('hidden', '', false)
+    }
+
+    const move = (event: PointerEvent) => {
+      targetX = event.clientX
+      targetY = event.clientY
+      resolve(event.target instanceof Element ? event.target : null)
       schedule()
     }
 
-    const leave = () => setVisible(false)
+    // Re-check when the page scrolls under a still pointer
+    const scroll = () => {
+      if (targetX < 0) return
+      resolve(document.elementFromPoint(targetX, targetY))
+    }
+
+    const leave = () => {
+      setVisible(false)
+      root.classList.remove('is-hero-cta-cursor')
+    }
 
     const animate = () => {
       frame = 0
@@ -91,11 +113,14 @@ export function CustomCursor() {
     }
 
     window.addEventListener('pointermove', move)
+    window.addEventListener('scroll', scroll, { passive: true })
     document.documentElement.addEventListener('mouseleave', leave)
     return () => {
       window.removeEventListener('pointermove', move)
+      window.removeEventListener('scroll', scroll)
       document.documentElement.removeEventListener('mouseleave', leave)
       window.cancelAnimationFrame(frame)
+      root.classList.remove('is-hero-cta-cursor')
     }
   }, [])
 
@@ -103,10 +128,7 @@ export function CustomCursor() {
     heroZone === 'hero-cta' ? 'is-hero-cta' : heroZone === 'hidden' ? 'is-hero-hidden' : ''
 
   return (
-    <div
-      className={`cursor-layer ${visible && heroZone !== 'hidden' ? 'is-visible' : ''} ${zoneClass}`}
-      aria-hidden="true"
-    >
+    <div className={`cursor-layer ${visible ? 'is-visible' : ''} ${zoneClass}`} aria-hidden="true">
       <div className={`cursor-dot ${label ? 'is-expanded-ring' : ''}`} ref={dotRef} />
       <div className={`cursor-ring ${label ? 'has-label' : ''}`} ref={ringRef}>
         {label}

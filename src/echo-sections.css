@@ -439,8 +439,8 @@
 .hero-collapse-control .collapse-trigger-label {
   color: var(--muted); font: 9px var(--mono); letter-spacing: 0.1em; transition: color 0.25s;
 }
-.hero-collapse-control .collapse-trigger-label::before { content: '[ '; color: var(--blue); }
-.hero-collapse-control .collapse-trigger-label::after { content: ' ]'; color: var(--blue); }
+.hero-collapse-control .collapse-trigger-label::before { content: none; }
+.hero-collapse-control .collapse-trigger-label::after { content: none; }
 .hero-collapse-control .hero-collapse-trigger:hover .collapse-trigger-label,
 .hero-collapse-control .hero-collapse-trigger:focus-visible .collapse-trigger-label { color: var(--white); }
 

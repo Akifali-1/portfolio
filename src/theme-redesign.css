@@ -461,32 +461,45 @@ html[data-theme='light'] .hero.hero--calligraphy {
   cursor: auto;
 }
 
-/* Custom Cursor Hero Zone Rules:
-   - Hidden over left brush canvas & right-side text/headline/pillars
-   - Small solid ink dot over CTA zone, expanding into a thin labeled ring on CTA hover */
+/* Custom Cursor Hero Zone Rules (see CustomCursor.tsx)
+   - Hidden over the left brush canvas and the right-side text/headline/pillars (system cursor shows)
+   - Small solid ink dot near the two CTA buttons, thin labeled ring when ON a CTA button */
+.cursor-layer {
+  --cursor-ink: #EDE7D9;
+  --cursor-fill: rgba(0, 0, 0, 0.84);
+}
+
+html[data-theme='light'] .cursor-layer {
+  --cursor-ink: #1F2A4D;
+  --cursor-fill: rgba(244, 242, 236, 0.92);
+}
+
 .cursor-layer.is-hero-hidden {
   opacity: 0 !important;
+}
+
+/* While the CTA cursor is active, hide the system cursor so only one cursor is visible */
+html.is-hero-cta-cursor .hero--calligraphy .hero-calligraphy-right,
+html.is-hero-cta-cursor .hero--calligraphy .hero-calligraphy-right * {
+  cursor: none;
 }
 
 .cursor-layer.is-hero-cta .cursor-dot {
   width: 7px;
   height: 7px;
   margin: -3.5px;
-  background: #EDE7D9 !important;
+  background: var(--cursor-ink) !important;
   mix-blend-mode: normal !important;
-  transition: opacity 0.18s ease, transform 0.18s ease;
+  /* never transition transform: JS moves the dot every frame */
+  transition: opacity 0.18s ease;
 }
 
-html[data-theme='light'] .cursor-layer.is-hero-cta .cursor-dot {
-  background: #1F2A4D !important;
-}
-
-/* Hide the center dot when expanded into the labeled ring on CTA hover */
+/* Dot fades out when it expands into the labeled ring */
 .cursor-layer.is-hero-cta .cursor-dot.is-expanded-ring {
   opacity: 0;
 }
 
-/* Over CTA zone without button hover: hide the outer ring so ONLY the small ink dot shows */
+/* Near a CTA but not on it: ONLY the small ink dot shows */
 .cursor-layer.is-hero-cta .cursor-ring:not(.has-label) {
   width: 7px;
   height: 7px;
@@ -496,26 +509,22 @@ html[data-theme='light'] .cursor-layer.is-hero-cta .cursor-dot {
   mix-blend-mode: normal !important;
 }
 
-/* On CTA button hover: expand into a thin 1px ink ring with nav-style mono label ("WORK" / "ABOUT") */
+/* On a CTA button: thin 1px ink ring + nav-style mono label ("WORK" / "ABOUT") */
 .cursor-layer.is-hero-cta .cursor-ring.has-label {
-  width: 56px;
-  height: 56px;
-  margin: -28px;
-  border: 1px solid #EDE7D9 !important;
-  background: rgba(0, 0, 0, 0.72) !important;
-  color: #EDE7D9 !important;
+  width: 52px;
+  height: 52px;
+  margin: -26px;
+  border: 1px solid var(--cursor-ink) !important;
+  background: var(--cursor-fill) !important;
+  color: var(--cursor-ink) !important;
   font-family: var(--mono);
   font-size: 9.5px;
   font-weight: 500;
+  line-height: 1;
   letter-spacing: 0.13em;
+  text-indent: 0.13em;
   text-transform: uppercase;
   mix-blend-mode: normal !important;
-}
-
-html[data-theme='light'] .cursor-layer.is-hero-cta .cursor-ring.has-label {
-  border-color: #1F2A4D !important;
-  background: rgba(244, 242, 236, 0.88) !important;
-  color: #1F2A4D !important;
 }
 
 /* 100svh stage matching viewport height */
@@ -533,7 +542,7 @@ html[data-theme='light'] .cursor-layer.is-hero-cta .cursor-ring.has-label {
 /* Accessible Skip Intro Pill (auto-hides once intro finishes) */
 .hero-skip-intro-btn {
   position: absolute;
-  top: 96px;
+  top: 126px;
   right: var(--pad);
   z-index: 30;
   padding: 5px 12px;
@@ -566,6 +575,62 @@ html[data-theme='light'] .hero-skip-intro-btn:hover,
 html[data-theme='light'] .hero-skip-intro-btn:focus-visible {
   color: #1F2A4D;
   border-color: #2D5BD6;
+}
+
+/* [ INITIATE COLLAPSE ]: quiet mono control directly under Command K / theme toggle matching nav bracket links */
+.hero-collapse-control .hero-collapse-trigger {
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: none !important;
+  box-shadow: none !important;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 0.2s var(--ease);
+}
+
+.hero-collapse-control .collapse-trigger-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: inherit;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+}
+
+.hero-collapse-control .collapse-trigger-label::before,
+.hero-collapse-control .collapse-trigger-label::after {
+  content: none !important;
+}
+
+.hero-collapse-control .collapse-bracket {
+  color: #88b1e0;
+  font-weight: 600;
+  transition: color 0.2s var(--ease);
+}
+
+.hero-collapse-control .hero-collapse-trigger:hover,
+.hero-collapse-control .hero-collapse-trigger:focus-visible {
+  color: var(--white);
+}
+
+.hero-collapse-control .hero-collapse-trigger:hover .collapse-bracket,
+.hero-collapse-control .hero-collapse-trigger:focus-visible .collapse-bracket {
+  color: #D8ECFF;
+}
+
+html[data-theme='light'] .hero-collapse-control .hero-collapse-trigger {
+  color: var(--slate-muted);
+}
+
+html[data-theme='light'] .hero-collapse-control .collapse-bracket {
+  color: #3978E8;
+}
+
+html[data-theme='light'] .hero-collapse-control .hero-collapse-trigger:hover,
+html[data-theme='light'] .hero-collapse-control .hero-collapse-trigger:focus-visible {
+  color: var(--navy);
 }
 
 /* Desktop Two-Column Composition matching Reference 3 & 4 proportions (53.6% / 46.4%) */
@@ -1008,7 +1073,7 @@ html[data-theme='light'] .section-paper .mono-label {
 }
 
 html[data-theme='light'] .boot-paper {
-  background: var(--porcelain);
+  background: #101C35;
 }
 
 /* Section Labels & Accents */
@@ -1665,7 +1730,7 @@ html[data-theme='light'] .cursor-ring.has-label {
   }
 
   .hero-skip-intro-btn {
-    top: 76px;
+    top: 104px;
   }
 
   .hero-calligraphy-grid {
