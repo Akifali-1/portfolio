@@ -205,18 +205,9 @@ export function Hero({
       setStage('load')
       setHintVisible(false)
 
-      // 500–2000ms: Hint brush stroke
+      // 500–2500ms: AKIF writes itself directly on mobile (no hint stroke)
       timers.push(
         window.setTimeout(() => {
-          setStage('hint')
-          setHintVisible(true)
-        }, 500),
-      )
-
-      // 2000–4000ms: AKIF writes itself
-      timers.push(
-        window.setTimeout(() => {
-          setHintVisible(false)
           setStage('writing')
           const proxy = { p: 0 }
           writeTween = gsap.to(proxy, {
@@ -229,17 +220,17 @@ export function Hero({
               setWriteProgress(proxy.p)
             },
           })
-        }, 2000),
+        }, 500),
       )
 
-      // 4000–4600ms: Seal stamps
+      // 2500–3100ms: Seal stamps
       timers.push(
         window.setTimeout(() => {
           completeAndStamp()
-        }, 4000),
+        }, 2500),
       )
 
-      // 4600–8000ms: Eyebrow, headline, description, CTA appear
+      // 3100–6500ms: Eyebrow, headline, description, CTA appear
       timers.push(
         window.setTimeout(() => {
           const introProxy = { p: 0 }
@@ -252,7 +243,7 @@ export function Hero({
               setIntroProgress(maxIntroProgressRef.current)
             },
           })
-        }, 4600),
+        }, 3100),
       )
     }
 

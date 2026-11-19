@@ -1,6 +1,11 @@
 /* Mobile fixes. Imported LAST in App.tsx so it wins over the earlier layered CSS. */
 
 @media (max-width: 900px) {
+  /* Hide the desktop mouse-guidance hint line completely on mobile */
+  .akif-hint-layer {
+    display: none !important;
+  }
+
   /* 1. Sections were forced to 100svh, which leaves large empty bands when content is shorter. */
   .manifesto,
   .work-section,

@@ -493,30 +493,31 @@ export function AkifCalligraphyCanvas({
 
         {/* =================================================================
             STAGE 2 HINT: SINGLE IVORY BRUSH STROKE + "Move to write"
+            (Desktop only: prompts user to interact with mouse)
             ================================================================= */}
-        <g
-          className={`akif-hint-layer ${hintVisible && progress < 0.04 ? 'is-visible' : 'is-hidden'}`}
-          aria-hidden="true"
-        >
-          <path
-            className="akif-hint-stroke"
-            d="M 190 226 C 244 202 324 196 408 214"
-            fill="none"
-            stroke={inkColor}
-            strokeWidth="11"
-            strokeLinecap="round"
-            filter="url(#akifCrispBrushEdge)"
-          />
-          <path
-            className="akif-hint-feather"
-            d="M 198 231 C 254 209 332 204 416 218"
-            fill="none"
-            stroke={inkColor}
-            strokeWidth="3"
-            strokeLinecap="round"
-            strokeOpacity="0.65"
-          />
-          {!isMobile && (
+        {!isMobile && (
+          <g
+            className={`akif-hint-layer ${hintVisible && progress < 0.04 ? 'is-visible' : 'is-hidden'}`}
+            aria-hidden="true"
+          >
+            <path
+              className="akif-hint-stroke"
+              d="M 190 226 C 244 202 324 196 408 214"
+              fill="none"
+              stroke={inkColor}
+              strokeWidth="11"
+              strokeLinecap="round"
+              filter="url(#akifCrispBrushEdge)"
+            />
+            <path
+              className="akif-hint-feather"
+              d="M 198 231 C 254 209 332 204 416 218"
+              fill="none"
+              stroke={inkColor}
+              strokeWidth="3"
+              strokeLinecap="round"
+              strokeOpacity="0.65"
+            />
             <text
               x="302"
               y="268"
@@ -527,8 +528,8 @@ export function AkifCalligraphyCanvas({
             >
               Move to write
             </text>
-          )}
-        </g>
+          </g>
+        )}
 
         {/* =================================================================
             LAYER 2: AKIF CALLIGRAPHY LETTERING WITH DRY-BRUSH FEIBAI STREAKS
