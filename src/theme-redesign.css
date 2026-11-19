@@ -1633,25 +1633,6 @@ html[data-theme='light'] .mobile-navigation-links a span {
   gap: 12px;
 }
 
-.mobile-theme-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 10px;
-  border: 1px solid var(--line);
-  border-radius: 6px;
-  background: transparent;
-  color: inherit;
-  font: 500 9px var(--mono);
-  letter-spacing: 0.1em;
-  cursor: pointer;
-}
-
-html[data-theme='light'] .mobile-theme-pill {
-  border-color: var(--line-navy);
-  color: var(--navy);
-}
-
 /* Custom Cursor Light Mode Fix (No washed-out difference blend on ivory) */
 html[data-theme='light'] .cursor-dot {
   mix-blend-mode: normal !important;
@@ -1681,14 +1662,6 @@ html[data-theme='light'] .cursor-ring.has-label {
 }
 
 @media (max-width: 760px) {
-  .nav-talk-cta span {
-    display: none;
-  }
-
-  .nav-talk-cta {
-    padding: 0 10px;
-    height: 32px;
-  }
 
   .theme-toggle-btn span {
     display: none;
@@ -1762,14 +1735,6 @@ html[data-theme='light'] .cursor-ring.has-label {
   .hero-cal-eyebrow {
     font-size: 10.5px;
     letter-spacing: 0.16em;
-  }
-
-  .hero-cal-headline-primary {
-    font-size: clamp(36px, 9.8vw, 46px);
-  }
-
-  .hero-cal-headline-accent {
-    font-size: clamp(31px, 8.4vw, 40px);
   }
 
   .hero-cal-desc-br {

@@ -47,17 +47,12 @@
 
   /* 4. Mono labels are 8px on phones, which is too small to read. */
   .mono-label,
-  .section-label,
-  .hero-index {
+  .section-label {
     font-size: 10px;
   }
 }
 
 @media (max-width: 600px) {
   /* 5. Telemetry line ran under the collapse control. Drop the clock and keep the status. */
-  .hero-intro .hero-clock,
-  .hero-intro .hero-location {
-    display: none;
-  }
 }
 
