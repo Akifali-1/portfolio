@@ -1,7 +1,9 @@
 // File: src/components/Navigation.tsx
+import { flushSync } from 'react-dom'
 import { Menu, Moon, Sun, X } from 'lucide-react'
 import { siteConfig } from '../data'
 import type { PortfolioTheme } from '../hooks/useTheme'
+import { runInkThemeTransition } from '../lib/inkThemeTransition'
 
 const navigationItems = [
   { label: 'JOURNEY', href: '#journey' },
@@ -30,6 +32,19 @@ export function Navigation({
   theme,
   onToggleTheme,
 }: NavigationProps) {
+  const onToggleClick = (e: React.MouseEvent<HTMLElement>) => {
+    const r = e.currentTarget.getBoundingClientRect()
+    runInkThemeTransition(
+      () => {
+        const nextTheme = theme === 'light' ? 'dark' : 'light'
+        document.documentElement.dataset.theme = nextTheme
+        document.documentElement.style.colorScheme = nextTheme
+        flushSync(() => onToggleTheme())
+      },
+      { x: r.left + r.width / 2, y: r.top + r.height / 2 },
+    )
+  }
+
   return (
     <>
       <header className={`site-nav ${scrolled ? 'is-scrolled' : ''}`}>
@@ -102,7 +117,7 @@ export function Navigation({
           <button
             className="theme-toggle-btn"
             type="button"
-            onClick={onToggleTheme}
+            onClick={onToggleClick}
             aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
             title={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
             data-cursor={theme === 'light' ? 'DARK' : 'LIGHT'}
