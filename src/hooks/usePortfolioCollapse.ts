@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type RefObject } from 'react'
 import { gsap } from 'gsap'
-import type { CollapseAnimationState } from '../components/FallingTechLogos'
+import type { CollapseAnimationState } from '../types/collapse'
 import type { CollapseSurfaceHandle } from '../components/CollapseSurface'
 
 type UsePortfolioCollapseOptions = {

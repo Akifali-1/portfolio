@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent, type RefObject } from 'react'
 import { ArrowRight, Code2, Layers, Share2 } from 'lucide-react'
 import { gsap } from 'gsap'
-import type { CollapseAnimationState } from './FallingTechLogos'
+import type { CollapseAnimationState } from '../types/collapse'
 import { AkifCalligraphyCanvas, type WritingStage } from './AkifCalligraphyCanvas'
 import { HeroWave } from './HeroWave'
 import type { PortfolioTheme } from '../hooks/useTheme'
