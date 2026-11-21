@@ -256,7 +256,13 @@ export function WorksDrum({ items, onSelect, reducedMotion }: WorksDrumProps) {
       })
     }
 
-    const updateCameraMatrices = (fovPx: number, w: number, h: number, xOffset: number) => {
+    const updateCameraMatrices = (
+      fovPx: number,
+      w: number,
+      h: number,
+      xOffset: number,
+      yOffset = 0,
+    ) => {
       const near = 10
       const far = 5000
       const f = (2 * fovPx) / h
@@ -274,7 +280,7 @@ export function WorksDrum({ items, onSelect, reducedMotion }: WorksDrumProps) {
         1, 0, 0, 0,
         0, 1, 0, 0,
         0, 0, 1, 0,
-        xOffset, 0, -fovPx, 1,
+        xOffset, yOffset, -fovPx, 1,
       ])
 
       slots.forEach((slot) => {
@@ -302,7 +308,11 @@ export function WorksDrum({ items, onSelect, reducedMotion }: WorksDrumProps) {
 
       const stepPx = cardH * STEP_GAP
       const radiusPx = clamp(cardW * 0.042, 14, 24)
-      const centerXOffset = !isMobile && w > 1100 ? clamp(w * 0.035, 32, 60) : 0
+
+      const wheelTop = wheel.offsetTop || (isMobile ? h * 0.45 : h * 0.5)
+      const wheelLeft = wheel.offsetLeft || (w * 0.5)
+      const centerYOffset = h / 2 - wheelTop
+      const centerXOffset = !isMobile && w > 1100 ? clamp(w * 0.035, 32, 60) : (wheelLeft - w / 2)
 
       metrics = { w, h, cardW, cardH, stepPx, radiusPx, centerXOffset }
 
@@ -313,7 +323,7 @@ export function WorksDrum({ items, onSelect, reducedMotion }: WorksDrumProps) {
       if (renderer && gl) {
         renderer.dpr = Math.min(window.devicePixelRatio || 1, 2)
         renderer.setSize(w, h)
-        updateCameraMatrices(fovPx, w, h, centerXOffset)
+        updateCameraMatrices(fovPx, w, h, centerXOffset, centerYOffset)
       }
 
       cardRefs.current.forEach((card) => {
@@ -594,7 +604,7 @@ export function WorksDrum({ items, onSelect, reducedMotion }: WorksDrumProps) {
                   role="option"
                   aria-selected={i === active}
                   aria-label={project.title}
-                  className="drum-card"
+                  className={`drum-card ${i === active ? 'is-active' : ''}`}
                   onClick={() => clickCard(i)}
                   onPointerEnter={(event) => hoverCard(i, event)}
                   onPointerLeave={() => window.clearTimeout(ui.current.hoverTimer)}

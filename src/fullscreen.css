@@ -371,7 +371,7 @@ main > section.section-paper.is-sweeping {
   .works-drum {
     display: block !important;
     width: 100% !important;
-    height: clamp(520px, 86svh, 760px) !important;
+    height: 100svh !important;
     margin-top: 0 !important;
   }
 
@@ -382,41 +382,72 @@ main > section.section-paper.is-sweeping {
   }
 
   .drum-wheel {
-    top: 34% !important;
+    top: 45% !important;
     left: 50% !important;
   }
 
   .drum-title {
     top: auto !important;
-    bottom: 44px !important;
+    bottom: clamp(60px, 14svh, 92px) !important;
     left: var(--pad) !important;
     right: var(--pad) !important;
     width: auto !important;
     transform: none !important;
-    padding: 14px 16px;
-    border: 1px solid rgba(5, 5, 5, 0.14);
-    border-radius: 6px;
-    background: rgba(233, 233, 227, 0.9);
-    backdrop-filter: blur(10px);
+    padding: 16px 18px !important;
+    border: 1px solid rgba(5, 5, 5, 0.14) !important;
+    border-radius: 12px !important;
+    background: rgba(255, 255, 255, 0.96) !important;
+    backdrop-filter: blur(12px) !important;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25) !important;
+    cursor: pointer !important;
+    pointer-events: auto !important;
+  }
+
+  .drum-title .mono-label {
+    display: block !important;
+    color: #64748b !important;
+    font-size: 11px !important;
+    letter-spacing: 0.08em !important;
+    margin-bottom: 6px !important;
   }
 
   .drum-title strong {
-    margin-top: 6px;
-    font-size: clamp(22px, 6.5vw, 30px);
+    display: none !important;
   }
 
   .drum-title p {
-    margin-top: 6px;
-    font-size: 12px;
-    -webkit-line-clamp: 2;
+    margin: 0 !important;
+    color: #334155 !important;
+    font-size: 12.5px !important;
+    line-height: 1.45 !important;
+    -webkit-line-clamp: 2 !important;
+    display: -webkit-box !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
   }
 
   .drum-title .text-arrow {
-    margin-top: 10px;
+    display: none !important;
   }
 
   .drum-counter {
-    bottom: 14px !important;
+    bottom: clamp(18px, 4svh, 28px) !important;
+    left: var(--pad) !important;
+    color: rgba(243, 243, 240, 0.6) !important;
+  }
+
+  .works-drum.is-webgl-curved .drum-card .drum-face {
+    border: 1px solid rgba(243, 243, 240, 0.1) !important;
+    border-radius: 18px !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  .works-drum.is-webgl-curved .drum-card[aria-selected='true'] .drum-face,
+  .works-drum.is-webgl-curved .drum-card.is-active .drum-face {
+    border: 1.5px solid rgba(136, 177, 224, 0.85) !important;
+    border-radius: 18px !important;
+    box-shadow: 0 0 24px rgba(77, 124, 255, 0.2) !important;
   }
 }
 
@@ -478,7 +509,8 @@ body {
   display: inline-flex !important;
   align-items: center !important;
   line-height: 1 !important;
-  z-index: 10 !important;
+  z-index: 70 !important;
+  pointer-events: auto !important;
 }
 
 .hero-collapse-control {
@@ -498,6 +530,8 @@ body {
   margin: 0 !important;
   line-height: 1 !important;
   transform: none !important;
+  cursor: pointer !important;
+  pointer-events: auto !important;
 }
 
 .hero-collapse-control .collapse-trigger-copy,
@@ -560,18 +594,21 @@ body {
 
 @media (max-width: 600px) {
   .hero-collapse-control {
-    top: 68px !important;
-    height: 18px !important;
-    min-height: 18px !important;
-    font-size: 8.5px !important;
+    top: 76px !important;
+    height: 38px !important;
+    min-height: 38px !important;
+    font-size: 9.5px !important;
     padding: 0 !important;
     margin: 0 !important;
+    z-index: 70 !important;
   }
 
   .hero-collapse-control .hero-collapse-trigger {
-    height: 18px !important;
-    min-height: 18px !important;
-    padding: 0 !important;
+    height: 38px !important;
+    min-height: 38px !important;
+    padding: 6px 10px !important;
+    touch-action: manipulation !important;
+    -webkit-tap-highlight-color: rgba(77, 124, 255, 0.25) !important;
   }
 
   .hero-card-base {
@@ -606,7 +643,7 @@ body {
   .works-drum {
     display: block !important;
     width: 100% !important;
-    height: clamp(480px, 80svh, 660px) !important;
+    height: 100svh !important;
     margin-top: 0 !important;
   }
 
@@ -618,42 +655,57 @@ body {
 
   .drum-wheel {
     left: 50% !important;
-    top: 36% !important;
+    top: 45% !important;
   }
 
   .drum-title {
     top: auto !important;
-    bottom: 38px !important;
+    bottom: clamp(56px, 13svh, 88px) !important;
     left: var(--pad) !important;
     right: var(--pad) !important;
     width: auto !important;
     transform: none !important;
-    background: rgba(233, 233, 227, 0.92) !important;
-    backdrop-filter: blur(10px) !important;
-    padding: 12px 14px !important;
+    background: rgba(255, 255, 255, 0.96) !important;
+    backdrop-filter: blur(12px) !important;
+    padding: 14px 16px !important;
     border: 1px solid rgba(5, 5, 5, 0.14) !important;
-    border-radius: 6px !important;
+    border-radius: 12px !important;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25) !important;
+    cursor: pointer !important;
+    pointer-events: auto !important;
+  }
+
+  .drum-title .mono-label {
+    display: block !important;
+    color: #64748b !important;
+    font-size: 10.5px !important;
+    letter-spacing: 0.08em !important;
+    margin-bottom: 4px !important;
   }
 
   .drum-title strong {
-    margin-top: 4px !important;
-    font-size: clamp(20px, 6vw, 28px) !important;
+    display: none !important;
   }
 
   .drum-title p {
-    margin-top: 4px !important;
-    font-size: 11.5px !important;
-    line-height: 1.35 !important;
+    margin: 0 !important;
+    color: #334155 !important;
+    font-size: 12px !important;
+    line-height: 1.4 !important;
     -webkit-line-clamp: 2 !important;
+    display: -webkit-box !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
   }
 
   .drum-title .text-arrow {
-    margin-top: 8px !important;
+    display: none !important;
   }
 
   .drum-counter {
-    bottom: 12px !important;
+    bottom: clamp(16px, 3.5svh, 24px) !important;
     left: var(--pad) !important;
+    color: rgba(243, 243, 240, 0.6) !important;
   }
 
   .drum-hint {

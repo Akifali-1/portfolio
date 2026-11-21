@@ -443,7 +443,10 @@ export function Hero({
         <button
           type="button"
           className={`hero-collapse-trigger ${collapseState === 'collapsed' ? 'is-collapsed-trigger' : ''}`}
-          onClick={onCollapse}
+          onClick={(e) => {
+            e.stopPropagation()
+            onCollapse()
+          }}
           disabled={collapseState !== 'idle'}
           aria-label="Initiate collapse"
           data-cursor="COLLAPSE"

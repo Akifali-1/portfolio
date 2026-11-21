@@ -45,72 +45,31 @@ function getSurfaceSourceElements(shell: HTMLElement) {
   )
 }
 
-async function captureViewport(shell: HTMLElement, center: { x: number; y: number }) {
-  const isLight = document.documentElement.dataset.theme === 'light'
+function createFallbackSnapshot(
+  width: number,
+  height: number,
+  isLight: boolean,
+  center: { x: number; y: number },
+) {
+  const canvas = document.createElement('canvas')
+  canvas.width = width
+  canvas.height = height
+  const context = canvas.getContext('2d')
+  if (!context) return canvas
+
   const baseHex = isLight ? '#F7F5F1' : '#101215'
-  const { default: html2canvas } = await import('html2canvas')
-  const width = window.innerWidth
-  const height = window.innerHeight
-  const scrollY = window.scrollY
-  const offscreenElements = new Set<Element>()
-
-  shell.querySelectorAll<HTMLElement>('main > section, .site-footer').forEach((section) => {
-    const rect = section.getBoundingClientRect()
-    if (rect.bottom < -50 || rect.top > height + 50) offscreenElements.add(section)
-  })
-
-  const captured = await html2canvas(shell, {
-    backgroundColor: baseHex,
-    allowTaint: false,
-    imageTimeout: 1500,
-    logging: false,
-    scale: 1,
-    useCORS: true,
-    width,
-    height,
-    windowWidth: width,
-    windowHeight: height,
-    x: 0,
-    y: scrollY,
-    scrollX: 0,
-    scrollY,
-    onclone: (clonedDocument) => {
-      const style = clonedDocument.createElement('style')
-      style.textContent = `
-        .hero, .hero.hero--cards { background: ${baseHex} !important; }
-        .hero-card-base { background: linear-gradient(165deg, #17191e 0%, #121418 58%, #0d0f12 100%) !important; background-color: #121418 !important; }
-        .hero-card-pillar { background: linear-gradient(180deg, #1e222a 0%, #161920 62%, #111317 100%) !important; background-color: #161920 !important; }
-        .hero--cards .hero-card-dock { background: linear-gradient(180deg, #13161c 0%, #101215 100%) !important; background-color: #101215 !important; }
-      `
-      clonedDocument.head.appendChild(style)
-    },
-    ignoreElements: (element) =>
-      offscreenElements.has(element) ||
-      element.classList.contains('hero-collapse-target') ||
-      element.classList.contains('hero-collapse-control') ||
-      element.classList.contains('cursor-layer') ||
-      element.classList.contains('hero-noise') ||
-      element.classList.contains('command-backdrop') ||
-      element.classList.contains('detail-backdrop'),
-  })
-
-  const snapshot = document.createElement('canvas')
-  snapshot.width = width
-  snapshot.height = height
-  const context = snapshot.getContext('2d')
-  if (!context) return captured
-
-  // Fill base with baseHex so no transparent pixels ever show wrong color underneath
   context.fillStyle = baseHex
   context.fillRect(0, 0, width, height)
 
-  const scale = captured.width / Math.max(1, width)
-  const capturedCssHeight = captured.height / scale
-  const sourceY = capturedCssHeight > height + 1 ? Math.min(scrollY, capturedCssHeight - height) : 0
-  context.drawImage(captured, 0, -sourceY * scale, captured.width / scale, captured.height / scale)
-
   const holeRadius = Math.min(76, Math.max(38, Math.min(width, height) * 0.055))
-  const holeGradient = context.createRadialGradient(center.x, center.y, holeRadius * 0.22, center.x, center.y, holeRadius)
+  const holeGradient = context.createRadialGradient(
+    center.x,
+    center.y,
+    holeRadius * 0.22,
+    center.x,
+    center.y,
+    holeRadius,
+  )
   const holeColor = isLight ? 'rgba(247, 245, 241, ' : 'rgba(16, 18, 21, '
   holeGradient.addColorStop(0, `${holeColor}1)`)
   holeGradient.addColorStop(0.58, `${holeColor}0.85)`)
@@ -124,7 +83,109 @@ async function captureViewport(shell: HTMLElement, center: { x: number; y: numbe
   context.fill()
   context.restore()
 
-  return snapshot
+  return canvas
+}
+
+async function captureViewport(shell: HTMLElement, center: { x: number; y: number }) {
+  const isLight = document.documentElement.dataset.theme === 'light'
+  const baseHex = isLight ? '#F7F5F1' : '#101215'
+  const width = window.innerWidth
+  const height = window.innerHeight
+  const scrollY = window.scrollY
+
+  try {
+    const { default: html2canvas } = await import('html2canvas')
+    const offscreenElements = new Set<Element>()
+
+    shell.querySelectorAll<HTMLElement>('main > section, .site-footer').forEach((section) => {
+      const rect = section.getBoundingClientRect()
+      if (rect.bottom < -50 || rect.top > height + 50) offscreenElements.add(section)
+    })
+
+    const capturePromise = html2canvas(shell, {
+      backgroundColor: baseHex,
+      allowTaint: true,
+      imageTimeout: 1200,
+      logging: false,
+      scale: 1,
+      useCORS: true,
+      width,
+      height,
+      windowWidth: width,
+      windowHeight: height,
+      x: 0,
+      y: scrollY,
+      scrollX: 0,
+      scrollY,
+      onclone: (clonedDocument) => {
+        const style = clonedDocument.createElement('style')
+        style.textContent = `
+          .hero, .hero.hero--cards { background: ${baseHex} !important; }
+          .hero-card-base { background: linear-gradient(165deg, #17191e 0%, #121418 58%, #0d0f12 100%) !important; background-color: #121418 !important; }
+          .hero-card-pillar { background: linear-gradient(180deg, #1e222a 0%, #161920 62%, #111317 100%) !important; background-color: #161920 !important; }
+          .hero--cards .hero-card-dock { background: linear-gradient(180deg, #13161c 0%, #101215 100%) !important; background-color: #101215 !important; }
+        `
+        clonedDocument.head.appendChild(style)
+      },
+      ignoreElements: (element) =>
+        offscreenElements.has(element) ||
+        element.tagName === 'CANVAS' ||
+        element.classList.contains('hero-collapse-target') ||
+        element.classList.contains('hero-collapse-control') ||
+        element.classList.contains('cursor-layer') ||
+        element.classList.contains('hero-noise') ||
+        element.classList.contains('command-backdrop') ||
+        element.classList.contains('detail-backdrop'),
+    })
+
+    const timeoutPromise = new Promise<null>((resolve) => setTimeout(() => resolve(null), 1400))
+    const captured = await Promise.race([capturePromise, timeoutPromise])
+
+    if (!captured) {
+      return createFallbackSnapshot(width, height, isLight, center)
+    }
+
+    const snapshot = document.createElement('canvas')
+    snapshot.width = width
+    snapshot.height = height
+    const context = snapshot.getContext('2d')
+    if (!context) return captured
+
+    // Fill base with baseHex so no transparent pixels ever show wrong color underneath
+    context.fillStyle = baseHex
+    context.fillRect(0, 0, width, height)
+
+    const scale = captured.width / Math.max(1, width)
+    const capturedCssHeight = captured.height / scale
+    const sourceY = capturedCssHeight > height + 1 ? Math.min(scrollY, capturedCssHeight - height) : 0
+    context.drawImage(captured, 0, -sourceY * scale, captured.width / scale, captured.height / scale)
+
+    const holeRadius = Math.min(76, Math.max(38, Math.min(width, height) * 0.055))
+    const holeGradient = context.createRadialGradient(
+      center.x,
+      center.y,
+      holeRadius * 0.22,
+      center.x,
+      center.y,
+      holeRadius,
+    )
+    const holeColor = isLight ? 'rgba(247, 245, 241, ' : 'rgba(16, 18, 21, '
+    holeGradient.addColorStop(0, `${holeColor}1)`)
+    holeGradient.addColorStop(0.58, `${holeColor}0.85)`)
+    holeGradient.addColorStop(1, `${holeColor}0)`)
+
+    context.save()
+    context.globalCompositeOperation = 'source-over'
+    context.fillStyle = holeGradient
+    context.beginPath()
+    context.arc(center.x, center.y, holeRadius, 0, Math.PI * 2)
+    context.fill()
+    context.restore()
+
+    return snapshot
+  } catch {
+    return createFallbackSnapshot(width, height, isLight, center)
+  }
 }
 
 export function usePortfolioCollapse({
